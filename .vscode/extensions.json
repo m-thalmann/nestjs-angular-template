@@ -1,0 +1,14 @@
+{
+  "recommendations": [
+    "streetsidesoftware.code-spell-checker",
+    "christian-kohler.path-intellisense",
+    "editorconfig.editorconfig",
+    "esbenp.prettier-vscode",
+    "dbaeumer.vscode-eslint",
+    "YoavBls.pretty-ts-errors",
+    "firsttris.vscode-jest-runner",
+    "angular.ng-template",
+    "formulahendry.auto-rename-tag",
+    "syler.sass-indented"
+  ]
+}
