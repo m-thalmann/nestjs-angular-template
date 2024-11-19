@@ -1,5 +1,4 @@
 import { PaginationMeta } from '@app/shared-types';
-import { Request } from 'express';
 
 export const DEFAULT_PER_PAGE = 20;
 
@@ -13,10 +12,9 @@ export function calculateLastPage(totalAmount: number, pageSize: number): number
   return Math.ceil(totalAmount / pageSize);
 }
 
-export function buildPaginationParams(req: Request): PaginationParams {
-  const page = req.query.page === undefined ? 1 : parseInt(req.query.page as string, 10);
-  const perPage =
-    req.query['per-page'] === undefined ? DEFAULT_PER_PAGE : parseInt(req.query['per-page'] as string, 10);
+export function buildPaginationParams(queryParams: Record<string, string>): PaginationParams {
+  const page = queryParams.page === undefined ? 1 : parseInt(queryParams.page, 10);
+  const perPage = queryParams['per-page'] === undefined ? DEFAULT_PER_PAGE : parseInt(queryParams['per-page'], 10);
 
   const offset = (page - 1) * perPage;
 

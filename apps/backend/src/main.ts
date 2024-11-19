@@ -25,6 +25,7 @@ function setupSwagger(app: INestApplication<unknown>, serverUrl: string): void {
   SwaggerModule.setup('docs', app, documentFactory);
 }
 
+// TODO: add versioning
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule, new FastifyAdapter());
 
