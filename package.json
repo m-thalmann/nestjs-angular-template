@@ -18,6 +18,7 @@
     "@m-thalmann/eslint-config-base": "^0.1.1",
     "@m-thalmann/eslint-config-typescript": "^0.1.1",
     "@m-thalmann/prettier-config": "^1.0.0",
+    "@nestjs/cli": "^10.4.8",
     "@nestjs/schematics": "^10.0.1",
     "@nestjs/testing": "^10.0.2",
     "@nx/eslint": "20.1.2",
@@ -45,6 +46,7 @@
     "lint-staged": "^15.2.10",
     "nx": "20.1.2",
     "prettier": "^3.3.3",
+    "sqlite3": "^5.1.7",
     "swc-loader": "^0.2.6",
     "ts-jest": "^29.1.0",
     "ts-node": "10.9.1",
@@ -60,8 +62,10 @@
     "@nestjs/platform-express": "^10.0.2",
     "@nestjs/platform-fastify": "^10.4.8",
     "@nestjs/swagger": "^8.0.7",
+    "@nestjs/typeorm": "^10.0.2",
     "axios": "^1.6.0",
     "reflect-metadata": "^0.1.13",
-    "rxjs": "^7.8.0"
+    "rxjs": "^7.8.0",
+    "typeorm": "^0.3.20"
   }
 }

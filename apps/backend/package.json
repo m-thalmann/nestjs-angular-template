@@ -1,0 +1,7 @@
+{
+  "name": "@nestjs-angular-template/backend",
+  "scripts": {
+    "migration:run": "npx typeorm migration:run -d ./database/data-source",
+    "migration:revert": "npx typeorm migration:revert -d ./database/data-source"
+  }
+}

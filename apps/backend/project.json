@@ -21,6 +21,29 @@
           "buildTarget": "backend:build:production"
         }
       }
+    },
+    "migration:create": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "{projectRoot}",
+        "commands": ["npx typeorm-ts-node-commonjs migration:create ./src/database/migrations/{args.name}"]
+      }
+    },
+    "migration:run": {
+      "executor": "nx:run-commands",
+      "dependsOn": ["build"],
+      "options": {
+        "cwd": "dist/{projectRoot}",
+        "commands": ["npm run migration:run"]
+      }
+    },
+    "migration:revert": {
+      "executor": "nx:run-commands",
+      "dependsOn": ["build"],
+      "options": {
+        "cwd": "dist/{projectRoot}",
+        "commands": ["npm run migration:revert"]
+      }
     }
   }
 }

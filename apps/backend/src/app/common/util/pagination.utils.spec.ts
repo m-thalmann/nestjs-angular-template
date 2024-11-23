@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-magic-numbers */
 import { buildPaginationMeta, buildPaginationParams, calculateLastPage, DEFAULT_PER_PAGE } from './pagination.utils';
-import { createMockRequest } from './test-utils';
 
 describe('Pagination utils', () => {
   describe('calculateLastPage', () => {
@@ -25,34 +24,34 @@ describe('Pagination utils', () => {
 
   describe('buildPaginationParams', () => {
     it('should return page and per page from query', () => {
-      const req = createMockRequest({ query: { page: '2', 'per-page': '10' } });
+      const query = { page: '2', 'per-page': '10' };
 
-      const result = buildPaginationParams(req);
+      const result = buildPaginationParams(query);
 
       expect(result.page).toBe(2);
       expect(result.perPage).toBe(10);
     });
 
     it('should return default page if not defined', () => {
-      const req = createMockRequest({ query: { 'per-page': '10' } });
+      const query = { 'per-page': '10' };
 
-      const result = buildPaginationParams(req);
+      const result = buildPaginationParams(query);
 
       expect(result.page).toBe(1);
     });
 
     it('should return default per page if not defined', () => {
-      const req = createMockRequest({ query: { page: '1' } });
+      const query = { page: '1' };
 
-      const result = buildPaginationParams(req);
+      const result = buildPaginationParams(query);
 
       expect(result.perPage).toBe(DEFAULT_PER_PAGE);
     });
 
     it('should return offset based on page and per page', () => {
-      const req = createMockRequest({ query: { page: '2', 'per-page': '10' } });
+      const query = { page: '2', 'per-page': '10' };
 
-      const result = buildPaginationParams(req);
+      const result = buildPaginationParams(query);
 
       expect(result.offset).toBe(10);
     });
