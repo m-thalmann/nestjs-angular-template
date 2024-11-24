@@ -1,10 +1,9 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigType } from '@nestjs/config';
-import { TypeOrmModule } from '@nestjs/typeorm';
+import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { resolve } from 'path';
 import { AppController } from './app.controller';
-import appConfig from './common/config/app.config';
-import databaseConfig from './common/config/database.config';
+import { appConfigDefinition, databaseConfigDefinition } from './common/config';
 
 @Module({
   imports: [
@@ -14,17 +13,19 @@ import databaseConfig from './common/config/database.config';
       cache: true,
       envFilePath: resolve(__dirname, '.env'),
 
-      load: [appConfig, databaseConfig],
+      load: [appConfigDefinition, databaseConfigDefinition],
     }),
 
     TypeOrmModule.forRootAsync({
-      imports: [ConfigModule.forFeature(databaseConfig)],
-      inject: [databaseConfig.KEY],
-      useFactory: (dbConfig: ConfigType<typeof databaseConfig>) => ({
-        ...dbConfig,
-        autoLoadEntities: true,
-        synchronize: false,
-      }),
+      imports: [ConfigModule.forFeature(databaseConfigDefinition)],
+      inject: [databaseConfigDefinition.KEY],
+      useFactory: (dbConfig: ConfigType<typeof databaseConfigDefinition>) =>
+        ({
+          ...dbConfig,
+          autoLoadEntities: true,
+          synchronize: false,
+          migrationsRun: false,
+        }) satisfies TypeOrmModuleOptions,
     }),
   ],
   controllers: [AppController],

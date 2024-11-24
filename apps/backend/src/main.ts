@@ -4,8 +4,8 @@ import { NestFactory } from '@nestjs/core';
 import { FastifyAdapter } from '@nestjs/platform-fastify';
 import { DocumentBuilder, OpenAPIObject, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app/app.module';
-import appConfigDefinition from './app/common/config/app.config';
-import { PaginationMetaDto } from './app/common/dto/pagination-meta.dto';
+import { appConfigDefinition } from './app/common/config';
+import { PaginationMetaDto } from './app/common/dto';
 
 function setupSwagger(app: INestApplication<unknown>, serverUrl: string): void {
   const config = new DocumentBuilder()

@@ -3,4 +3,4 @@ import { DatabaseConfig as TypeormDatabaseConfig, buildDatabaseConfig } from 'ap
 
 export type DatabaseConfig = TypeormDatabaseConfig;
 
-export default registerAs<DatabaseConfig>('database', () => buildDatabaseConfig());
+export const databaseConfigDefinition = registerAs<DatabaseConfig>('database', () => buildDatabaseConfig());

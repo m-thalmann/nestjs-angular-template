@@ -1,7 +1,7 @@
 import { applyDecorators } from '@nestjs/common';
 import { ApiQuery, getSchemaPath } from '@nestjs/swagger';
 import { SchemaObject } from '@nestjs/swagger/dist/interfaces/open-api-spec.interface';
-import { PaginationMetaDto } from '../dto/pagination-meta.dto';
+import { PaginationMetaDto } from '../dto';
 
 export function getResponseSchema(
   // eslint-disable-next-line @typescript-eslint/ban-types
