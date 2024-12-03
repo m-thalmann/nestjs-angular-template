@@ -1,5 +1,4 @@
-import { applyDecorators } from '@nestjs/common';
-import { ApiQuery, getSchemaPath } from '@nestjs/swagger';
+import { getSchemaPath } from '@nestjs/swagger';
 import { SchemaObject } from '@nestjs/swagger/dist/interfaces/open-api-spec.interface';
 import { PaginationMetaDto } from '../dto';
 
@@ -43,21 +42,4 @@ export function getResponseSchema(
     properties,
     required,
   };
-}
-
-export function ApiPaginationQueryParams(): ReturnType<typeof applyDecorators> {
-  return applyDecorators(
-    ApiQuery({
-      name: 'page',
-      schema: { type: 'integer', minimum: 1 },
-      required: false,
-      description: 'Page of the paginated items (starts with 1)',
-    }),
-    ApiQuery({
-      name: 'per-page',
-      schema: { type: 'integer', minimum: 1 },
-      required: false,
-      description: 'Amount of items per page',
-    }),
-  );
 }

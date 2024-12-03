@@ -1,5 +1,8 @@
-import { ApiResponse } from '@app/shared-types';
-import { Body, Controller, Delete, Get, NotFoundException, Param, Patch, Post } from '@nestjs/common';
+import { ApiResponse, PaginatedApiResponse } from '@app/shared-types';
+import { Body, Controller, Delete, Get, NotFoundException, Param, Patch, Post, Query } from '@nestjs/common';
+import { ApiCreatedResponse, ApiExtraModels, ApiNotFoundResponse, ApiOkResponse, ApiOperation } from '@nestjs/swagger';
+import { ApiPaginationQueryParams, ApiValidationErrorResponse } from '../common/decorators';
+import { buildPaginationParams, getResponseSchema } from '../common/util';
 import { UniqueValidator } from '../common/validation';
 import { CreateUserDto } from './dto/create-user.dto';
 import { PatchUserDto } from './dto/patch-user.dto';
@@ -8,6 +11,7 @@ import { UserEntity } from './user.entity';
 import { UsersService } from './users.service';
 
 @Controller('users')
+@ApiExtraModels(User)
 export class UsersController {
   constructor(
     private readonly usersService: UsersService,
@@ -17,6 +21,11 @@ export class UsersController {
   // TODO: add authorization / guard / policies
 
   @Post()
+  @ApiOperation({ summary: 'Create a user' })
+  @ApiCreatedResponse({
+    schema: getResponseSchema(User),
+  })
+  @ApiValidationErrorResponse()
   async create(@Body() createUserDto: CreateUserDto): Promise<ApiResponse<User>> {
     const user = await this.usersService.create(createUserDto);
 
@@ -24,13 +33,25 @@ export class UsersController {
   }
 
   @Get()
-  async findAll(): Promise<ApiResponse<Array<User>>> {
-    const users = await this.usersService.findAll();
+  @ApiOperation({ summary: 'Return all users' })
+  @ApiPaginationQueryParams()
+  @ApiOkResponse({
+    schema: getResponseSchema(User, { isArray: true, hasPagination: true }),
+  })
+  async findAll(@Query() queryParams: Record<string, string>): Promise<PaginatedApiResponse<Array<User>>> {
+    const paginationParams = buildPaginationParams(queryParams);
 
-    return { data: this.usersService.buildDtoArray(users) };
+    const { users, paginationMeta } = await this.usersService.findAll({ pagination: paginationParams });
+
+    return { data: this.usersService.buildDtoArray(users), meta: paginationMeta };
   }
 
   @Get(':uuid')
+  @ApiOperation({ summary: 'Return a user by UUID' })
+  @ApiOkResponse({
+    schema: getResponseSchema(User),
+  })
+  @ApiNotFoundResponse()
   async findOne(@Param('uuid') uuid: string): Promise<ApiResponse<User>> {
     const user = await this.resolveUser(uuid);
 
@@ -38,6 +59,12 @@ export class UsersController {
   }
 
   @Patch(':uuid')
+  @ApiOperation({ summary: 'Update a user by UUID' })
+  @ApiOkResponse({
+    schema: getResponseSchema(User),
+  })
+  @ApiNotFoundResponse()
+  @ApiValidationErrorResponse()
   async update(@Param('uuid') uuid: string, @Body() patchUserDto: PatchUserDto): Promise<ApiResponse<User>> {
     const user = await this.resolveUser(uuid);
 
@@ -56,6 +83,9 @@ export class UsersController {
   }
 
   @Delete(':uuid')
+  @ApiOperation({ summary: 'Delete a user by UUID' })
+  @ApiOkResponse()
+  @ApiNotFoundResponse()
   async remove(@Param('uuid') uuid: string): Promise<void> {
     const user = await this.resolveUser(uuid);
 

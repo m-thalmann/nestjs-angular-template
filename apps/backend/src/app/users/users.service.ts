@@ -1,6 +1,8 @@
+import { PaginationMeta } from '@app/shared-types';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { FindManyOptions, Repository } from 'typeorm';
+import { buildPaginationMeta, convertDateToUnixTimestamp, PaginationParams } from '../common/util';
 import { CreateUserDto } from './dto/create-user.dto';
 import { PatchUserDto } from './dto/patch-user.dto';
 import { User, UserWithTimestamps } from './dto/user.dto';
@@ -13,8 +15,20 @@ export class UsersService {
     private readonly usersRepository: Repository<UserEntity>,
   ) {}
 
-  async findAll(): Promise<Array<UserEntity>> {
-    return await this.usersRepository.find();
+  async findAll(options: {
+    pagination: PaginationParams;
+  }): Promise<{ users: Array<UserEntity>; paginationMeta: PaginationMeta }> {
+    const findOptions: FindManyOptions<UserEntity> = {
+      skip: options.pagination.offset,
+      take: options.pagination.perPage,
+    };
+
+    const users = await this.usersRepository.find(findOptions);
+
+    const total = await this.usersRepository.count();
+    const paginationMeta = buildPaginationMeta(options.pagination, total);
+
+    return { users, paginationMeta };
   }
 
   async findOne(uuid: string): Promise<UserEntity | null> {
@@ -57,9 +71,9 @@ export class UsersService {
     if (withTimestamps) {
       const userWithTimestamps: UserWithTimestamps = {
         ...dto,
-        emailVerifiedAt: user.emailVerifiedAt,
-        createdAt: user.createdAt,
-        updatedAt: user.updatedAt,
+        emailVerifiedAt: user.emailVerifiedAt === null ? null : convertDateToUnixTimestamp(user.emailVerifiedAt),
+        createdAt: convertDateToUnixTimestamp(user.createdAt),
+        updatedAt: convertDateToUnixTimestamp(user.updatedAt),
       };
 
       return userWithTimestamps;
