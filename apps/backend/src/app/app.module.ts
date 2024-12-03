@@ -3,7 +3,9 @@ import { ConfigModule, ConfigType } from '@nestjs/config';
 import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { resolve } from 'path';
 import { AppController } from './app.controller';
+import { CommonModule } from './common/common.module';
 import { appConfigDefinition, databaseConfigDefinition } from './common/config';
+import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [
@@ -27,6 +29,9 @@ import { appConfigDefinition, databaseConfigDefinition } from './common/config';
           migrationsRun: false,
         }) satisfies TypeOrmModuleOptions,
     }),
+
+    CommonModule,
+    UsersModule,
   ],
   controllers: [AppController],
   providers: [],

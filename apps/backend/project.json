@@ -43,6 +43,15 @@
         "cwd": "dist/{projectRoot}",
         "commands": ["npm run migration:revert"]
       }
+    },
+    "migration:fresh": {
+      "executor": "nx:run-commands",
+      "dependsOn": ["build"],
+      "options": {
+        "cwd": "dist/{projectRoot}",
+        "parallel": false,
+        "commands": ["npm run migration:drop-all", "npm run migration:run"]
+      }
     }
   }
 }
