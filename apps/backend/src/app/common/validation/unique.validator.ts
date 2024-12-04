@@ -8,9 +8,9 @@ import {
 } from 'class-validator';
 import { DataSource, EntitySchema, FindOptionsWhere, ObjectLiteral, ObjectType } from 'typeorm';
 
-type EntityClassType<E> = EntitySchema<E> | ObjectType<E> | string;
+export type EntityClassType<E> = EntitySchema<E> | ObjectType<E> | string;
 
-interface UniqueValidationOptions<E> {
+export interface UniqueValidationOptions<E> {
   /**
    * The database column to check. Defaults to the property name
    */
@@ -25,7 +25,7 @@ interface UniqueValidationOptions<E> {
   entityDisplayName?: string;
 }
 
-interface UniqueValidationArguments<E> extends ValidationArguments {
+export interface UniqueValidationArguments<E> extends ValidationArguments {
   constraints: [EntityClassType<E>, UniqueValidationOptions<E> | undefined];
 }
 

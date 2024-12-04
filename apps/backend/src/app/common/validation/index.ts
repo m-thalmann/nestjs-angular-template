@@ -1,1 +1,1 @@
-export * from './unique.validator';
+export { IsUnique, UniqueValidator } from './unique.validator';
