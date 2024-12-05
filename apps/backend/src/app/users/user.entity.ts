@@ -2,7 +2,7 @@ import * as argon2 from 'argon2';
 import { BeforeInsert, BeforeUpdate, Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity('users')
-export class UserEntity {
+export class User {
   @PrimaryGeneratedColumn()
   id!: number;
 

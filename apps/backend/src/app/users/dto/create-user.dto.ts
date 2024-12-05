@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsEmail, IsNotEmpty } from 'class-validator';
 import { IsUnique } from '../../common/validation';
-import { UserEntity } from '../user.entity';
+import { User } from '../user.entity';
 
 export class CreateUserDto {
   @IsNotEmpty()
@@ -13,7 +13,7 @@ export class CreateUserDto {
   readonly name!: string;
 
   @IsEmail()
-  @IsUnique(UserEntity, { entityDisplayName: 'User' })
+  @IsUnique(User, { entityDisplayName: 'User' })
   @ApiProperty({
     type: 'string',
     format: 'email',

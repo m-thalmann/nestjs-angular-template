@@ -1,7 +1,7 @@
 /* eslint-disable max-classes-per-file */
 import { ApiProperty } from '@nestjs/swagger';
 
-export class User {
+export class UserDto {
   @ApiProperty({
     type: 'string',
     format: 'uuid',
@@ -26,7 +26,7 @@ export class User {
   email!: string;
 }
 
-export class UserWithTimestamps extends User {
+export class UserWithTimestampsDto extends UserDto {
   @ApiProperty({
     type: 'integer',
     nullable: true,

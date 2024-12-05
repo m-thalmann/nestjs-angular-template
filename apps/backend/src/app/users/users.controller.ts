@@ -2,16 +2,16 @@ import { ApiResponse, PaginatedApiResponse } from '@app/shared-types';
 import { Body, Controller, Delete, Get, NotFoundException, Param, Patch, Post, Query } from '@nestjs/common';
 import { ApiCreatedResponse, ApiExtraModels, ApiNotFoundResponse, ApiOkResponse, ApiOperation } from '@nestjs/swagger';
 import { ApiPaginationQueryParams, ApiValidationErrorResponse } from '../common/decorators';
-import { buildPaginationParams, getResponseSchema } from '../common/util';
+import { buildDtoArray, buildPaginationParams, getResponseSchema } from '../common/util';
 import { UniqueValidator } from '../common/validation';
 import { CreateUserDto } from './dto/create-user.dto';
 import { PatchUserDto } from './dto/patch-user.dto';
-import { User } from './dto/user.dto';
-import { UserEntity } from './user.entity';
+import { UserDto } from './dto/user.dto';
+import { User } from './user.entity';
 import { UsersService } from './users.service';
 
 @Controller('users')
-@ApiExtraModels(User)
+@ApiExtraModels(UserDto)
 export class UsersController {
   constructor(
     private readonly usersService: UsersService,
@@ -23,10 +23,10 @@ export class UsersController {
   @Post()
   @ApiOperation({ summary: 'Create a user' })
   @ApiCreatedResponse({
-    schema: getResponseSchema(User),
+    schema: getResponseSchema(UserDto),
   })
   @ApiValidationErrorResponse()
-  async create(@Body() createUserDto: CreateUserDto): Promise<ApiResponse<User>> {
+  async create(@Body() createUserDto: CreateUserDto): Promise<ApiResponse<UserDto>> {
     const user = await this.usersService.create(createUserDto);
 
     return { data: this.usersService.buildDto(user) };
@@ -36,23 +36,23 @@ export class UsersController {
   @ApiOperation({ summary: 'Return all users' })
   @ApiPaginationQueryParams()
   @ApiOkResponse({
-    schema: getResponseSchema(User, { isArray: true, hasPagination: true }),
+    schema: getResponseSchema(UserDto, { isArray: true, hasPagination: true }),
   })
-  async findAll(@Query() queryParams: Record<string, string>): Promise<PaginatedApiResponse<Array<User>>> {
+  async findAll(@Query() queryParams: Record<string, string>): Promise<PaginatedApiResponse<Array<UserDto>>> {
     const paginationParams = buildPaginationParams(queryParams);
 
     const { users, paginationMeta } = await this.usersService.findAll({ pagination: paginationParams });
 
-    return { data: this.usersService.buildDtoArray(users), meta: paginationMeta };
+    return { data: buildDtoArray(users, (user) => this.usersService.buildDto(user)), meta: paginationMeta };
   }
 
   @Get(':uuid')
   @ApiOperation({ summary: 'Return a user by UUID' })
   @ApiOkResponse({
-    schema: getResponseSchema(User),
+    schema: getResponseSchema(UserDto),
   })
   @ApiNotFoundResponse()
-  async findOne(@Param('uuid') uuid: string): Promise<ApiResponse<User>> {
+  async findOne(@Param('uuid') uuid: string): Promise<ApiResponse<UserDto>> {
     const user = await this.resolveUser(uuid);
 
     return { data: this.usersService.buildDto(user) };
@@ -61,16 +61,16 @@ export class UsersController {
   @Patch(':uuid')
   @ApiOperation({ summary: 'Update a user by UUID' })
   @ApiOkResponse({
-    schema: getResponseSchema(User),
+    schema: getResponseSchema(UserDto),
   })
   @ApiNotFoundResponse()
   @ApiValidationErrorResponse()
-  async update(@Param('uuid') uuid: string, @Body() patchUserDto: PatchUserDto): Promise<ApiResponse<User>> {
+  async update(@Param('uuid') uuid: string, @Body() patchUserDto: PatchUserDto): Promise<ApiResponse<UserDto>> {
     const user = await this.resolveUser(uuid);
 
     if (patchUserDto.email !== undefined && patchUserDto.email !== user.email) {
       await this.uniqueValidator.validateProperty({
-        entityClass: UserEntity,
+        entityClass: User,
         column: 'email',
         value: patchUserDto.email,
         entityDisplayName: 'User',
@@ -92,7 +92,7 @@ export class UsersController {
     this.usersService.remove(user.uuid);
   }
 
-  private async resolveUser(uuid: string): Promise<UserEntity> {
+  private async resolveUser(uuid: string): Promise<User> {
     const user = await this.usersService.findOne(uuid);
 
     if (user === null) {
