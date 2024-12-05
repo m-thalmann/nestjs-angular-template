@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsNotEmpty } from 'class-validator';
+import { IsBoolean, IsEmail, IsNotEmpty } from 'class-validator';
 import { IsUnique } from '../../common/validation';
 import { User } from '../user.entity';
 
@@ -30,4 +30,11 @@ export class CreateUserDto {
     example: 'password',
   })
   readonly password!: string;
+
+  @IsBoolean()
+  @ApiProperty({
+    type: 'boolean',
+    description: 'Whether the new user is an admin or not',
+  })
+  readonly isAdmin!: boolean;
 }

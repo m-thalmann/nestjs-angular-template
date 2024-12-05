@@ -33,4 +33,13 @@ export class PatchUserDto {
     example: 'password',
   })
   readonly password?: string;
+
+  @IsOptional()
+  @IsNotEmpty()
+  @ApiProperty({
+    type: 'boolean',
+    required: false,
+    description: 'Whether the user is an admin or not',
+  })
+  readonly isAdmin?: boolean;
 }

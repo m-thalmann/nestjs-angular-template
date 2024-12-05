@@ -26,7 +26,13 @@ export class UserDto {
   email!: string;
 }
 
-export class UserWithTimestampsDto extends UserDto {
+export class DetailedUserDto extends UserDto {
+  @ApiProperty({
+    type: 'boolean',
+    description: 'Whether the user is an admin or not',
+  })
+  isAdmin!: boolean;
+
   @ApiProperty({
     type: 'integer',
     nullable: true,

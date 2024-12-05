@@ -21,6 +21,9 @@ export class User {
   @Column('varchar')
   password!: string;
 
+  @Column('boolean', { name: 'is_admin' })
+  isAdmin!: boolean;
+
   @Column('datetime', { name: 'created_at' })
   createdAt!: Date;
 

@@ -5,7 +5,7 @@ import { FindManyOptions, Repository } from 'typeorm';
 import { buildPaginationMeta, convertDateToUnixTimestamp, PaginationParams } from '../common/util';
 import { CreateUserDto } from './dto/create-user.dto';
 import { PatchUserDto } from './dto/patch-user.dto';
-import { UserDto, UserWithTimestampsDto } from './dto/user.dto';
+import { DetailedUserDto, UserDto } from './dto/user.dto';
 import { User } from './user.entity';
 
 @Injectable()
@@ -58,27 +58,28 @@ export class UsersService {
     await this.usersRepository.delete({ uuid });
   }
 
-  buildDto(user: User, withTimestamps?: false): UserDto;
-  buildDto(user: User, withTimestamps: true): UserWithTimestampsDto;
-  buildDto(user: User, withTimestamps: boolean): UserDto | UserWithTimestampsDto;
-  buildDto(user: User, withTimestamps: boolean = false): UserDto | UserWithTimestampsDto {
+  buildDto(user: User, withDetails?: false): UserDto;
+  buildDto(user: User, withDetails: true): DetailedUserDto;
+  buildDto(user: User, withDetails: boolean): DetailedUserDto | UserDto;
+  buildDto(user: User, withDetails: boolean = false): DetailedUserDto | UserDto {
     const dto: UserDto = {
       uuid: user.uuid,
       name: user.name,
       email: user.email,
     };
 
-    if (withTimestamps) {
-      const userWithTimestamps: UserWithTimestampsDto = {
-        ...dto,
-        emailVerifiedAt: user.emailVerifiedAt === null ? null : convertDateToUnixTimestamp(user.emailVerifiedAt),
-        createdAt: convertDateToUnixTimestamp(user.createdAt),
-        updatedAt: convertDateToUnixTimestamp(user.updatedAt),
-      };
-
-      return userWithTimestamps;
+    if (!withDetails) {
+      return dto;
     }
 
-    return dto;
+    const detailedUser: DetailedUserDto = {
+      ...dto,
+      isAdmin: user.isAdmin,
+      emailVerifiedAt: user.emailVerifiedAt === null ? null : convertDateToUnixTimestamp(user.emailVerifiedAt),
+      createdAt: convertDateToUnixTimestamp(user.createdAt),
+      updatedAt: convertDateToUnixTimestamp(user.updatedAt),
+    };
+
+    return detailedUser;
   }
 }

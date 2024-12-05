@@ -39,6 +39,10 @@ export class CreateUsersTable1732359660883 implements MigrationInterface {
             type: 'varchar',
           },
           {
+            name: 'is_admin',
+            type: 'boolean',
+          },
+          {
             name: 'created_at',
             type: 'timestamp',
           },
