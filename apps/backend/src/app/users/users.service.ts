@@ -75,7 +75,7 @@ export class UsersService {
     const detailedUser: DetailedUserDto = {
       ...dto,
       isAdmin: user.isAdmin,
-      emailVerifiedAt: user.emailVerifiedAt === null ? null : convertDateToUnixTimestamp(user.emailVerifiedAt),
+      isEmailVerified: user.isEmailVerified(),
       createdAt: convertDateToUnixTimestamp(user.createdAt),
       updatedAt: convertDateToUnixTimestamp(user.updatedAt),
     };

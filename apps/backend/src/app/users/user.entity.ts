@@ -6,16 +6,16 @@ export class User {
   @PrimaryGeneratedColumn()
   id!: number;
 
-  @Column('uuid', { generated: 'uuid', unique: true })
+  @Column('uuid', { generated: 'uuid' })
   uuid!: string;
 
   @Column('varchar')
   name!: string;
 
-  @Column('varchar', { unique: true })
+  @Column('varchar')
   email!: string;
 
-  @Column('datetime', { name: 'email_verified_at', default: null })
+  @Column('datetime', { name: 'email_verified_at' })
   emailVerifiedAt!: Date | null;
 
   @Column('varchar')
@@ -41,5 +41,9 @@ export class User {
   @BeforeUpdate()
   async beforeUpdate(): Promise<void> {
     this.updatedAt = new Date();
+  }
+
+  isEmailVerified(): boolean {
+    return this.emailVerifiedAt !== null;
   }
 }

@@ -3,8 +3,9 @@ import { ConfigModule, ConfigType } from '@nestjs/config';
 import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { resolve } from 'path';
 import { AppController } from './app.controller';
+import { AuthModule } from './auth/auth.module';
 import { CommonModule } from './common/common.module';
-import { appConfigDefinition, databaseConfigDefinition } from './common/config';
+import { appConfigDefinition, authConfigDefinition, databaseConfigDefinition } from './common/config';
 import { UsersModule } from './users/users.module';
 
 @Module({
@@ -15,7 +16,7 @@ import { UsersModule } from './users/users.module';
       cache: true,
       envFilePath: resolve(__dirname, '.env'),
 
-      load: [appConfigDefinition, databaseConfigDefinition],
+      load: [appConfigDefinition, databaseConfigDefinition, authConfigDefinition],
     }),
 
     TypeOrmModule.forRootAsync({
@@ -32,6 +33,7 @@ import { UsersModule } from './users/users.module';
 
     CommonModule,
     UsersModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [],

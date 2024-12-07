@@ -34,12 +34,10 @@ export class DetailedUserDto extends UserDto {
   isAdmin!: boolean;
 
   @ApiProperty({
-    type: 'integer',
-    nullable: true,
-    description: 'The unix timestamp when the user was created',
-    example: 1733255679,
+    type: 'boolean',
+    description: 'Whether the user has verified their email or not',
   })
-  emailVerifiedAt!: number | null;
+  isEmailVerified!: boolean;
 
   @ApiProperty({
     type: 'integer',
