@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { DetailedUserDto } from '../../users/dto/user.dto';
 
-export class SuccessfulLoginDto {
+export class SuccessfulAuthDto {
   @ApiProperty()
   readonly user!: DetailedUserDto;
 

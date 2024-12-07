@@ -1,6 +1,13 @@
 import { ApiResponse, PaginatedApiResponse } from '@app/shared-types';
 import { Body, Controller, Delete, Get, NotFoundException, Param, Patch, Post, Query } from '@nestjs/common';
-import { ApiCreatedResponse, ApiExtraModels, ApiNotFoundResponse, ApiOkResponse, ApiOperation } from '@nestjs/swagger';
+import {
+  ApiCreatedResponse,
+  ApiExtraModels,
+  ApiNotFoundResponse,
+  ApiOkResponse,
+  ApiOperation,
+  ApiTags,
+} from '@nestjs/swagger';
 import { ApiPaginationQueryParams, ApiValidationErrorResponse } from '../common/decorators';
 import { buildDtoArray, buildPaginationParams, getResponseSchema } from '../common/util';
 import { UniqueValidator } from '../common/validation';
@@ -11,6 +18,7 @@ import { User } from './user.entity';
 import { UsersService } from './users.service';
 
 @Controller('users')
+@ApiTags('Users')
 @ApiExtraModels(UserDto)
 export class UsersController {
   constructor(

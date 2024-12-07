@@ -12,6 +12,7 @@ import { UsersService } from '../users/users.service';
 import { AuthToken } from './auth-token.entity';
 import { AuthService } from './auth.service';
 import { AUTH_TOKEN_TYPES } from './dto/auth-token-type.dto';
+import { SignUpDto } from './dto/sign-up.dto';
 
 class AuthServiceTestClass extends AuthService {
   override async buildTokenPair(
@@ -37,6 +38,7 @@ describe('AuthService', () => {
 
     mockUserService = {
       findOneByEmail: jest.fn(),
+      create: jest.fn(),
     };
 
     mockAuthConfig = {
@@ -101,6 +103,26 @@ describe('AuthService', () => {
       const result = await service.loginUser('test@mail.org', plainPassword);
 
       expect(result).toEqual(user);
+    });
+  });
+
+  describe('signUpUser', () => {
+    it('should create a new user', async () => {
+      const signUpDto: SignUpDto = {
+        name: 'New User',
+        email: 'new@user.org',
+        password: 'password',
+      };
+
+      const expectedUser = new User();
+
+      (mockUserService.create as jest.Mock).mockResolvedValue(expectedUser);
+
+      const result = await service.signUpUser(signUpDto);
+
+      expect(result).toBe(expectedUser);
+
+      expect(mockUserService.create).toHaveBeenCalledWith({ ...signUpDto, isAdmin: false });
     });
   });
 

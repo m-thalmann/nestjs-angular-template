@@ -11,6 +11,7 @@ import { User } from '../users/user.entity';
 import { UsersService } from '../users/users.service';
 import { AuthToken } from './auth-token.entity';
 import { AUTH_TOKEN_TYPES } from './dto/auth-token-type.dto';
+import { SignUpDto } from './dto/sign-up.dto';
 
 const JWT_TOKEN_TYPES = {
   ACCESS: 'access',
@@ -53,6 +54,10 @@ export class AuthService {
     }
 
     return user;
+  }
+
+  async signUpUser(signUpDto: SignUpDto): Promise<User> {
+    return await this.usersService.create({ ...signUpDto, isAdmin: false });
   }
 
   async buildTokenPair(user: User, groupUuid?: string): Promise<{ refreshToken: string; accessToken: string }> {

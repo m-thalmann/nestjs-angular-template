@@ -1,6 +1,8 @@
 import * as argon2 from 'argon2';
 import { BeforeInsert, BeforeUpdate, Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
+// TODO: add validator for secure password
+
 @Entity('users')
 export class User {
   @PrimaryGeneratedColumn()
