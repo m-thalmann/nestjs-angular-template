@@ -8,16 +8,28 @@ import { AppModule } from './app/app.module';
 import { appConfigDefinition } from './app/common/config';
 import { PaginationMetaDto } from './app/common/dto';
 
+// TODO: add unauthorized responses automatically to all guarded routes
 function setupSwagger(app: INestApplication<unknown>, serverUrl: string): void {
   const config = new DocumentBuilder()
     .setTitle('@nestjs-angular-template/source API')
     .setVersion('1.0')
     .addServer(serverUrl)
-    // .addBearerAuth({
-    //   type: 'http',
-    //   description: 'JWT Auth token',
-    //   bearerFormat: 'JWT',
-    // })
+    .addBearerAuth(
+      {
+        type: 'http',
+        description: 'JWT Access token',
+        bearerFormat: 'JWT',
+      },
+      'AccessToken',
+    )
+    .addBearerAuth(
+      {
+        type: 'http',
+        description: 'JWT Refresh token',
+        bearerFormat: 'JWT',
+      },
+      'RefreshToken',
+    )
     .build();
 
   const documentFactory: () => OpenAPIObject = () =>

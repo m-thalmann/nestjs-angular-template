@@ -1,5 +1,7 @@
 /* eslint-disable max-classes-per-file */
 import { ApiProperty } from '@nestjs/swagger';
+import { convertDateToUnixTimestamp } from '../../common/util';
+import { User } from '../user.entity';
 
 export class UserDto {
   @ApiProperty({
@@ -52,4 +54,29 @@ export class DetailedUserDto extends UserDto {
     example: 1733255679,
   })
   updatedAt!: number;
+}
+
+export function buildUserDto(user: User, withDetails?: false): UserDto;
+export function buildUserDto(user: User, withDetails: true): DetailedUserDto;
+export function buildUserDto(user: User, withDetails: boolean): DetailedUserDto | UserDto;
+export function buildUserDto(user: User, withDetails: boolean = false): DetailedUserDto | UserDto {
+  const dto: UserDto = {
+    uuid: user.uuid,
+    name: user.name,
+    email: user.email,
+  };
+
+  if (!withDetails) {
+    return dto;
+  }
+
+  const detailedUser: DetailedUserDto = {
+    ...dto,
+    isAdmin: user.isAdmin,
+    isEmailVerified: user.isEmailVerified(),
+    createdAt: convertDateToUnixTimestamp(user.createdAt),
+    updatedAt: convertDateToUnixTimestamp(user.updatedAt),
+  };
+
+  return detailedUser;
 }

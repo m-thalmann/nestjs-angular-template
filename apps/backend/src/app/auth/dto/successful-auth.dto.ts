@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { DetailedUserDto } from '../../users/dto/user.dto';
+import { DetailedUserDto } from '../../users';
 
 export class SuccessfulAuthDto {
   @ApiProperty()

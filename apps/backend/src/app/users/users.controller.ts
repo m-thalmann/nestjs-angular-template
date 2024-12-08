@@ -1,6 +1,7 @@
 import { ApiResponse, PaginatedApiResponse } from '@app/shared-types';
 import { Body, Controller, Delete, Get, NotFoundException, Param, Patch, Post, Query } from '@nestjs/common';
 import {
+  ApiBearerAuth,
   ApiCreatedResponse,
   ApiExtraModels,
   ApiNotFoundResponse,
@@ -13,12 +14,13 @@ import { buildDtoArray, buildPaginationParams, getResponseSchema } from '../comm
 import { UniqueValidator } from '../common/validation';
 import { CreateUserDto } from './dto/create-user.dto';
 import { PatchUserDto } from './dto/patch-user.dto';
-import { UserDto } from './dto/user.dto';
+import { buildUserDto, UserDto } from './dto/user.dto';
 import { User } from './user.entity';
 import { UsersService } from './users.service';
 
 @Controller('users')
 @ApiTags('Users')
+@ApiBearerAuth('AccessToken')
 @ApiExtraModels(UserDto)
 export class UsersController {
   constructor(
@@ -37,7 +39,7 @@ export class UsersController {
   async create(@Body() createUserDto: CreateUserDto): Promise<ApiResponse<UserDto>> {
     const user = await this.usersService.create(createUserDto);
 
-    return { data: this.usersService.buildDto(user) };
+    return { data: buildUserDto(user) };
   }
 
   @Get()
@@ -51,7 +53,7 @@ export class UsersController {
 
     const { users, paginationMeta } = await this.usersService.findAll({ pagination: paginationParams });
 
-    return { data: buildDtoArray(users, (user) => this.usersService.buildDto(user)), meta: paginationMeta };
+    return { data: buildDtoArray(users, (user) => buildUserDto(user)), meta: paginationMeta };
   }
 
   @Get(':uuid')
@@ -63,7 +65,7 @@ export class UsersController {
   async findOne(@Param('uuid') uuid: string): Promise<ApiResponse<UserDto>> {
     const user = await this.resolveUser(uuid);
 
-    return { data: this.usersService.buildDto(user) };
+    return { data: buildUserDto(user) };
   }
 
   @Patch(':uuid')
@@ -87,7 +89,7 @@ export class UsersController {
 
     const updatedUser = await this.usersService.patch(user, patchUserDto);
 
-    return { data: this.usersService.buildDto(updatedUser) };
+    return { data: buildUserDto(updatedUser) };
   }
 
   @Delete(':uuid')

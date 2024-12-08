@@ -1,5 +1,5 @@
 import { BeforeInsert, Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
-import { User } from '../users/user.entity';
+import { User } from '../users';
 import { AuthTokenType } from './dto/auth-token-type.dto';
 
 @Entity('auth_tokens')
@@ -7,18 +7,18 @@ export class AuthToken {
   @PrimaryGeneratedColumn()
   id!: number;
 
-  @ManyToOne(() => User, undefined, { eager: true })
+  @Column('uuid', { generated: 'uuid' })
+  uuid!: string;
+
+  @ManyToOne(() => User)
   @JoinColumn({ name: 'user_id' })
-  user!: User;
+  user!: Promise<User>;
 
   @Column('varchar')
   name!: string | null;
 
   @Column('varchar')
   type!: AuthTokenType;
-
-  @Column('varchar')
-  token!: string;
 
   @Column('uuid', { name: 'group_uuid' })
   groupUuid!: string | null;
@@ -34,3 +34,5 @@ export class AuthToken {
     this.createdAt = new Date();
   }
 }
+
+// TODO: add schedule to delete expired tokens

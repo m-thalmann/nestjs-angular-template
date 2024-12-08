@@ -46,6 +46,7 @@ export class User {
   }
 
   isEmailVerified(): boolean {
+    // TODO: seems to be true??
     return this.emailVerifiedAt !== null;
   }
 }
