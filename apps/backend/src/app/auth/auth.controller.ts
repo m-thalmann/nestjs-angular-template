@@ -1,18 +1,22 @@
 import { ApiResponse } from '@app/shared-types';
-import { Body, Controller, HttpCode, HttpStatus, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, HttpStatus, Post, UseGuards } from '@nestjs/common';
 import {
+  ApiBearerAuth,
   ApiCreatedResponse,
   ApiExtraModels,
   ApiMethodNotAllowedResponse,
+  ApiNoContentResponse,
   ApiOkResponse,
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
 import { ApiValidationErrorResponse } from '../common/decorators';
 import { getResponseSchema } from '../common/util';
-import { buildUserDto } from '../users';
+import { buildUserDto, DetailedUserDto, User } from '../users';
+import { AuthToken } from './auth-token.entity';
 import { AuthTokenService } from './auth-token.service';
 import { AuthService } from './auth.service';
+import { Auth } from './decorators/auth-decorator';
 import { LoginDto } from './dto/login.dto';
 import { SignUpDto } from './dto/sign-up.dto';
 import { SuccessfulAuthDto } from './dto/successful-auth.dto';
@@ -30,6 +34,18 @@ export class AuthController {
     private readonly authService: AuthService,
     private readonly authTokenService: AuthTokenService,
   ) {}
+
+  @Get()
+  @ApiOperation({ summary: 'Returns the current authenticated user' })
+  @ApiOkResponse({
+    schema: getResponseSchema(DetailedUserDto),
+  })
+  @ApiBearerAuth('AccessToken')
+  async getAuthenticatedUser(@Auth('user') user: User): Promise<ApiResponse<DetailedUserDto>> {
+    return {
+      data: buildUserDto(user, true),
+    };
+  }
 
   @Post('login')
   @HttpCode(HttpStatus.OK)
@@ -76,5 +92,14 @@ export class AuthController {
         refreshToken,
       },
     };
+  }
+
+  @Post('logout')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ summary: 'Logs out the user' })
+  @ApiNoContentResponse()
+  @ApiBearerAuth('AccessToken')
+  async logout(@Auth('authToken') authToken: AuthToken): Promise<void> {
+    await this.authTokenService.logoutToken(authToken);
   }
 }

@@ -26,25 +26,25 @@ export class AuthGuard implements CanActivate {
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    if (this.isPublicRequest(context)) {
-      return true;
-    }
-
     const request = context.switchToHttp().getRequest<FastifyRequest>();
     const token = this.extractTokenFromHeader(request);
 
     if (token === undefined) {
+      if (this.isPublicRequest(context)) {
+        return true;
+      }
+
       throw new UnauthorizedException();
     }
 
     const expectedTokenType = this.getTokenType(context);
 
-    const user = await this.authTokenService.validateToken(token, expectedTokenType);
+    const { user, authToken } = await this.authTokenService.validateToken(token, expectedTokenType);
 
     // @ts-expect-error Add user to request
     request.user = user;
     // @ts-expect-error Add auth token to request
-    request.authToken = token;
+    request.authToken = authToken;
 
     return true;
   }

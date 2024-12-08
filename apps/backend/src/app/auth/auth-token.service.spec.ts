@@ -81,7 +81,7 @@ describe('AuthTokenService', () => {
       service.getRefreshTokenPairTokenFromPayload = jest.fn();
     });
 
-    it('should validate an access token and return the user', async () => {
+    it('should validate an access token and return the user and token', async () => {
       const expectedTokenType = AUTH_TOKEN_TYPES.ACCESS;
       const expectedUser = new User();
       const expectedAuthToken = new AuthToken();
@@ -98,9 +98,10 @@ describe('AuthTokenService', () => {
 
       (service.getTokenFromPayload as jest.Mock).mockResolvedValue(expectedAuthToken);
 
-      const user = await service.validateToken(expectedJwtToken, expectedTokenType);
+      const { user, authToken } = await service.validateToken(expectedJwtToken, expectedTokenType);
 
       expect(user).toBe(expectedUser);
+      expect(authToken).toBe(expectedAuthToken);
 
       expect(mockJwtService.verifyAsync).toHaveBeenCalledTimes(1);
       expect(mockJwtService.verifyAsync).toHaveBeenCalledWith(expectedJwtToken);
@@ -129,9 +130,10 @@ describe('AuthTokenService', () => {
 
       (service.getRefreshTokenPairTokenFromPayload as jest.Mock).mockResolvedValue(expectedAuthToken);
 
-      const user = await service.validateToken(expectedJwtToken, expectedTokenType);
+      const { user, authToken } = await service.validateToken(expectedJwtToken, expectedTokenType);
 
       expect(user).toBe(expectedUser);
+      expect(authToken).toBe(expectedAuthToken);
 
       expect(mockJwtService.verifyAsync).toHaveBeenCalledTimes(1);
       expect(mockJwtService.verifyAsync).toHaveBeenCalledWith(expectedJwtToken);
@@ -391,6 +393,18 @@ describe('AuthTokenService', () => {
 
       expect(refreshTokenPayload.tokenGroupUuid).toBe(groupUuid);
       expect(accessTokenPayload.tokenGroupUuid).toBe(groupUuid);
+    });
+  });
+
+  describe('logoutToken', () => {
+    it('should delete the token', async () => {
+      const authToken = new AuthToken();
+      authToken.id = 42;
+
+      await service.logoutToken(authToken);
+
+      expect(mockAuthTokenRepository.delete).toHaveBeenCalledTimes(1);
+      expect(mockAuthTokenRepository.delete).toHaveBeenCalledWith(authToken.id);
     });
   });
 });

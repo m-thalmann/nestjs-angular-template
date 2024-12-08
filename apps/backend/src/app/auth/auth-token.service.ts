@@ -34,7 +34,7 @@ export class AuthTokenService {
     private readonly jwtService: JwtService,
   ) {}
 
-  async validateToken(token: string, expectedTokenType: AuthTokenType): Promise<User> {
+  async validateToken(token: string, expectedTokenType: AuthTokenType): Promise<{ user: User; authToken: AuthToken }> {
     let payload: JwtTokenPayload<AuthTokenType> | null = null;
 
     try {
@@ -63,7 +63,9 @@ export class AuthTokenService {
       throw new UnauthorizedException();
     }
 
-    return await authToken.user;
+    const user = await authToken.user;
+
+    return { user, authToken };
   }
 
   protected async getTokenFromPayload(
@@ -147,5 +149,9 @@ export class AuthTokenService {
     const accessToken = await this.jwtService.signAsync(accessTokenPayload);
 
     return { refreshToken, accessToken };
+  }
+
+  async logoutToken(authToken: AuthToken): Promise<void> {
+    await this.authTokenRepository.delete(authToken.id);
   }
 }

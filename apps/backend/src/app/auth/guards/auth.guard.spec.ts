@@ -72,11 +72,44 @@ describe('AuthGuard', () => {
     it('should return true if the request is public', async () => {
       const context = buildMockContext();
 
+      guard.extractTokenFromHeader = jest.fn().mockReturnValue(undefined);
       guard.isPublicRequest = jest.fn().mockReturnValue(true);
 
       const result = await guard.canActivate(context);
 
       expect(result).toBe(true);
+
+      // eslint-disable-next-line @typescript-eslint/unbound-method
+      expect(guard.extractTokenFromHeader).toHaveBeenCalledWith(context.switchToHttp().getRequest());
+      // eslint-disable-next-line @typescript-eslint/unbound-method
+      expect(guard.isPublicRequest).toHaveBeenCalledWith(context);
+    });
+
+    it('should validate token if request is public and token is provided', async () => {
+      const context = buildMockContext();
+
+      const expectedJwtToken = 'mock-jwt-token';
+
+      const expectedUser = new User();
+      const expectedAuthToken = new AuthToken();
+
+      guard.extractTokenFromHeader = jest.fn().mockReturnValue(expectedJwtToken);
+      guard.isPublicRequest = jest.fn().mockReturnValue(true);
+
+      mockAuthTokenService.validateToken = jest
+        .fn()
+        .mockResolvedValue({ user: expectedUser, authToken: expectedAuthToken });
+
+      const result = await guard.canActivate(context);
+
+      expect(result).toBe(true);
+
+      expect(mockAuthTokenService.validateToken).toHaveBeenCalledWith(expectedJwtToken, AUTH_TOKEN_TYPES.ACCESS);
+
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+      expect(context.switchToHttp().getRequest().user).toBe(expectedUser);
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+      expect(context.switchToHttp().getRequest().authToken).toBe(expectedAuthToken);
     });
 
     it('should throw an UnauthorizedException if no token is provided', async () => {
@@ -97,16 +130,19 @@ describe('AuthGuard', () => {
       async (expectedTokenType: AuthTokenType) => {
         const context = buildMockContext();
 
-        const expectedUser = new User();
+        const expectedJwtToken = 'mock-jwt-token';
 
-        const expectedToken = new AuthToken();
-        expectedToken.user = Promise.resolve(expectedUser);
+        const expectedUser = new User();
+        const expectedAuthToken = new AuthToken();
+        expectedAuthToken.user = Promise.resolve(expectedUser);
 
         guard.isPublicRequest = jest.fn().mockReturnValue(false);
-        guard.extractTokenFromHeader = jest.fn().mockReturnValue(expectedToken);
+        guard.extractTokenFromHeader = jest.fn().mockReturnValue(expectedJwtToken);
         guard.getTokenType = jest.fn().mockReturnValue(expectedTokenType);
 
-        mockAuthTokenService.validateToken = jest.fn().mockResolvedValue(expectedUser);
+        mockAuthTokenService.validateToken = jest
+          .fn()
+          .mockResolvedValue({ user: expectedUser, authToken: expectedAuthToken });
 
         const result = await guard.canActivate(context);
 
@@ -116,12 +152,12 @@ describe('AuthGuard', () => {
         expect(guard.extractTokenFromHeader).toHaveBeenCalledWith(context.switchToHttp().getRequest());
         // eslint-disable-next-line @typescript-eslint/unbound-method
         expect(guard.getTokenType).toHaveBeenCalledWith(context);
-        expect(mockAuthTokenService.validateToken).toHaveBeenCalledWith(expectedToken, expectedTokenType);
+        expect(mockAuthTokenService.validateToken).toHaveBeenCalledWith(expectedJwtToken, expectedTokenType);
 
         // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         expect(context.switchToHttp().getRequest().user).toBe(expectedUser);
         // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-        expect(context.switchToHttp().getRequest().authToken).toBe(expectedToken);
+        expect(context.switchToHttp().getRequest().authToken).toBe(expectedAuthToken);
       },
     );
 
