@@ -1,6 +1,6 @@
 /* eslint-disable max-lines */
 /* eslint-disable @typescript-eslint/no-magic-numbers */
-import { UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, UnauthorizedException } from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { Test, TestingModule } from '@nestjs/testing';
@@ -311,6 +311,26 @@ describe('AuthTokenService', () => {
       expect(mockAuthTokenRepository.delete).toHaveBeenCalledTimes(1);
       expect(mockAuthTokenRepository.delete).toHaveBeenCalledWith(expectedAuthToken.id);
     });
+
+    it("should return null but not delete tokens with the same group uuid if the token uuid and the payload tokenUuid dont match and the payload type isn't REFRESH_PAIR", async () => {
+      const expectedPayload = {
+        sub: 'userUuid',
+        type: AUTH_TOKEN_TYPES.ACCESS,
+        tokenUuid: 'tokenUuid',
+        tokenGroupUuid: 'groupUuid',
+      };
+
+      const expectedAuthToken = new AuthToken();
+      expectedAuthToken.id = 42;
+      expectedAuthToken.uuid = 'different tokenUuid';
+
+      (mockAuthTokenRepository.findOne as jest.Mock).mockResolvedValue(expectedAuthToken);
+
+      const authToken = await service.getRefreshTokenPairTokenFromPayload(expectedPayload);
+
+      expect(authToken).toBeNull();
+      expect(mockAuthTokenRepository.delete).not.toHaveBeenCalled();
+    });
   });
 
   describe('buildTokenPair', () => {
@@ -393,6 +413,38 @@ describe('AuthTokenService', () => {
 
       expect(refreshTokenPayload.tokenGroupUuid).toBe(groupUuid);
       expect(accessTokenPayload.tokenGroupUuid).toBe(groupUuid);
+    });
+  });
+
+  describe('refreshTokenPair', () => {
+    it('should refresh a token pair', async () => {
+      const expectedUser = new User();
+
+      const authToken = new AuthToken();
+      authToken.id = 42;
+      authToken.groupUuid = 'groupUuid';
+      authToken.user = Promise.resolve(expectedUser);
+
+      const expectedRefreshToken = 'refreshToken';
+      const expectedAccessToken = 'accessToken';
+
+      service.buildTokenPair = jest
+        .fn()
+        .mockResolvedValue({ refreshToken: expectedRefreshToken, accessToken: expectedAccessToken });
+
+      const tokenPair = await service.refreshTokenPair(authToken);
+
+      expect(tokenPair).toEqual({ refreshToken: expectedRefreshToken, accessToken: expectedAccessToken });
+      // eslint-disable-next-line @typescript-eslint/unbound-method
+      expect(service.buildTokenPair).toHaveBeenCalledWith(expectedUser, authToken.groupUuid);
+      expect(mockAuthTokenRepository.delete).toHaveBeenCalledWith(authToken.id);
+    });
+
+    it('should throw a BadRequestException if the token has no group uuid', async () => {
+      const authToken = new AuthToken();
+      authToken.groupUuid = null;
+
+      await expect(service.refreshTokenPair(authToken)).rejects.toThrow(BadRequestException);
     });
   });
 

@@ -17,10 +17,11 @@ import { AuthToken } from './auth-token.entity';
 import { AuthTokenService } from './auth-token.service';
 import { AuthService } from './auth.service';
 import { Auth } from './decorators/auth-decorator';
+import { AUTH_TOKEN_TYPES } from './dto/auth-token-type.dto';
 import { LoginDto } from './dto/login.dto';
 import { SignUpDto } from './dto/sign-up.dto';
 import { SuccessfulAuthDto } from './dto/successful-auth.dto';
-import { Public } from './guards/auth.guard';
+import { Public, UseAuthTokenType } from './guards/auth.guard';
 import { SignUpEnabledGuard } from './guards/sign-up-enabled.guard';
 
 // TODO: add throttling of requests
@@ -84,6 +85,28 @@ export class AuthController {
     const user = await this.authService.signUpUser(signUpDto);
 
     const { accessToken, refreshToken } = await this.authTokenService.buildTokenPair(user);
+
+    return {
+      data: {
+        user: buildUserDto(user, true),
+        accessToken,
+        refreshToken,
+      },
+    };
+  }
+
+  @Post('refresh')
+  @UseAuthTokenType(AUTH_TOKEN_TYPES.REFRESH_PAIR)
+  @ApiOperation({ summary: 'Refreshes the access token' })
+  @ApiCreatedResponse({
+    schema: getResponseSchema(SuccessfulAuthDto),
+  })
+  @ApiBearerAuth('RefreshToken')
+  async refreshToken(
+    @Auth('user') user: User,
+    @Auth('authToken') authToken: AuthToken,
+  ): Promise<ApiResponse<SuccessfulAuthDto>> {
+    const { accessToken, refreshToken } = await this.authTokenService.refreshTokenPair(authToken);
 
     return {
       data: {

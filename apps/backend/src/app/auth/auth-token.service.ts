@@ -1,4 +1,4 @@
-import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -104,9 +104,10 @@ export class AuthTokenService {
     }
 
     if (authToken.uuid !== payload.tokenUuid) {
-      await this.authTokenRepository.delete(authToken.id);
-
-      // TODO: handle detected reuse
+      if (payload.type === AUTH_TOKEN_TYPES.REFRESH_PAIR) {
+        await this.authTokenRepository.delete(authToken.id);
+        // TODO: handle detected reuse
+      }
 
       return null;
     }
@@ -149,6 +150,20 @@ export class AuthTokenService {
     const accessToken = await this.jwtService.signAsync(accessTokenPayload);
 
     return { refreshToken, accessToken };
+  }
+
+  async refreshTokenPair(authToken: AuthToken): Promise<{ refreshToken: string; accessToken: string }> {
+    const user = await authToken.user;
+
+    const groupUuid = authToken.groupUuid;
+
+    if (groupUuid === null) {
+      throw new BadRequestException('Token needs group uuid to get refreshed');
+    }
+
+    await this.authTokenRepository.delete(authToken.id);
+
+    return await this.buildTokenPair(user, groupUuid);
   }
 
   async logoutToken(authToken: AuthToken): Promise<void> {
