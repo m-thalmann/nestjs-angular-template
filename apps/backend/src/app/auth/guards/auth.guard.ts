@@ -8,15 +8,13 @@ import {
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { FastifyRequest } from 'fastify';
-import { AuthTokenService } from '../auth-token.service';
-import { AUTH_TOKEN_TYPES, AuthTokenType } from '../dto/auth-token-type.dto';
+import { AuthTokenService } from '../tokens/auth-token.service';
 
 const IS_PUBLIC_KEY = 'isPublic';
 export const Public: () => CustomDecorator<string> = () => SetMetadata(IS_PUBLIC_KEY, true);
 
-const USE_AUTH_TOKEN_TYPE = 'useAuthTokenType';
-export const UseAuthTokenType: (type: AuthTokenType) => CustomDecorator<string> = (type: AuthTokenType) =>
-  SetMetadata(USE_AUTH_TOKEN_TYPE, type);
+const USE_REFRESH_TOKEN_AUTH = 'useRefreshTokenAuth';
+export const RefreshTokenAuth: () => CustomDecorator<string> = () => SetMetadata(USE_REFRESH_TOKEN_AUTH, true);
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -37,9 +35,9 @@ export class AuthGuard implements CanActivate {
       throw new UnauthorizedException();
     }
 
-    const expectedTokenType = this.getTokenType(context);
+    const expectRefreshToken = this.getExpectRefreshTokenAuth(context);
 
-    const { user, authToken } = await this.authTokenService.validateToken(token, expectedTokenType);
+    const { user, authToken } = await this.authTokenService.validateToken(token, { expectRefreshToken });
 
     // @ts-expect-error Add user to request
     request.user = user;
@@ -58,12 +56,12 @@ export class AuthGuard implements CanActivate {
     );
   }
 
-  protected getTokenType(context: ExecutionContext): AuthTokenType {
+  protected getExpectRefreshTokenAuth(context: ExecutionContext): boolean {
     return (
-      this.reflector.getAllAndOverride<AuthTokenType | undefined>(USE_AUTH_TOKEN_TYPE, [
+      this.reflector.getAllAndOverride<boolean | undefined>(USE_REFRESH_TOKEN_AUTH, [
         context.getHandler(),
         context.getClass(),
-      ]) ?? AUTH_TOKEN_TYPES.ACCESS
+      ]) ?? false
     );
   }
 

@@ -1,6 +1,5 @@
 import { BeforeInsert, Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
-import { User } from '../users';
-import { AuthTokenType } from './dto/auth-token-type.dto';
+import { User } from '../../users';
 
 @Entity('auth_tokens')
 export class AuthToken {
@@ -14,14 +13,11 @@ export class AuthToken {
   @JoinColumn({ name: 'user_id' })
   user!: Promise<User>;
 
+  @Column('integer', { name: 'version' })
+  version!: number;
+
   @Column('varchar')
   name!: string | null;
-
-  @Column('varchar')
-  type!: AuthTokenType;
-
-  @Column('uuid', { name: 'group_uuid' })
-  groupUuid!: string | null;
 
   @Column('datetime', { name: 'expires_at' })
   expiresAt!: Date | null;

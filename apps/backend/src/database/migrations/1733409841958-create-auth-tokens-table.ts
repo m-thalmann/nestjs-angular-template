@@ -1,5 +1,4 @@
 import { MigrationInterface, QueryRunner, Table, TableForeignKey } from 'typeorm';
-import { AUTH_TOKEN_TYPES } from '../../app/auth';
 
 export class CreateAuthTokensTable1733409841958 implements MigrationInterface {
   async up(queryRunner: QueryRunner): Promise<void> {
@@ -26,20 +25,12 @@ export class CreateAuthTokensTable1733409841958 implements MigrationInterface {
             type: 'integer',
           },
           {
+            name: 'version',
+            type: 'integer',
+          },
+          {
             name: 'name',
             type: 'varchar',
-            isNullable: true,
-          },
-          {
-            name: 'type',
-            type: 'enum',
-            enum: Object.values(AUTH_TOKEN_TYPES),
-          },
-          // TODO: unique together with user_id
-          {
-            name: 'group_uuid',
-            type: 'uuid',
-            isUnique: true,
             isNullable: true,
           },
           {

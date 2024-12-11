@@ -3,9 +3,8 @@ import { Reflector } from '@nestjs/core';
 import { Test, TestingModule } from '@nestjs/testing';
 import { FastifyRequest } from 'fastify';
 import { User } from '../../users';
-import { AuthToken } from '../auth-token.entity';
-import { AuthTokenService } from '../auth-token.service';
-import { AUTH_TOKEN_TYPES, AuthTokenType } from '../dto/auth-token-type.dto';
+import { AuthToken } from '../tokens/auth-token.entity';
+import { AuthTokenService } from '../tokens/auth-token.service';
 import { AuthGuard } from './auth.guard';
 
 class AuthGuardTestClass extends AuthGuard {
@@ -13,8 +12,8 @@ class AuthGuardTestClass extends AuthGuard {
     return super.isPublicRequest(context);
   }
 
-  override getTokenType(context: ExecutionContext): AuthTokenType {
-    return super.getTokenType(context);
+  override getExpectRefreshTokenAuth(context: ExecutionContext): boolean {
+    return super.getExpectRefreshTokenAuth(context);
   }
 
   override extractTokenFromHeader(request: FastifyRequest): string | undefined {
@@ -104,7 +103,7 @@ describe('AuthGuard', () => {
 
       expect(result).toBe(true);
 
-      expect(mockAuthTokenService.validateToken).toHaveBeenCalledWith(expectedJwtToken, AUTH_TOKEN_TYPES.ACCESS);
+      expect(mockAuthTokenService.validateToken).toHaveBeenCalledWith(expectedJwtToken, { expectRefreshToken: false });
 
       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       expect(context.switchToHttp().getRequest().user).toBe(expectedUser);
@@ -125,9 +124,9 @@ describe('AuthGuard', () => {
       expect(mockAuthTokenService.validateToken).not.toHaveBeenCalled();
     });
 
-    it.each([[AUTH_TOKEN_TYPES.ACCESS], [AUTH_TOKEN_TYPES.REFRESH_PAIR]])(
-      'should return true if the token is valid and set the user and token on the request (type: %s)',
-      async (expectedTokenType: AuthTokenType) => {
+    it.each([[false], [true]])(
+      'should return true if the token is valid and set the user and token on the request (expect refresh token: %p)',
+      async (expectRefreshToken: boolean) => {
         const context = buildMockContext();
 
         const expectedJwtToken = 'mock-jwt-token';
@@ -138,7 +137,7 @@ describe('AuthGuard', () => {
 
         guard.isPublicRequest = jest.fn().mockReturnValue(false);
         guard.extractTokenFromHeader = jest.fn().mockReturnValue(expectedJwtToken);
-        guard.getTokenType = jest.fn().mockReturnValue(expectedTokenType);
+        guard.getExpectRefreshTokenAuth = jest.fn().mockReturnValue(expectRefreshToken);
 
         mockAuthTokenService.validateToken = jest
           .fn()
@@ -151,8 +150,8 @@ describe('AuthGuard', () => {
         // eslint-disable-next-line @typescript-eslint/unbound-method
         expect(guard.extractTokenFromHeader).toHaveBeenCalledWith(context.switchToHttp().getRequest());
         // eslint-disable-next-line @typescript-eslint/unbound-method
-        expect(guard.getTokenType).toHaveBeenCalledWith(context);
-        expect(mockAuthTokenService.validateToken).toHaveBeenCalledWith(expectedJwtToken, expectedTokenType);
+        expect(guard.getExpectRefreshTokenAuth).toHaveBeenCalledWith(context);
+        expect(mockAuthTokenService.validateToken).toHaveBeenCalledWith(expectedJwtToken, { expectRefreshToken });
 
         // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         expect(context.switchToHttp().getRequest().user).toBe(expectedUser);
@@ -219,30 +218,30 @@ describe('AuthGuard', () => {
     });
   });
 
-  describe('getTokenType', () => {
-    it('should return the token type if it is set', () => {
+  describe('getExpectRefreshTokenAuth', () => {
+    it('should return true if the RefreshTokenAuth decorator is used', () => {
       const context = buildMockContext();
 
-      mockReflector.getAllAndOverride = jest.fn().mockReturnValue(AUTH_TOKEN_TYPES.REFRESH_PAIR);
+      mockReflector.getAllAndOverride = jest.fn().mockReturnValue(true);
 
-      const result = guard.getTokenType(context);
+      const result = guard.getExpectRefreshTokenAuth(context);
 
-      expect(result).toBe(AUTH_TOKEN_TYPES.REFRESH_PAIR);
-      expect(mockReflector.getAllAndOverride).toHaveBeenCalledWith('useAuthTokenType', [
+      expect(result).toBe(true);
+      expect(mockReflector.getAllAndOverride).toHaveBeenCalledWith('useRefreshTokenAuth', [
         context.getHandler(),
         context.getClass(),
       ]);
     });
 
-    it('should return the default token type if it is not set', () => {
+    it('should return false if the RefreshTokenAuth decorator is not used', () => {
       const context = buildMockContext();
 
       mockReflector.getAllAndOverride = jest.fn().mockReturnValue(undefined);
 
-      const result = guard.getTokenType(context);
+      const result = guard.getExpectRefreshTokenAuth(context);
 
-      expect(result).toBe(AUTH_TOKEN_TYPES.ACCESS);
-      expect(mockReflector.getAllAndOverride).toHaveBeenCalledWith('useAuthTokenType', [
+      expect(result).toBe(false);
+      expect(mockReflector.getAllAndOverride).toHaveBeenCalledWith('useRefreshTokenAuth', [
         context.getHandler(),
         context.getClass(),
       ]);

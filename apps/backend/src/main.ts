@@ -12,7 +12,10 @@ import { PaginationMetaDto } from './app/common/dto';
 function setupSwagger(app: INestApplication<unknown>, serverUrl: string): void {
   const config = new DocumentBuilder()
     .setTitle('@nestjs-angular-template/source API')
+    .setDescription('API for @nestjs-angular-template/source')
+    .setLicense('MIT', 'https://opensource.org/licenses/MIT')
     .setVersion('1.0')
+    .setExternalDoc('OpenAPI JSON', 'docs/openapi.json')
     .addServer(serverUrl)
     .addBearerAuth(
       {
@@ -35,7 +38,10 @@ function setupSwagger(app: INestApplication<unknown>, serverUrl: string): void {
   const documentFactory: () => OpenAPIObject = () =>
     SwaggerModule.createDocument(app, config, { extraModels: [PaginationMetaDto] });
 
-  SwaggerModule.setup('docs', app, documentFactory);
+  SwaggerModule.setup('docs', app, documentFactory, {
+    jsonDocumentUrl: 'docs/openapi.json',
+    customSiteTitle: '@nestjs-angular-template/source - OpenAPI Documentation',
+  });
 }
 
 // TODO: add versioning

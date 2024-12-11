@@ -13,16 +13,15 @@ import {
 import { ApiValidationErrorResponse } from '../common/decorators';
 import { getResponseSchema } from '../common/util';
 import { buildUserDto, DetailedUserDto, User } from '../users';
-import { AuthToken } from './auth-token.entity';
-import { AuthTokenService } from './auth-token.service';
 import { AuthService } from './auth.service';
 import { Auth } from './decorators/auth-decorator';
-import { AUTH_TOKEN_TYPES } from './dto/auth-token-type.dto';
 import { LoginDto } from './dto/login.dto';
 import { SignUpDto } from './dto/sign-up.dto';
 import { SuccessfulAuthDto } from './dto/successful-auth.dto';
-import { Public, UseAuthTokenType } from './guards/auth.guard';
+import { Public, RefreshTokenAuth } from './guards/auth.guard';
 import { SignUpEnabledGuard } from './guards/sign-up-enabled.guard';
+import { AuthToken } from './tokens/auth-token.entity';
+import { AuthTokenService } from './tokens/auth-token.service';
 
 // TODO: add throttling of requests
 // TODO: add captcha verification (optional)
@@ -59,7 +58,7 @@ export class AuthController {
   async login(@Body() loginDto: LoginDto): Promise<ApiResponse<SuccessfulAuthDto>> {
     const user = await this.authService.loginUser(loginDto.email, loginDto.password);
 
-    const { accessToken, refreshToken } = await this.authTokenService.buildTokenPair(user);
+    const { accessToken, refreshToken } = await this.authTokenService.createAndBuildTokenPair(user);
 
     return {
       data: {
@@ -84,7 +83,7 @@ export class AuthController {
   async signUp(@Body() signUpDto: SignUpDto): Promise<ApiResponse<SuccessfulAuthDto>> {
     const user = await this.authService.signUpUser(signUpDto);
 
-    const { accessToken, refreshToken } = await this.authTokenService.buildTokenPair(user);
+    const { accessToken, refreshToken } = await this.authTokenService.createAndBuildTokenPair(user);
 
     return {
       data: {
@@ -96,7 +95,7 @@ export class AuthController {
   }
 
   @Post('refresh')
-  @UseAuthTokenType(AUTH_TOKEN_TYPES.REFRESH_PAIR)
+  @RefreshTokenAuth()
   @ApiOperation({ summary: 'Refreshes the access token' })
   @ApiCreatedResponse({
     schema: getResponseSchema(SuccessfulAuthDto),

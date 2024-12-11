@@ -5,11 +5,11 @@ import { JwtModule } from '@nestjs/jwt';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { appConfigDefinition, authConfigDefinition } from '../common/config';
 import { UsersModule } from '../users';
-import { AuthToken } from './auth-token.entity';
-import { AuthTokenService } from './auth-token.service';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { AuthGuard } from './guards/auth.guard';
+import { AuthToken } from './tokens/auth-token.entity';
+import { AuthTokenService } from './tokens/auth-token.service';
 
 @Module({
   imports: [
