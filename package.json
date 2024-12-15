@@ -55,6 +55,7 @@
     "webpack-cli": "^5.1.4"
   },
   "dependencies": {
+    "@casl/ability": "^6.7.2",
     "@fastify/static": "^7.0.4",
     "@nestjs/common": "^10.0.2",
     "@nestjs/config": "^3.3.0",

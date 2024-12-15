@@ -10,11 +10,10 @@ import {
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
-import { ApiValidationErrorResponse } from '../common/decorators';
+import { ApiValidationErrorResponse, Auth } from '../common/decorators';
 import { getResponseSchema } from '../common/util';
 import { buildUserDto, DetailedUserDto, User } from '../users';
 import { AuthService } from './auth.service';
-import { Auth } from './decorators/auth-decorator';
 import { LoginDto } from './dto/login.dto';
 import { SignUpDto } from './dto/sign-up.dto';
 import { SuccessfulAuthDto } from './dto/successful-auth.dto';

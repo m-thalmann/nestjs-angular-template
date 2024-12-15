@@ -4,12 +4,14 @@ import {
   ApiBearerAuth,
   ApiCreatedResponse,
   ApiExtraModels,
+  ApiForbiddenResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
-import { ApiPaginationQueryParams, ApiValidationErrorResponse } from '../common/decorators';
+import { AuthAbility } from '../auth';
+import { ApiPaginationQueryParams, ApiValidationErrorResponse, AuthorizeAbility } from '../common/decorators';
 import { buildDtoArray, buildPaginationParams, getResponseSchema } from '../common/util';
 import { UniqueValidator } from '../common/validation';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -28,15 +30,19 @@ export class UsersController {
     private readonly uniqueValidator: UniqueValidator,
   ) {}
 
-  // TODO: add authorization / guard / policies
-
   @Post()
   @ApiOperation({ summary: 'Create a user' })
   @ApiCreatedResponse({
     schema: getResponseSchema(UserDto),
   })
+  @ApiForbiddenResponse()
   @ApiValidationErrorResponse()
-  async create(@Body() createUserDto: CreateUserDto): Promise<ApiResponse<UserDto>> {
+  async create(
+    @AuthorizeAbility() ability: AuthAbility,
+    @Body() createUserDto: CreateUserDto,
+  ): Promise<ApiResponse<UserDto>> {
+    ability.authorize('create', User);
+
     const user = await this.usersService.create(createUserDto);
 
     return { data: buildUserDto(user) };
@@ -48,7 +54,13 @@ export class UsersController {
   @ApiOkResponse({
     schema: getResponseSchema(UserDto, { isArray: true, hasPagination: true }),
   })
-  async findAll(@Query() queryParams: Record<string, string>): Promise<PaginatedApiResponse<Array<UserDto>>> {
+  @ApiForbiddenResponse()
+  async findAll(
+    @AuthorizeAbility() ability: AuthAbility,
+    @Query() queryParams: Record<string, string>,
+  ): Promise<PaginatedApiResponse<Array<UserDto>>> {
+    ability.authorize('readAll', User);
+
     const paginationParams = buildPaginationParams(queryParams);
 
     const { users, paginationMeta } = await this.usersService.findAll({ pagination: paginationParams });
@@ -62,8 +74,10 @@ export class UsersController {
     schema: getResponseSchema(UserDto),
   })
   @ApiNotFoundResponse()
-  async findOne(@Param('uuid') uuid: string): Promise<ApiResponse<UserDto>> {
+  async findOne(@AuthorizeAbility() ability: AuthAbility, @Param('uuid') uuid: string): Promise<ApiResponse<UserDto>> {
     const user = await this.resolveUser(uuid);
+
+    ability.authorizeAnonymous('read', user);
 
     return { data: buildUserDto(user) };
   }
@@ -75,7 +89,13 @@ export class UsersController {
   })
   @ApiNotFoundResponse()
   @ApiValidationErrorResponse()
-  async update(@Param('uuid') uuid: string, @Body() patchUserDto: PatchUserDto): Promise<ApiResponse<UserDto>> {
+  async update(
+    @AuthorizeAbility() ability: AuthAbility,
+    @Param('uuid') uuid: string,
+    @Body() patchUserDto: PatchUserDto,
+  ): Promise<ApiResponse<UserDto>> {
+    ability.authorize('manage', User);
+
     const user = await this.resolveUser(uuid);
 
     if (patchUserDto.email !== undefined && patchUserDto.email !== user.email) {
@@ -96,8 +116,10 @@ export class UsersController {
   @ApiOperation({ summary: 'Delete a user by UUID' })
   @ApiOkResponse()
   @ApiNotFoundResponse()
-  async remove(@Param('uuid') uuid: string): Promise<void> {
+  async remove(@AuthorizeAbility() authAbility: AuthAbility, @Param('uuid') uuid: string): Promise<void> {
     const user = await this.resolveUser(uuid);
+
+    authAbility.authorize('delete', User);
 
     this.usersService.remove(user.uuid);
   }

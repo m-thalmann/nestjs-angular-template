@@ -1,5 +1,4 @@
 import { UnauthorizedException } from '@nestjs/common';
-import { Test, TestingModule } from '@nestjs/testing';
 import * as argon2 from 'argon2';
 import { User, UsersService } from '../users';
 import { AuthService } from './auth.service';
@@ -16,17 +15,7 @@ describe('AuthService', () => {
       create: jest.fn(),
     };
 
-    const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        AuthService,
-        {
-          provide: UsersService,
-          useValue: mockUserService,
-        },
-      ],
-    }).compile();
-
-    service = module.get<AuthService>(AuthService);
+    service = new AuthService(mockUserService as UsersService);
   });
 
   it('should be defined', () => {

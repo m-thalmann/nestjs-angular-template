@@ -12,16 +12,16 @@ describe('Auth', () => {
 
     const { accessToken, refreshToken } = res.data.data;
 
-    const users = await axios.get(`/users`, {
+    const authUser = await axios.get(`/auth`, {
       headers: {
         Authorization: `Bearer ${accessToken}`,
       },
       validateStatus: () => true,
     });
 
-    expect(users.status).toBe(HttpStatus.OK);
+    expect(authUser.status).toBe(HttpStatus.OK);
 
-    const usersNotAuthorized = await axios.get(`/users`, {
+    const usersNotAuthorized = await axios.get(`/auth`, {
       headers: {
         Authorization: `Bearer ${refreshToken}`,
       },
@@ -58,14 +58,14 @@ describe('Auth', () => {
 
     const { accessToken: newAccessToken, refreshToken: newRefreshToken } = refresh.data.data;
 
-    const usersWithNewToken = await axios.get(`/users`, {
+    const authUserWithNewToken = await axios.get(`/auth`, {
       headers: {
         Authorization: `Bearer ${newAccessToken}`,
       },
       validateStatus: () => true,
     });
 
-    expect(usersWithNewToken.status).toBe(HttpStatus.OK);
+    expect(authUserWithNewToken.status).toBe(HttpStatus.OK);
 
     const reuseRefresh = await axios.post<{ data: { accessToken: string; refreshToken: string } }>(
       `/auth/refresh`,
@@ -80,7 +80,7 @@ describe('Auth', () => {
 
     expect(reuseRefresh.status).toBe(HttpStatus.UNAUTHORIZED);
 
-    const reuseAccess = await axios.get(`/users`, {
+    const reuseAccess = await axios.get(`/auth`, {
       headers: {
         Authorization: `Bearer ${accessToken}`,
       },

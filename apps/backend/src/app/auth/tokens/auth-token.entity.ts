@@ -9,6 +9,9 @@ export class AuthToken {
   @Column('uuid', { generated: 'uuid' })
   uuid!: string;
 
+  @Column('integer', { name: 'user_id' })
+  userId!: number;
+
   @ManyToOne(() => User)
   @JoinColumn({ name: 'user_id' })
   user!: Promise<User>;
