@@ -3,11 +3,10 @@ import { ConfigType } from '@nestjs/config';
 import { JwtService, JwtSignOptions } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { authConfigDefinition } from '../../common/config';
-import { getDateAfterMinutes } from '../../common/util';
-import { User } from '../../users';
+import { authConfigDefinition } from '../../common/config/auth.config';
+import { getDateAfterMinutes } from '../../common/util/date.utils';
+import { User } from '../../users/user.entity';
 import { AuthToken } from './auth-token.entity';
-
 interface TokenPayload {
   sub: string;
   token: string;

@@ -5,8 +5,8 @@ import { FastifyAdapter } from '@nestjs/platform-fastify';
 import { DocumentBuilder, OpenAPIObject, SwaggerModule } from '@nestjs/swagger';
 import { useContainer as classValidatorUseContainer } from 'class-validator';
 import { AppModule } from './app/app.module';
-import { appConfigDefinition } from './app/common/config';
-import { PaginationMetaDto } from './app/common/dto';
+import { appConfigDefinition } from './app/common/config/app.config';
+import { PaginationMetaDto } from './app/common/dto/pagination-meta.dto';
 
 // TODO: add unauthorized responses automatically to all guarded routes
 function setupSwagger(app: INestApplication<unknown>, serverUrl: string): void {

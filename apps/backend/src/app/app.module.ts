@@ -3,10 +3,12 @@ import { ConfigModule, ConfigType } from '@nestjs/config';
 import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { resolve } from 'path';
 import { AppController } from './app.controller';
-import { AuthModule } from './auth';
+import { AuthModule } from './auth/auth.module';
 import { CommonModule } from './common/common.module';
-import { appConfigDefinition, authConfigDefinition, databaseConfigDefinition } from './common/config';
-import { UsersModule } from './users';
+import { appConfigDefinition } from './common/config/app.config';
+import { authConfigDefinition } from './common/config/auth.config';
+import { databaseConfigDefinition } from './common/config/database.config';
+import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [

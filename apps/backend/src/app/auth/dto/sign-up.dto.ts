@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsEmail, IsNotEmpty } from 'class-validator';
-import { IsUnique } from '../../common/validation';
-import { User } from '../../users';
+import { IsUnique } from '../../common/validation/unique.validator';
+import { User } from '../../users/user.entity';
 
 export class SignUpDto {
   @IsNotEmpty()

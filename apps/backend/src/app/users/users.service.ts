@@ -2,7 +2,7 @@ import { PaginationMeta } from '@app/shared-types';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FindManyOptions, Repository } from 'typeorm';
-import { buildPaginationMeta, PaginationParams } from '../common/util';
+import { buildPaginationMeta, PaginationParams } from '../common/util/pagination.utils';
 import { CreateUserDto } from './dto/create-user.dto';
 import { PatchUserDto } from './dto/patch-user.dto';
 import { User } from './user.entity';

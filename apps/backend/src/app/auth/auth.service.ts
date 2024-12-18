@@ -1,6 +1,7 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import * as argon2 from 'argon2';
-import { User, UsersService } from '../users';
+import { User } from '../users/user.entity';
+import { UsersService } from '../users/users.service';
 import { SignUpDto } from './dto/sign-up.dto';
 
 @Injectable()

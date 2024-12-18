@@ -1,6 +1,6 @@
 /* eslint-disable max-classes-per-file */
 import { ApiProperty } from '@nestjs/swagger';
-import { convertDateToUnixTimestamp } from '../../common/util';
+import { convertDateToUnixTimestamp } from '../../common/util/date.utils';
 import { User } from '../user.entity';
 
 export class UserDto {

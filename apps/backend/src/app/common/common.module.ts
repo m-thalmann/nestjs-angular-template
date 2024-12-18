@@ -1,5 +1,5 @@
 import { Global, Module } from '@nestjs/common';
-import { UniqueValidator } from './validation';
+import { UniqueValidator } from './validation/unique.validator';
 
 @Global()
 @Module({

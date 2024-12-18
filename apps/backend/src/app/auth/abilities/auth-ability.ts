@@ -1,6 +1,6 @@
 import { AbilityBuilder, createMongoAbility, ExtractSubjectType, PureAbility, Subject } from '@casl/ability';
 import { ForbiddenException, Logger, NotFoundException } from '@nestjs/common';
-import { User } from '../../users';
+import { User } from '../../users/user.entity';
 import { AbilityAction } from './ability-action';
 
 type AppAbility = PureAbility<[AbilityAction, Subject]>;

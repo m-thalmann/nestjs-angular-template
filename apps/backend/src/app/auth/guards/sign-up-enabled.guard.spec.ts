@@ -1,5 +1,5 @@
 import { MethodNotAllowedException } from '@nestjs/common';
-import { AppConfig } from '../../common/config';
+import { AppConfig } from '../../common/config/app.config';
 import { SignUpEnabledGuard } from './sign-up-enabled.guard';
 
 function buildMockAppConfig(signUpEnabled: boolean): AppConfig {

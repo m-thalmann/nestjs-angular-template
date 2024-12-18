@@ -2,7 +2,7 @@ import { ExecutionContext, UnauthorizedException } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { Test, TestingModule } from '@nestjs/testing';
 import { FastifyRequest } from 'fastify';
-import { User } from '../../users';
+import { User } from '../../users/user.entity';
 import { AuthToken } from '../tokens/auth-token.entity';
 import { AuthTokenService } from '../tokens/auth-token.service';
 import { AuthGuard } from './auth.guard';

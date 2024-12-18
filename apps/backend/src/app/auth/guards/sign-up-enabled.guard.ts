@@ -1,6 +1,6 @@
 import { CanActivate, Inject, Injectable, MethodNotAllowedException } from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
-import { appConfigDefinition } from '../../common/config';
+import { appConfigDefinition } from '../../common/config/app.config';
 
 @Injectable()
 export class SignUpEnabledGuard implements CanActivate {

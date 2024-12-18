@@ -1,4 +1,4 @@
-import { AuthAbilityRuleFactory } from '../auth';
+import { AuthAbilityRuleFactory } from '../auth/abilities/auth-ability';
 import { User } from './user.entity';
 
 export const userAbilities: AuthAbilityRuleFactory = (user, { can }) => {

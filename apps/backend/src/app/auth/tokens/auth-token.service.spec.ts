@@ -6,11 +6,10 @@ import { JwtService } from '@nestjs/jwt';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { authConfigDefinition } from '../../common/config';
-import { User } from '../../users';
+import { authConfigDefinition } from '../../common/config/auth.config';
+import { User } from '../../users/user.entity';
 import { AuthToken } from './auth-token.entity';
 import { AuthTokenService } from './auth-token.service';
-
 class AuthTokenServiceTestClass extends AuthTokenService {
   override async buildJwtTokenPair(
     ...params: Parameters<AuthTokenService['buildJwtTokenPair']>

@@ -1,6 +1,5 @@
 import { BeforeInsert, Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
-import { User } from '../../users';
-
+import { User } from '../../users/user.entity';
 @Entity('auth_tokens')
 export class AuthToken {
   @PrimaryGeneratedColumn()

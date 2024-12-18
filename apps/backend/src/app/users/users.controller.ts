@@ -10,10 +10,13 @@ import {
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
-import { AuthAbility } from '../auth';
-import { ApiPaginationQueryParams, ApiValidationErrorResponse, AuthorizeAbility } from '../common/decorators';
-import { buildDtoArray, buildPaginationParams, getResponseSchema } from '../common/util';
-import { UniqueValidator } from '../common/validation';
+import { AuthAbility } from '../auth/abilities/auth-ability';
+import { AuthorizeAbility } from '../common/decorators/authorize-ability-decorator';
+import { ApiPaginationQueryParams, ApiValidationErrorResponse } from '../common/decorators/swagger';
+import { buildDtoArray } from '../common/util/build-dto.utils';
+import { buildPaginationParams } from '../common/util/pagination.utils';
+import { getResponseSchema } from '../common/util/swagger.utils';
+import { UniqueValidator } from '../common/validation/unique.validator';
 import { CreateUserDto } from './dto/create-user.dto';
 import { PatchUserDto } from './dto/patch-user.dto';
 import { buildUserDto, UserDto } from './dto/user.dto';
