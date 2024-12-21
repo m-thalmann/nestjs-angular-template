@@ -27,7 +27,7 @@ module.exports = {
       compiler: 'swc-loader',
       main: './src/main.ts',
       tsConfig: './tsconfig.app.json',
-      assets: ['./src/assets', { glob: '.env*', input: './src/', output: '.' }],
+      assets: ['./src/assets', './src/templates', { glob: '.env*', input: './src/', output: '.' }],
       // TODO: add production values
       optimization: false,
       outputHashing: 'none',

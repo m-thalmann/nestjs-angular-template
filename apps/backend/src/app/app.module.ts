@@ -8,6 +8,7 @@ import { CommonModule } from './common/common.module';
 import { appConfigDefinition } from './common/config/app.config';
 import { authConfigDefinition } from './common/config/auth.config';
 import { databaseConfigDefinition } from './common/config/database.config';
+import { mailConfigDefinition } from './common/config/mail.config';
 import { UsersModule } from './users/users.module';
 
 @Module({
@@ -16,9 +17,9 @@ import { UsersModule } from './users/users.module';
       isGlobal: true,
       expandVariables: true,
       cache: true,
-      envFilePath: resolve(__dirname, '.env'),
+      envFilePath: resolve(__dirname, '.env'), // located  in /src directory
 
-      load: [appConfigDefinition, databaseConfigDefinition, authConfigDefinition],
+      load: [appConfigDefinition, databaseConfigDefinition, authConfigDefinition, mailConfigDefinition],
     }),
 
     TypeOrmModule.forRootAsync({
