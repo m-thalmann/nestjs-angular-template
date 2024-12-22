@@ -15,9 +15,19 @@ export const Public: () => CustomDecorator<string> = () => SetMetadata(IS_PUBLIC
 
 const USE_REFRESH_TOKEN_AUTH = 'useRefreshTokenAuth';
 /**
- * @internal Use the `ApiAuth` decorator instead
+ * **Note:** You can also use the `ApiAuth` decorator instead
  */
-export const RefreshTokenAuth: () => CustomDecorator<string> = () => SetMetadata(USE_REFRESH_TOKEN_AUTH, true);
+export const RefreshTokenAuth: (mustBeRefreshToken?: boolean) => CustomDecorator<string> = (
+  mustBeRefreshToken: boolean = true,
+) => SetMetadata(USE_REFRESH_TOKEN_AUTH, mustBeRefreshToken);
+
+const REQUIRES_VERIFIED_EMAIL_KEY = 'requiresVerifiedEmail';
+/**
+ * **Note:** You can also use the `ApiAuth` decorator instead
+ */
+export const EmailMustBeVerified: (mustBeVerified?: boolean) => CustomDecorator<string> = (
+  mustBeVerified: boolean = true,
+) => SetMetadata(REQUIRES_VERIFIED_EMAIL_KEY, mustBeVerified);
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -42,6 +52,12 @@ export class AuthGuard implements CanActivate {
 
     const { user, authToken } = await this.authTokenService.validateToken(token, { expectRefreshToken });
 
+    const requiresVerifiedEmail = this.getRequiresVerifiedEmail(context);
+
+    if (requiresVerifiedEmail && !user.isEmailVerified()) {
+      throw new UnauthorizedException('Email not verified');
+    }
+
     // @ts-expect-error Add user to request
     request.user = user;
     // @ts-expect-error Add auth token to request
@@ -62,6 +78,15 @@ export class AuthGuard implements CanActivate {
   protected getExpectRefreshTokenAuth(context: ExecutionContext): boolean {
     return (
       this.reflector.getAllAndOverride<boolean | undefined>(USE_REFRESH_TOKEN_AUTH, [
+        context.getHandler(),
+        context.getClass(),
+      ]) ?? false
+    );
+  }
+
+  protected getRequiresVerifiedEmail(context: ExecutionContext): boolean {
+    return (
+      this.reflector.getAllAndOverride<boolean | undefined>(REQUIRES_VERIFIED_EMAIL_KEY, [
         context.getHandler(),
         context.getClass(),
       ]) ?? false

@@ -23,6 +23,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { AuthAbility } from '../auth/abilities/auth-ability';
+import { EmailMustBeVerified } from '../auth/guards/auth.guard';
 import { AuthorizeAbility } from '../common/decorators/authorize-ability-decorator';
 import { ApiAuth, ApiPaginationQueryParams, ApiValidationErrorResponse } from '../common/decorators/controller';
 import { buildDtoArray } from '../common/util/build-dto.utils';
@@ -36,7 +37,7 @@ import { User } from './user.entity';
 import { UsersService } from './users.service';
 
 @Controller('users')
-@ApiAuth()
+@ApiAuth({ emailMustBeVerified: true })
 @ApiTags('Users')
 @ApiExtraModels(UserDto)
 export class UsersController {
@@ -106,6 +107,7 @@ export class UsersController {
     description: 'OK',
     schema: getResponseSchema(UserDto),
   })
+  @ApiForbiddenResponse({ description: 'Forbidden' })
   @ApiNotFoundResponse({ description: 'Not found' })
   @ApiValidationErrorResponse()
   async update(
@@ -133,13 +135,14 @@ export class UsersController {
 
   @Delete(':uuid')
   @HttpCode(HttpStatus.NO_CONTENT)
+  @EmailMustBeVerified(false)
   @ApiOperation({ summary: 'Delete a user by UUID' })
   @ApiNoContentResponse({ description: 'OK' })
   @ApiNotFoundResponse({ description: 'Not found' })
   async remove(@AuthorizeAbility() authAbility: AuthAbility, @Param('uuid') uuid: string): Promise<void> {
     const user = await this.resolveUser(uuid);
 
-    authAbility.authorize('delete', User);
+    authAbility.authorizeAnonymous('delete', User);
 
     this.usersService.remove(user.uuid);
   }
