@@ -1,5 +1,6 @@
 import { applyDecorators } from '@nestjs/common';
-import { ApiQuery, ApiUnprocessableEntityResponse } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiQuery, ApiUnprocessableEntityResponse } from '@nestjs/swagger';
+import { RefreshTokenAuth } from '../../auth/guards/auth.guard';
 
 export function ApiPaginationQueryParams(): ReturnType<typeof applyDecorators> {
   return applyDecorators(
@@ -37,4 +38,16 @@ export function ApiValidationErrorResponse(): ReturnType<typeof applyDecorators>
       },
     }),
   );
+}
+
+export function ApiAuth(options?: { refreshToken: boolean }): ReturnType<typeof applyDecorators> {
+  const refreshToken = options?.refreshToken ?? false;
+
+  const decorators = [ApiBearerAuth(refreshToken ? 'AccessToken' : 'RefreshToken')];
+
+  if (refreshToken) {
+    decorators.push(RefreshTokenAuth());
+  }
+
+  return applyDecorators(...decorators);
 }

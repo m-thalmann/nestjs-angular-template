@@ -1,7 +1,6 @@
 import { ApiResponse, PaginatedApiResponse } from '@app/shared-types';
 import { Body, Controller, Delete, Get, NotFoundException, Param, Patch, Post, Query } from '@nestjs/common';
 import {
-  ApiBearerAuth,
   ApiCreatedResponse,
   ApiExtraModels,
   ApiForbiddenResponse,
@@ -12,7 +11,7 @@ import {
 } from '@nestjs/swagger';
 import { AuthAbility } from '../auth/abilities/auth-ability';
 import { AuthorizeAbility } from '../common/decorators/authorize-ability-decorator';
-import { ApiPaginationQueryParams, ApiValidationErrorResponse } from '../common/decorators/swagger';
+import { ApiAuth, ApiPaginationQueryParams, ApiValidationErrorResponse } from '../common/decorators/controller';
 import { buildDtoArray } from '../common/util/build-dto.utils';
 import { buildPaginationParams } from '../common/util/pagination.utils';
 import { getResponseSchema } from '../common/util/swagger.utils';
@@ -25,7 +24,7 @@ import { UsersService } from './users.service';
 
 @Controller('users')
 @ApiTags('Users')
-@ApiBearerAuth('AccessToken')
+@ApiAuth()
 @ApiExtraModels(UserDto)
 export class UsersController {
   constructor(

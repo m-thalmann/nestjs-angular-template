@@ -1,7 +1,6 @@
 import { ApiResponse } from '@app/shared-types';
 import { Body, Controller, Get, HttpCode, HttpStatus, Post, UseGuards } from '@nestjs/common';
 import {
-  ApiBearerAuth,
   ApiCreatedResponse,
   ApiExtraModels,
   ApiMethodNotAllowedResponse,
@@ -11,7 +10,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { Auth } from '../common/decorators/auth-decorator';
-import { ApiValidationErrorResponse } from '../common/decorators/swagger';
+import { ApiAuth, ApiValidationErrorResponse } from '../common/decorators/controller';
 import { getResponseSchema } from '../common/util/swagger.utils';
 import { DetailedUserDto, buildUserDto } from '../users/dto/user.dto';
 import { User } from '../users/user.entity';
@@ -19,13 +18,14 @@ import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 import { SignUpDto } from './dto/sign-up.dto';
 import { SuccessfulAuthDto } from './dto/successful-auth.dto';
-import { Public, RefreshTokenAuth } from './guards/auth.guard';
+import { Public } from './guards/auth.guard';
 import { SignUpEnabledGuard } from './guards/sign-up-enabled.guard';
 import { AuthToken } from './tokens/auth-token.entity';
 import { AuthTokenService } from './tokens/auth-token.service';
 
 // TODO: add throttling of requests
 // TODO: add captcha verification (optional)
+// TODO: 2FA (optional)
 
 @Controller('auth')
 @ApiTags('Auth')
@@ -41,7 +41,7 @@ export class AuthController {
   @ApiOkResponse({
     schema: getResponseSchema(DetailedUserDto),
   })
-  @ApiBearerAuth('AccessToken')
+  @ApiAuth()
   async getAuthenticatedUser(@Auth('user') user: User): Promise<ApiResponse<DetailedUserDto>> {
     return {
       data: buildUserDto(user, true),
@@ -96,12 +96,11 @@ export class AuthController {
   }
 
   @Post('refresh')
-  @RefreshTokenAuth()
   @ApiOperation({ summary: 'Refreshes the access token' })
   @ApiCreatedResponse({
     schema: getResponseSchema(SuccessfulAuthDto),
   })
-  @ApiBearerAuth('RefreshToken')
+  @ApiAuth({ refreshToken: true })
   async refreshToken(
     @Auth('user') user: User,
     @Auth('authToken') authToken: AuthToken,
@@ -121,7 +120,7 @@ export class AuthController {
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Logs out the user' })
   @ApiNoContentResponse()
-  @ApiBearerAuth('AccessToken')
+  @ApiAuth()
   async logout(@Auth('authToken') authToken: AuthToken): Promise<void> {
     await this.authTokenService.logoutToken(authToken);
   }
