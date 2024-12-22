@@ -7,6 +7,8 @@ import { UsersService } from '../../users/users.service';
 
 @Injectable()
 export class EmailVerificationService {
+  static readonly TOKEN_EXPIRATION_MINUTES: number = 10;
+
   constructor(
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
@@ -38,7 +40,10 @@ export class EmailVerificationService {
   }
 
   async generateVerificationToken(user: User): Promise<string> {
-    return await this.jwtService.signAsync({ sub: user.uuid, email: user.email }, { expiresIn: '10m' });
+    return await this.jwtService.signAsync(
+      { sub: user.uuid, email: user.email },
+      { expiresIn: `${EmailVerificationService.TOKEN_EXPIRATION_MINUTES}m` },
+    );
   }
 
   async validateVerificationToken(user: User, token: string): Promise<boolean> {

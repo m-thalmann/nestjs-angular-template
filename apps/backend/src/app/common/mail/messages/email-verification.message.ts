@@ -9,7 +9,6 @@ interface EmailVerificationMessageContext {
   isNewUser: boolean;
 }
 
-// TODO: add guard for email verified
 export class EmailVerificationMessage extends BaseMessage<EmailVerificationMessageContext> {
   private _context: EmailVerificationMessageContext | undefined;
 

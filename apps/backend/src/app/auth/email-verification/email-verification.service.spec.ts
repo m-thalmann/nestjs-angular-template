@@ -143,7 +143,7 @@ describe('EmailVerificationService', () => {
 
       expect(mockJwtService.signAsync).toHaveBeenCalledWith(
         { sub: user.uuid, email: user.email },
-        { expiresIn: '10m' },
+        { expiresIn: `${EmailVerificationService.TOKEN_EXPIRATION_MINUTES}m` },
       );
     });
   });

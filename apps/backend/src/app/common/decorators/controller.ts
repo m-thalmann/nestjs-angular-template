@@ -49,7 +49,7 @@ export function ApiAuth(options?: {
   const emailMustBeVerified = options?.emailMustBeVerified ?? false;
 
   const decorators = [
-    ApiBearerAuth(refreshToken ? 'AccessToken' : 'RefreshToken'),
+    ApiBearerAuth(refreshToken ? 'RefreshToken' : 'AccessToken'),
     ApiUnauthorizedResponse({
       description: 'Unauthorized',
     }),

@@ -26,7 +26,6 @@ import { AuthTokenService } from './tokens/auth-token.service';
 // TODO: add throttling of requests
 // TODO: add captcha verification (optional)
 // TODO: 2FA (optional)
-// TODO: password reset
 
 @Controller('auth')
 @ApiTags('Auth')
