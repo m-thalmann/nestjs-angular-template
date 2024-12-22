@@ -8,7 +8,6 @@ import { AppModule } from './app/app.module';
 import { appConfigDefinition } from './app/common/config/app.config';
 import { PaginationMetaDto } from './app/common/dto/pagination-meta.dto';
 
-// TODO: add unauthorized responses automatically to all guarded routes
 function setupSwagger(app: INestApplication<unknown>, serverUrl: string): void {
   const config = new DocumentBuilder()
     .setTitle('@nestjs-angular-template/source API')
@@ -46,7 +45,7 @@ function setupSwagger(app: INestApplication<unknown>, serverUrl: string): void {
 
 // TODO: add versioning
 async function bootstrap(): Promise<void> {
-  const app = await NestFactory.create(AppModule, new FastifyAdapter());
+  const app = await NestFactory.create(AppModule, new FastifyAdapter({ maxParamLength: 1000 }));
 
   const appConfig: ConfigType<typeof appConfigDefinition> = await app.resolve(appConfigDefinition.KEY);
 

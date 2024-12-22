@@ -3,11 +3,9 @@ import { AppConfig } from '../../common/config/app.config';
 import { SignUpEnabledGuard } from './sign-up-enabled.guard';
 
 function buildMockAppConfig(signUpEnabled: boolean): AppConfig {
+  // @ts-expect-error type mismatch
   return {
     signUpEnabled,
-    basePath: '',
-    port: 0,
-    secret: '',
   };
 }
 

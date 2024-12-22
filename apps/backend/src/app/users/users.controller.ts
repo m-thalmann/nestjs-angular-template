@@ -1,9 +1,22 @@
 import { ApiResponse, PaginatedApiResponse } from '@app/shared-types';
-import { Body, Controller, Delete, Get, NotFoundException, Param, Patch, Post, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  HttpStatus,
+  NotFoundException,
+  Param,
+  Patch,
+  Post,
+  Query,
+} from '@nestjs/common';
 import {
   ApiCreatedResponse,
   ApiExtraModels,
   ApiForbiddenResponse,
+  ApiNoContentResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
@@ -23,8 +36,8 @@ import { User } from './user.entity';
 import { UsersService } from './users.service';
 
 @Controller('users')
-@ApiTags('Users')
 @ApiAuth()
+@ApiTags('Users')
 @ApiExtraModels(UserDto)
 export class UsersController {
   constructor(
@@ -35,9 +48,10 @@ export class UsersController {
   @Post()
   @ApiOperation({ summary: 'Create a user' })
   @ApiCreatedResponse({
+    description: 'OK',
     schema: getResponseSchema(UserDto),
   })
-  @ApiForbiddenResponse()
+  @ApiForbiddenResponse({ description: 'Forbidden' })
   @ApiValidationErrorResponse()
   async create(
     @AuthorizeAbility() ability: AuthAbility,
@@ -54,9 +68,10 @@ export class UsersController {
   @ApiOperation({ summary: 'Return all users' })
   @ApiPaginationQueryParams()
   @ApiOkResponse({
+    description: 'OK',
     schema: getResponseSchema(UserDto, { isArray: true, hasPagination: true }),
   })
-  @ApiForbiddenResponse()
+  @ApiForbiddenResponse({ description: 'Forbidden' })
   async findAll(
     @AuthorizeAbility() ability: AuthAbility,
     @Query() queryParams: Record<string, string>,
@@ -73,9 +88,10 @@ export class UsersController {
   @Get(':uuid')
   @ApiOperation({ summary: 'Return a user by UUID' })
   @ApiOkResponse({
+    description: 'OK',
     schema: getResponseSchema(UserDto),
   })
-  @ApiNotFoundResponse()
+  @ApiNotFoundResponse({ description: 'Not found' })
   async findOne(@AuthorizeAbility() ability: AuthAbility, @Param('uuid') uuid: string): Promise<ApiResponse<UserDto>> {
     const user = await this.resolveUser(uuid);
 
@@ -87,9 +103,10 @@ export class UsersController {
   @Patch(':uuid')
   @ApiOperation({ summary: 'Update a user by UUID' })
   @ApiOkResponse({
+    description: 'OK',
     schema: getResponseSchema(UserDto),
   })
-  @ApiNotFoundResponse()
+  @ApiNotFoundResponse({ description: 'Not found' })
   @ApiValidationErrorResponse()
   async update(
     @AuthorizeAbility() ability: AuthAbility,
@@ -115,9 +132,10 @@ export class UsersController {
   }
 
   @Delete(':uuid')
+  @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Delete a user by UUID' })
-  @ApiOkResponse()
-  @ApiNotFoundResponse()
+  @ApiNoContentResponse({ description: 'OK' })
+  @ApiNotFoundResponse({ description: 'Not found' })
   async remove(@AuthorizeAbility() authAbility: AuthAbility, @Param('uuid') uuid: string): Promise<void> {
     const user = await this.resolveUser(uuid);
 

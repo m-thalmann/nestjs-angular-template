@@ -8,6 +8,8 @@ import { authConfigDefinition } from '../common/config/auth.config';
 import { UsersModule } from '../users/users.module';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
+import { EmailVerificationController } from './email-verification/email-verification.controller';
+import { EmailVerificationService } from './email-verification/email-verification.service';
 import { AuthGuard } from './guards/auth.guard';
 import { AuthToken } from './tokens/auth-token.entity';
 import { AuthTokenService } from './tokens/auth-token.service';
@@ -34,12 +36,13 @@ import { AuthTokenService } from './tokens/auth-token.service';
   providers: [
     AuthService,
     AuthTokenService,
+    EmailVerificationService,
     {
       provide: APP_GUARD,
       useClass: AuthGuard,
     },
   ],
-  exports: [AuthService],
-  controllers: [AuthController],
+  exports: [AuthService, EmailVerificationService],
+  controllers: [AuthController, EmailVerificationController],
 })
 export class AuthModule {}

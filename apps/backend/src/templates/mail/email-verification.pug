@@ -1,0 +1,11 @@
+extends layouts/default-layout
+include mixins/button
+
+block content
+    if isNewUser
+        p Thank you for signing up. To complete your registration, please verify your email address by clicking the button below.
+    else
+        p You recently updated your email. To complete the process, please verify your email address by clicking the button below.
+    +button(verificationUrl, 'Verify email →')
+    p If you did not create an account, no further action is required.
+    p Thank you!

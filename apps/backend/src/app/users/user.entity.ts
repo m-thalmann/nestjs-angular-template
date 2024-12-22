@@ -18,7 +18,7 @@ export class User {
   email!: string;
 
   @Column('datetime', { name: 'email_verified_at' })
-  emailVerifiedAt!: Date | null;
+  emailVerifiedAt: Date | null = null;
 
   @Column('varchar')
   password!: string;
@@ -46,7 +46,6 @@ export class User {
   }
 
   isEmailVerified(): boolean {
-    // TODO: seems to be true??
     return this.emailVerifiedAt !== null;
   }
 }

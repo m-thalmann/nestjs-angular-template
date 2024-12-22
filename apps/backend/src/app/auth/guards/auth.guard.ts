@@ -14,6 +14,9 @@ const IS_PUBLIC_KEY = 'isPublic';
 export const Public: () => CustomDecorator<string> = () => SetMetadata(IS_PUBLIC_KEY, true);
 
 const USE_REFRESH_TOKEN_AUTH = 'useRefreshTokenAuth';
+/**
+ * @internal Use the `ApiAuth` decorator instead
+ */
 export const RefreshTokenAuth: () => CustomDecorator<string> = () => SetMetadata(USE_REFRESH_TOKEN_AUTH, true);
 
 @Injectable()

@@ -8,6 +8,8 @@ export interface AppConfig {
   port: number;
   basePath: string;
   secret: string;
+  url: string;
+  frontendUrl: string;
   signUpEnabled: boolean;
 }
 
@@ -26,6 +28,8 @@ export const appConfigDefinition = registerAs<AppConfig>('app', () => {
     port: process.env.APP_PORT === undefined ? DEFAULT_PORT : parseInt(process.env.APP_PORT, 10),
     basePath: process.env.APP_BASE_PATH ?? '',
     secret,
+    url: process.env.APP_URL ?? 'http://localhost:3000',
+    frontendUrl: process.env.APP_FRONTEND_URL ?? 'http://localhost:4200',
     signUpEnabled: process.env.APP_SIGN_UP_ENABLED === 'true',
   };
 });

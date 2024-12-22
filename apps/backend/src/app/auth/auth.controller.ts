@@ -26,6 +26,7 @@ import { AuthTokenService } from './tokens/auth-token.service';
 // TODO: add throttling of requests
 // TODO: add captcha verification (optional)
 // TODO: 2FA (optional)
+// TODO: password reset
 
 @Controller('auth')
 @ApiTags('Auth')
@@ -39,6 +40,7 @@ export class AuthController {
   @Get()
   @ApiOperation({ summary: 'Returns the current authenticated user' })
   @ApiOkResponse({
+    description: 'OK',
     schema: getResponseSchema(DetailedUserDto),
   })
   @ApiAuth()
@@ -53,6 +55,7 @@ export class AuthController {
   @Public()
   @ApiOperation({ summary: 'Performs a login for the user' })
   @ApiOkResponse({
+    description: 'OK',
     schema: getResponseSchema(SuccessfulAuthDto),
   })
   @ApiValidationErrorResponse()
@@ -75,6 +78,7 @@ export class AuthController {
   @UseGuards(SignUpEnabledGuard)
   @ApiOperation({ summary: 'Creates an account for a new user' })
   @ApiCreatedResponse({
+    description: 'OK',
     schema: getResponseSchema(SuccessfulAuthDto),
   })
   @ApiValidationErrorResponse()
@@ -98,6 +102,7 @@ export class AuthController {
   @Post('refresh')
   @ApiOperation({ summary: 'Refreshes the access token' })
   @ApiCreatedResponse({
+    description: 'OK',
     schema: getResponseSchema(SuccessfulAuthDto),
   })
   @ApiAuth({ refreshToken: true })
@@ -119,7 +124,7 @@ export class AuthController {
   @Post('logout')
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Logs out the user' })
-  @ApiNoContentResponse()
+  @ApiNoContentResponse({ description: 'OK' })
   @ApiAuth()
   async logout(@Auth('authToken') authToken: AuthToken): Promise<void> {
     await this.authTokenService.logoutToken(authToken);

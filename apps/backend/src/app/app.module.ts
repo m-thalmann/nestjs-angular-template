@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigType } from '@nestjs/config';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { resolve } from 'path';
 import { AppController } from './app.controller';
@@ -32,6 +33,11 @@ import { UsersModule } from './users/users.module';
           synchronize: false,
           migrationsRun: false,
         }) satisfies TypeOrmModuleOptions,
+    }),
+
+    EventEmitterModule.forRoot({
+      global: true,
+      verboseMemoryLeak: true,
     }),
 
     CommonModule,

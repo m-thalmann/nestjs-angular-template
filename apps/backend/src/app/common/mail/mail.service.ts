@@ -1,15 +1,24 @@
 import { MailerService } from '@nestjs-modules/mailer';
 import { Injectable } from '@nestjs/common';
+import { ModuleRef } from '@nestjs/core';
 import { SentMessageInfo } from 'nodemailer/lib/smtp-connection';
 import { BaseMessage } from './base.message';
 
 @Injectable()
 export class MailService {
-  constructor(private readonly mailerService: MailerService) {}
+  constructor(
+    private readonly mailerService: MailerService,
+    private readonly moduleRef: ModuleRef,
+  ) {}
 
-  async sendMail(message: BaseMessage): Promise<boolean> {
-    // TODO: send over queue
-    (await this.mailerService.sendMail(message.getMailOptions())) as SentMessageInfo;
+  build<T extends BaseMessage<unknown>>(message: new (mailService: MailService, moduleRef: ModuleRef) => T): T {
+    return new message(this, this.moduleRef);
+  }
+
+  async sendMail(message: BaseMessage<unknown>): Promise<boolean> {
+    const mailOptions = await message.getMailOptions();
+
+    (await this.mailerService.sendMail(mailOptions)) as SentMessageInfo;
 
     return true;
   }
