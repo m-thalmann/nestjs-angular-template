@@ -16,6 +16,7 @@ export class MailService {
   }
 
   async sendMail(message: BaseMessage<unknown>): Promise<boolean> {
+    // TODO: add error handling and logging
     const mailOptions = await message.getMailOptions();
 
     (await this.mailerService.sendMail(mailOptions)) as SentMessageInfo;

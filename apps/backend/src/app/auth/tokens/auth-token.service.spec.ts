@@ -5,7 +5,7 @@ import { ConfigType } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { FindOperator, FindOptionsWhere, Repository } from 'typeorm';
 import { authConfigDefinition } from '../../common/config/auth.config';
 import { User } from '../../users/user.entity';
 import { AuthToken } from './auth-token.entity';
@@ -568,6 +568,44 @@ describe('AuthTokenService', () => {
 
       expect(mockAuthTokenRepository.delete).toHaveBeenCalledTimes(1);
       expect(mockAuthTokenRepository.delete).toHaveBeenCalledWith(authToken.id);
+    });
+  });
+
+  describe('deleteAllForUser', () => {
+    it('should delete all tokens for a user', async () => {
+      const user = new User();
+      user.id = 42;
+
+      await service.deleteAllForUser(user);
+
+      expect(mockAuthTokenRepository.delete).toHaveBeenCalledTimes(1);
+      expect(mockAuthTokenRepository.delete).toHaveBeenCalledWith({
+        userId: user.id,
+      });
+    });
+  });
+
+  describe('purgeExpiredTokens', () => {
+    it('should delete expired tokens', async () => {
+      (mockAuthTokenRepository.delete as jest.Mock).mockResolvedValue({ affected: 42 });
+
+      await service.purgeExpiredTokens();
+
+      expect(mockAuthTokenRepository.delete).toHaveBeenCalledTimes(1);
+      expect(mockAuthTokenRepository.delete).toHaveBeenCalledWith({
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        expiresAt: expect.anything(),
+      });
+
+      const [findOptions] = (mockAuthTokenRepository.delete as jest.Mock).mock.calls[0] as [
+        FindOptionsWhere<AuthToken>,
+      ];
+
+      const expiresAtFilter = findOptions.expiresAt as FindOperator<Date>;
+
+      expect(expiresAtFilter.type).toBe('lessThanOrEqual');
+      // 10000 so that the seconds are rounded to the nearest 10 seconds
+      expect(expiresAtFilter.value.getTime() / 10000).toBeCloseTo(Date.now() / 10000, 1);
     });
   });
 });

@@ -1,6 +1,8 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigType } from '@nestjs/config';
 import { EventEmitterModule } from '@nestjs/event-emitter';
+import { JwtModule } from '@nestjs/jwt';
+import { ScheduleModule } from '@nestjs/schedule';
 import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { resolve } from 'path';
 import { AppController } from './app.controller';
@@ -35,10 +37,26 @@ import { UsersModule } from './users/users.module';
         }) satisfies TypeOrmModuleOptions,
     }),
 
+    JwtModule.registerAsync({
+      imports: [ConfigModule.forFeature(appConfigDefinition), ConfigModule.forFeature(authConfigDefinition)],
+      inject: [appConfigDefinition.KEY, authConfigDefinition.KEY],
+      global: true,
+      useFactory: (
+        appConfig: ConfigType<typeof appConfigDefinition>,
+        authConfig: ConfigType<typeof authConfigDefinition>,
+      ) => ({
+        global: true,
+        secret: appConfig.secret,
+        signOptions: { expiresIn: `${authConfig.accessTokenExpirationMinutes}m` },
+      }),
+    }),
+
     EventEmitterModule.forRoot({
       global: true,
       verboseMemoryLeak: true,
     }),
+
+    ScheduleModule.forRoot(),
 
     CommonModule,
     UsersModule,

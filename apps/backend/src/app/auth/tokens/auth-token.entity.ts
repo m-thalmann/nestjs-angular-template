@@ -33,5 +33,3 @@ export class AuthToken {
     this.createdAt = new Date();
   }
 }
-
-// TODO: add schedule to delete expired tokens

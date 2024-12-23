@@ -3,6 +3,7 @@ import { Injectable } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FindManyOptions, Repository } from 'typeorm';
+import { AuthTokenService } from '../auth/tokens/auth-token.service';
 import { buildPaginationMeta, PaginationParams } from '../common/util/pagination.utils';
 import { CreateUserDto } from './dto/create-user.dto';
 import { PatchUserDto } from './dto/patch-user.dto';
@@ -10,13 +11,12 @@ import { UserCreatedEvent } from './events/user-created.event';
 import { UserEmailUpdatedEvent } from './events/user-email-updated.event';
 import { User } from './user.entity';
 
-// TODO: add tests for this class
-
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(User)
     private readonly usersRepository: Repository<User>,
+    private readonly authTokenService: AuthTokenService,
     private readonly eventEmitter: EventEmitter2,
   ) {}
 
@@ -54,18 +54,24 @@ export class UsersService {
   }
 
   async patch(user: User, data: PatchUserDto): Promise<User> {
-    const patchedUser = this.usersRepository.merge(user, data);
-    let emailUpdated = false;
+    const emailUpdated = data.email !== undefined && user.email !== data.email;
+    const passwordUpdated = data.password !== undefined;
 
-    if (data.email !== undefined && user.email !== data.email) {
+    const patchedUser = this.usersRepository.merge(user, data);
+
+    if (emailUpdated) {
       patchedUser.emailVerifiedAt = null;
-      emailUpdated = true;
     }
 
     const updatedUser = await this.usersRepository.save(patchedUser);
 
     if (emailUpdated) {
-      this.eventEmitter.emit(UserCreatedEvent.ID, new UserEmailUpdatedEvent(updatedUser));
+      this.eventEmitter.emit(UserEmailUpdatedEvent.ID, new UserEmailUpdatedEvent(updatedUser));
+    }
+
+    if (emailUpdated || passwordUpdated) {
+      // TODO: add option to only sign out of other devices?
+      await this.authTokenService.deleteAllForUser(updatedUser);
     }
 
     return updatedUser;

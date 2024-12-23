@@ -65,6 +65,7 @@
     "@nestjs/event-emitter": "^2.1.1",
     "@nestjs/jwt": "^10.2.0",
     "@nestjs/platform-fastify": "^10.4.8",
+    "@nestjs/schedule": "^4.1.2",
     "@nestjs/swagger": "^8.0.7",
     "@nestjs/typeorm": "^10.0.2",
     "argon2": "^0.41.1",

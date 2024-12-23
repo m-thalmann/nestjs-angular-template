@@ -1,8 +1,9 @@
-import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
+import { Inject, Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
 import { JwtService, JwtSignOptions } from '@nestjs/jwt';
+import { Cron, CronExpression } from '@nestjs/schedule';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { LessThanOrEqual, Repository } from 'typeorm';
 import { authConfigDefinition } from '../../common/config/auth.config';
 import { getDateAfterMinutes } from '../../common/util/date.utils';
 import { User } from '../../users/user.entity';
@@ -17,6 +18,8 @@ interface TokenPayload {
 
 @Injectable()
 export class AuthTokenService {
+  private readonly logger: Logger = new Logger(AuthTokenService.name);
+
   constructor(
     @InjectRepository(AuthToken)
     private readonly authTokenRepository: Repository<AuthToken>,
@@ -169,5 +172,20 @@ export class AuthTokenService {
 
   async logoutToken(authToken: AuthToken): Promise<void> {
     await this.authTokenRepository.delete(authToken.id);
+  }
+
+  async deleteAllForUser(user: User): Promise<void> {
+    await this.authTokenRepository.delete({
+      userId: user.id,
+    });
+  }
+
+  @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
+  async purgeExpiredTokens(): Promise<void> {
+    const deleteResult = await this.authTokenRepository.delete({
+      expiresAt: LessThanOrEqual(new Date()),
+    });
+
+    this.logger.log(`Purged expired tokens: ${deleteResult.affected ?? 0}`);
   }
 }

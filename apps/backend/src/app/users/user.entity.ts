@@ -42,6 +42,19 @@ export class User {
 
   @BeforeUpdate()
   async beforeUpdate(): Promise<void> {
+    let passwordNeedsRehash = false;
+
+    try {
+      passwordNeedsRehash = argon2.needsRehash(this.password);
+    } catch {
+      // password is not hashed
+      passwordNeedsRehash = true;
+    }
+
+    if (passwordNeedsRehash) {
+      this.password = await argon2.hash(this.password);
+    }
+
     this.updatedAt = new Date();
   }
 

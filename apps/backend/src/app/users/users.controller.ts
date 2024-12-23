@@ -117,6 +117,8 @@ export class UsersController {
   ): Promise<ApiResponse<UserDto>> {
     ability.authorize('manage', User);
 
+    // TODO: let "normal" user update some of the fields
+
     const user = await this.resolveUser(uuid);
 
     if (patchUserDto.email !== undefined && patchUserDto.email !== user.email) {

@@ -8,8 +8,6 @@ import { SignUpDto } from './dto/sign-up.dto';
 export class AuthService {
   constructor(private readonly usersService: UsersService) {}
 
-  // TODO: delete tokens when user is updated (e.g. only if password or email is changed)
-
   async loginUser(email: string, password: string): Promise<User> {
     const user = await this.usersService.findOneByEmail(email);
 

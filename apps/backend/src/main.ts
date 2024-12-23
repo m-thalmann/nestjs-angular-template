@@ -13,7 +13,7 @@ function setupSwagger(app: INestApplication<unknown>, serverUrl: string): void {
     .setTitle('@nestjs-angular-template/source API')
     .setDescription('API for @nestjs-angular-template/source')
     .setLicense('MIT', 'https://opensource.org/licenses/MIT')
-    .setVersion('1.0')
+    .setVersion('v1')
     .setExternalDoc('OpenAPI JSON', 'docs/openapi.json')
     .addServer(serverUrl)
     .addBearerAuth(
@@ -40,6 +40,10 @@ function setupSwagger(app: INestApplication<unknown>, serverUrl: string): void {
   SwaggerModule.setup('docs', app, documentFactory, {
     jsonDocumentUrl: 'docs/openapi.json',
     customSiteTitle: '@nestjs-angular-template/source - OpenAPI Documentation',
+    swaggerOptions: {
+      defaultModelsExpandDepth: 2,
+      defaultModelExpandDepth: 2,
+    },
   });
 }
 
