@@ -6,8 +6,6 @@ import { UserCreatedEvent } from './events/user-created.event';
 import { UserEmailUpdatedEvent } from './events/user-email-updated.event';
 import { User } from './user.entity';
 
-// TODO: maybe only one listener for emails? And create custom email event where the others extend from? Then error handling could be done there
-
 @Injectable()
 export class UsersListener {
   constructor(private readonly mailService: MailService) {}

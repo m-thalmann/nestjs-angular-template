@@ -63,4 +63,14 @@ export abstract class BaseMessage<TInputContext = Record<string, unknown>> {
   async send(): Promise<boolean> {
     return await this.mailService.sendMail(this).then(() => true);
   }
+
+  getErrorContext(): string {
+    const messageClass = (this as unknown as { constructor: { name: string } }).constructor.name;
+
+    return `${messageClass} -> ${JSON.stringify({
+      to: this.getTo(),
+      cc: this.getCc(),
+      bcc: this.getBcc(),
+    })}`;
+  }
 }

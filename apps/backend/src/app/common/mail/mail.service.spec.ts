@@ -1,4 +1,5 @@
 import { MailerService } from '@nestjs-modules/mailer';
+import { Logger } from '@nestjs/common';
 import { ModuleRef } from '@nestjs/core';
 import { Test, TestingModule } from '@nestjs/testing';
 import { BaseMessage } from './base.message';
@@ -34,10 +35,21 @@ describe('MailService', () => {
 
   let moduleRef: ModuleRef;
   let mockMailerService: Partial<MailerService>;
+  let mockLogger: Logger;
 
   beforeEach(async () => {
     mockMailerService = {
       sendMail: jest.fn(),
+    };
+
+    // @ts-expect-error type mismatch
+    mockLogger = {
+      error: jest.fn(),
+      warn: jest.fn(),
+      log: jest.fn(),
+      debug: jest.fn(),
+      verbose: jest.fn(),
+      fatal: jest.fn(),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -48,7 +60,9 @@ describe('MailService', () => {
           useValue: mockMailerService,
         },
       ],
-    }).compile();
+    })
+      .setLogger(mockLogger)
+      .compile();
 
     service = module.get<MailService>(MailService);
     moduleRef = module.get<ModuleRef>(ModuleRef);
@@ -83,6 +97,35 @@ describe('MailService', () => {
 
       expect(result).toBe(true);
       expect(mockMailerService.sendMail).toHaveBeenCalledWith(mockMailOptions);
+    });
+
+    it('should return false on error', async () => {
+      const mockMailOptions = { to: 'test@mail.com', subject: 'Test' };
+
+      const mockErrorContext = 'Test';
+      const mockErrorMessage = 'Test error';
+
+      // @ts-expect-error type mismatch
+      const mockMessage: BaseMessage<unknown> = {
+        getMailOptions: jest.fn().mockResolvedValue(mockMailOptions),
+        getErrorContext: jest.fn().mockReturnValue(mockErrorContext),
+      };
+
+      (mockMailerService.sendMail as jest.Mock).mockRejectedValue(new Error(mockErrorMessage));
+
+      const result = await service.sendMail(mockMessage);
+
+      expect(result).toBe(false);
+      expect(mockMailerService.sendMail).toHaveBeenCalledWith(mockMailOptions);
+
+      // eslint-disable-next-line @typescript-eslint/unbound-method
+      expect(mockMessage.getErrorContext).toHaveBeenCalled();
+      // eslint-disable-next-line @typescript-eslint/unbound-method
+      expect(mockLogger.error).toHaveBeenCalledWith(
+        `Error sending email (${mockErrorContext}): ${mockErrorMessage}`,
+        undefined,
+        expect.anything(),
+      );
     });
   });
 });
