@@ -1,8 +1,10 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigType } from '@nestjs/config';
+import { APP_GUARD } from '@nestjs/core';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { JwtModule } from '@nestjs/jwt';
 import { ScheduleModule } from '@nestjs/schedule';
+import { minutes, ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { resolve } from 'path';
 import { AppController } from './app.controller';
@@ -58,11 +60,27 @@ import { UsersModule } from './users/users.module';
 
     ScheduleModule.forRoot(),
 
+    ThrottlerModule.forRootAsync({
+      imports: [ConfigModule.forFeature(appConfigDefinition)],
+      inject: [appConfigDefinition.KEY],
+      useFactory: (appConfig: ConfigType<typeof appConfigDefinition>) => [
+        {
+          ttl: minutes(1),
+          limit: appConfig.requestsPerMinute,
+        },
+      ],
+    }),
+
     CommonModule,
     UsersModule,
     AuthModule,
   ],
   controllers: [AppController],
-  providers: [],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
+  ],
 })
 export class AppModule {}

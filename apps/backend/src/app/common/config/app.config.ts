@@ -11,6 +11,7 @@ export interface AppConfig {
   url: string;
   frontendUrl: string;
   signUpEnabled: boolean;
+  requestsPerMinute: number;
 }
 
 export const appConfigDefinition = registerAs<AppConfig>('app', () => {
@@ -31,5 +32,6 @@ export const appConfigDefinition = registerAs<AppConfig>('app', () => {
     url: process.env.APP_URL ?? 'http://localhost:3000',
     frontendUrl: process.env.APP_FRONTEND_URL ?? 'http://localhost:4200',
     signUpEnabled: process.env.APP_SIGN_UP_ENABLED === 'true',
+    requestsPerMinute: 60,
   };
 });

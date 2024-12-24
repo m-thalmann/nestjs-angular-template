@@ -9,6 +9,7 @@ import {
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
+import { Throttle } from '@nestjs/throttler';
 import { Auth } from '../common/decorators/auth-decorator';
 import { ApiAuth, ApiValidationErrorResponse } from '../common/decorators/controller';
 import { getResponseSchema } from '../common/util/swagger.utils';
@@ -23,7 +24,6 @@ import { SignUpEnabledGuard } from './guards/sign-up-enabled.guard';
 import { AuthToken } from './tokens/auth-token.entity';
 import { AuthTokenService } from './tokens/auth-token.service';
 
-// TODO: add throttling of requests
 // TODO: add captcha verification (optional)
 // TODO: 2FA (optional)
 
@@ -31,6 +31,8 @@ import { AuthTokenService } from './tokens/auth-token.service';
 @ApiTags('Auth')
 @ApiExtraModels(SuccessfulAuthDto)
 export class AuthController {
+  protected static readonly REQUESTS_PER_MINUTE: number = 5;
+
   constructor(
     private readonly authService: AuthService,
     private readonly authTokenService: AuthTokenService,
@@ -52,6 +54,7 @@ export class AuthController {
   @Post('login')
   @HttpCode(HttpStatus.OK)
   @Public()
+  @Throttle({ default: { limit: AuthController.REQUESTS_PER_MINUTE } })
   @ApiOperation({ summary: 'Performs a login for the user' })
   @ApiOkResponse({
     description: 'OK',
@@ -75,6 +78,7 @@ export class AuthController {
   @Post('sign-up')
   @Public()
   @UseGuards(SignUpEnabledGuard)
+  @Throttle({ default: { limit: AuthController.REQUESTS_PER_MINUTE } })
   @ApiOperation({ summary: 'Creates an account for a new user' })
   @ApiCreatedResponse({
     description: 'OK',
