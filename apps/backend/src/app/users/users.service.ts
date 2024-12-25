@@ -5,6 +5,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { FindManyOptions, Repository } from 'typeorm';
 import { AuthTokenService } from '../auth/tokens/auth-token.service';
 import { buildPaginationMeta, PaginationParams } from '../common/util/pagination.utils';
+import { UniqueValidator } from '../common/validation/unique.validator';
 import { CreateUserDto } from './dto/create-user.dto';
 import { PatchUserDto } from './dto/patch-user.dto';
 import { UserCreatedEvent } from './events/user-created.event';
@@ -17,6 +18,7 @@ export class UsersService {
     @InjectRepository(User)
     private readonly usersRepository: Repository<User>,
     private readonly authTokenService: AuthTokenService,
+    private readonly uniqueValidator: UniqueValidator,
     private readonly eventEmitter: EventEmitter2,
   ) {}
 
@@ -57,6 +59,15 @@ export class UsersService {
     const emailUpdated = data.email !== undefined && user.email !== data.email;
     const passwordUpdated = data.password !== undefined;
 
+    if (data.email !== undefined && data.email !== user.email) {
+      await this.uniqueValidator.validateProperty({
+        entityClass: User,
+        column: 'email',
+        value: data.email,
+        entityDisplayName: 'User',
+      });
+    }
+
     const patchedUser = this.usersRepository.merge(user, data);
 
     if (emailUpdated) {
@@ -69,8 +80,7 @@ export class UsersService {
       this.eventEmitter.emit(UserEmailUpdatedEvent.ID, new UserEmailUpdatedEvent(updatedUser));
     }
 
-    if (emailUpdated || passwordUpdated) {
-      // TODO: add option to only sign out of other devices?
+    if (emailUpdated || passwordUpdated || data.isAdmin !== undefined) {
       await this.authTokenService.deleteAllForUser(updatedUser);
     }
 

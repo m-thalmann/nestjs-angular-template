@@ -8,7 +8,9 @@ export const userAbilities: AuthAbilityRuleFactory = (user, { can }) => {
 
   if (user.isAdmin) {
     can('manage', User);
+    return;
   }
 
-  can(['read', 'update', 'delete'], User, { id: user.id });
+  can(['read', 'delete'], User, { id: user.id });
+  can('update', User, ['name', 'email', 'password'], { id: user.id });
 };

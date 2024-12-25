@@ -4,6 +4,7 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { AuthTokenService } from '../auth/tokens/auth-token.service';
 import { buildPaginationMeta, PaginationParams } from '../common/util/pagination.utils';
+import { UniqueValidator } from '../common/validation/unique.validator';
 import { UserCreatedEvent } from './events/user-created.event';
 import { UserEmailUpdatedEvent } from './events/user-email-updated.event';
 import { User } from './user.entity';
@@ -14,6 +15,7 @@ describe('UsersService', () => {
 
   let mockUsersRepository: Partial<Repository<User>>;
   let mockAuthTokenService: Partial<AuthTokenService>;
+  let mockUniqueValidator: Partial<UniqueValidator>;
   let mockEventEmitter: Partial<EventEmitter2>;
 
   beforeEach(async () => {
@@ -31,6 +33,10 @@ describe('UsersService', () => {
       deleteAllForUser: jest.fn(),
     };
 
+    mockUniqueValidator = {
+      validateProperty: jest.fn(),
+    };
+
     mockEventEmitter = {
       emit: jest.fn(),
     };
@@ -45,6 +51,10 @@ describe('UsersService', () => {
         {
           provide: AuthTokenService,
           useValue: mockAuthTokenService,
+        },
+        {
+          provide: UniqueValidator,
+          useValue: mockUniqueValidator,
         },
         {
           provide: EventEmitter2,
@@ -208,6 +218,26 @@ describe('UsersService', () => {
 
       expect(mockEventEmitter.emit).not.toHaveBeenCalled();
       expect(mockAuthTokenService.deleteAllForUser).toHaveBeenCalledWith(result);
+    });
+
+    it('should validate the email uniqueness', async () => {
+      const user = new User();
+
+      const patchUserDto = { email: 'existing@mail.com' };
+
+      (mockUniqueValidator.validateProperty as jest.Mock).mockRejectedValue(new Error('Email already exists'));
+
+      await expect(service.patch(user, patchUserDto)).rejects.toThrow('Email already exists');
+
+      expect(mockUniqueValidator.validateProperty).toHaveBeenCalledWith({
+        entityClass: User,
+        column: 'email',
+        value: patchUserDto.email,
+        entityDisplayName: 'User',
+      });
+
+      expect(mockUsersRepository.merge).not.toHaveBeenCalled();
+      expect(mockUsersRepository.save).not.toHaveBeenCalled();
     });
   });
 

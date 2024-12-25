@@ -13,22 +13,40 @@ export type AuthAbilityRuleFactory = (
 export class AuthAbility {
   protected static readonly RULE_FACTORIES: Array<AuthAbilityRuleFactory> = [];
 
-  constructor(private readonly ability: AppAbility) {}
+  constructor(protected readonly ability: AppAbility) {}
+
+  /**
+   * Checks if the user has the given ability
+   */
+  can(action: AbilityAction, subject: Subject, fields?: Array<string> | string | undefined): boolean {
+    if (fields === undefined || typeof fields === 'string') {
+      return this.ability.can(action, subject, fields);
+    }
+
+    return fields.every((field) => this.can(action, subject, field));
+  }
+
+  /**
+   * Checks if the user does not have the given ability
+   */
+  cannot(action: AbilityAction, subject: Subject, fields?: Array<string> | string | undefined): boolean {
+    return !this.can(action, subject, fields);
+  }
 
   /**
    * Checks if the user has the given ability and throws a ForbiddenException if it doesn't
    */
-  authorize(...args: Parameters<AppAbility['can']>): void {
-    if (this.ability.cannot(...args)) {
-      throw new ForbiddenException();
+  authorize(action: AbilityAction, subject: Subject, fields?: Array<string> | string | undefined): void {
+    if (this.cannot(action, subject, fields)) {
+      throw new ForbiddenException("You don't have permission to do this");
     }
   }
 
   /**
    * Checks if the user has the given ability and throws a NotFoundException if it doesn't
    */
-  authorizeAnonymous(...args: Parameters<AppAbility['can']>): void {
-    if (this.ability.cannot(...args)) {
+  authorizeAnonymous(action: AbilityAction, subject: Subject, fields?: Array<string> | string | undefined): void {
+    if (this.cannot(action, subject, fields)) {
       throw new NotFoundException();
     }
   }
@@ -58,8 +76,11 @@ export class AuthAbility {
    * **Note:** The model is only used for logging, but the factory should still only define abilities for that model
    */
   // eslint-disable-next-line @typescript-eslint/ban-types
-  static registerAbilityFactory(abilityFactory: AuthAbilityRuleFactory, model: Function): void {
+  static registerAbilityFactory(abilityFactory: AuthAbilityRuleFactory, model?: Function): void {
     this.RULE_FACTORIES.push(abilityFactory);
-    Logger.log(`Registered abilities for model ${model.name}`, 'AuthAbility');
+
+    if (model !== undefined) {
+      Logger.log(`Registered abilities for model ${model.name}`, 'AuthAbility');
+    }
   }
 }
