@@ -18,7 +18,7 @@ export class AuthAbility {
   /**
    * Checks if the user has the given ability
    */
-  can(action: AbilityAction, subject: Subject, fields?: Array<string> | string | undefined): boolean {
+  can(action: AbilityAction, subject: Subject, fields?: Array<string> | string): boolean {
     if (fields === undefined || typeof fields === 'string') {
       return this.ability.can(action, subject, fields);
     }
@@ -29,14 +29,14 @@ export class AuthAbility {
   /**
    * Checks if the user does not have the given ability
    */
-  cannot(action: AbilityAction, subject: Subject, fields?: Array<string> | string | undefined): boolean {
+  cannot(action: AbilityAction, subject: Subject, fields?: Array<string> | string): boolean {
     return !this.can(action, subject, fields);
   }
 
   /**
    * Checks if the user has the given ability and throws a ForbiddenException if it doesn't
    */
-  authorize(action: AbilityAction, subject: Subject, fields?: Array<string> | string | undefined): void {
+  authorize(action: AbilityAction, subject: Subject, fields?: Array<string> | string): void {
     if (this.cannot(action, subject, fields)) {
       throw new ForbiddenException("You don't have permission to do this");
     }
@@ -45,7 +45,7 @@ export class AuthAbility {
   /**
    * Checks if the user has the given ability and throws a NotFoundException if it doesn't
    */
-  authorizeAnonymous(action: AbilityAction, subject: Subject, fields?: Array<string> | string | undefined): void {
+  authorizeAnonymous(action: AbilityAction, subject: Subject, fields?: Array<string> | string): void {
     if (this.cannot(action, subject, fields)) {
       throw new NotFoundException();
     }
@@ -75,7 +75,7 @@ export class AuthAbility {
    *
    * **Note:** The model is only used for logging, but the factory should still only define abilities for that model
    */
-  // eslint-disable-next-line @typescript-eslint/ban-types
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
   static registerAbilityFactory(abilityFactory: AuthAbilityRuleFactory, model?: Function): void {
     this.RULE_FACTORIES.push(abilityFactory);
 

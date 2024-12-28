@@ -3,7 +3,7 @@ import { SchemaObject } from '@nestjs/swagger/dist/interfaces/open-api-spec.inte
 import { PaginationMetaDto } from '../dto/pagination-meta.dto';
 
 export function getResponseSchema(
-  // eslint-disable-next-line @typescript-eslint/ban-types
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
   dto: Function | string,
   options?: { isArray?: boolean; hasPagination?: boolean; nullable?: boolean; description?: string; example?: unknown },
 ): SchemaObject {

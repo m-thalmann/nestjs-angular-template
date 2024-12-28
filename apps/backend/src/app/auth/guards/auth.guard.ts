@@ -11,13 +11,13 @@ import { FastifyRequest } from 'fastify';
 import { AuthTokenService } from '../tokens/auth-token.service';
 
 const IS_PUBLIC_KEY = 'isPublic';
-export const Public: () => CustomDecorator<string> = () => SetMetadata(IS_PUBLIC_KEY, true);
+export const Public: () => CustomDecorator = () => SetMetadata(IS_PUBLIC_KEY, true);
 
 const USE_REFRESH_TOKEN_AUTH = 'useRefreshTokenAuth';
 /**
  * **Note:** You can also use the `ApiAuth` decorator instead
  */
-export const RefreshTokenAuth: (mustBeRefreshToken?: boolean) => CustomDecorator<string> = (
+export const RefreshTokenAuth: (mustBeRefreshToken?: boolean) => CustomDecorator = (
   mustBeRefreshToken: boolean = true,
 ) => SetMetadata(USE_REFRESH_TOKEN_AUTH, mustBeRefreshToken);
 
@@ -25,9 +25,8 @@ const REQUIRES_VERIFIED_EMAIL_KEY = 'requiresVerifiedEmail';
 /**
  * **Note:** You can also use the `ApiAuth` decorator instead
  */
-export const EmailMustBeVerified: (mustBeVerified?: boolean) => CustomDecorator<string> = (
-  mustBeVerified: boolean = true,
-) => SetMetadata(REQUIRES_VERIFIED_EMAIL_KEY, mustBeVerified);
+export const EmailMustBeVerified: (mustBeVerified?: boolean) => CustomDecorator = (mustBeVerified: boolean = true) =>
+  SetMetadata(REQUIRES_VERIFIED_EMAIL_KEY, mustBeVerified);
 
 @Injectable()
 export class AuthGuard implements CanActivate {
