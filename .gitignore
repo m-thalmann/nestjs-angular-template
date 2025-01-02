@@ -43,3 +43,7 @@ Thumbs.db
 
 .env
 database.sqlite
+
+.angular
+
+apps/frontend/public/config.json

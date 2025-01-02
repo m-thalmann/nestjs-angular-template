@@ -3,7 +3,7 @@ const globals = require('globals');
 const nxPlugin = require('@nx/eslint-plugin');
 
 const baseConfig = require('@m-thalmann/eslint-config-base');
-const typescriptConfig = require('@m-thalmann/eslint-config-typescript');
+const angularConfig = require('@m-thalmann/eslint-config-angular');
 
 const prettierConfig = require('eslint-config-prettier');
 
@@ -29,7 +29,7 @@ module.exports = [
     files: ['**/*.ts'],
     languageOptions: {
       parserOptions: {
-        project: ['./tsconfig.base.json', './apps/backend/tsconfig**.json'],
+        project: ['./tsconfig.base.json', './apps/backend/tsconfig**.json', './apps/frontend/tsconfig**.json'],
         tsconfigRootDir: __dirname,
       },
     },
@@ -44,7 +44,7 @@ module.exports = [
   },
 
   ...baseConfig,
-  ...typescriptConfig,
+  ...angularConfig,
 
   prettierConfig,
 ];
