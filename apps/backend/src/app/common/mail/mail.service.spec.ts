@@ -118,9 +118,7 @@ describe('MailService', () => {
       expect(result).toBe(false);
       expect(mockMailerService.sendMail).toHaveBeenCalledWith(mockMailOptions);
 
-      // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(mockMessage.getErrorContext).toHaveBeenCalled();
-      // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(mockLogger.error).toHaveBeenCalledWith(
         `Error sending email (${mockErrorContext}): ${mockErrorMessage}`,
         undefined,

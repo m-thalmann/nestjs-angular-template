@@ -220,7 +220,6 @@ describe('UniqueValidator', () => {
         ]);
       }
 
-      // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(validator.defaultMessage).toHaveBeenCalled();
 
       const [defaultMessageCallArgs] = (validator.defaultMessage as jest.Mock).mock.calls[0] as Parameters<

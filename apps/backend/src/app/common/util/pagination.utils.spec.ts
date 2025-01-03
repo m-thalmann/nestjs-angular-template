@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-magic-numbers */
-import { buildPaginationMeta, buildPaginationParams, calculateLastPage, DEFAULT_PER_PAGE } from './pagination.utils';
+import { PAGINATION_QUERY_PARAMS } from '@app/shared-types';
+import { buildPaginationMeta, buildPaginationOptions, calculateLastPage, DEFAULT_PER_PAGE } from './pagination.utils';
 
 describe('Pagination utils', () => {
   describe('calculateLastPage', () => {
@@ -22,36 +23,36 @@ describe('Pagination utils', () => {
     });
   });
 
-  describe('buildPaginationParams', () => {
+  describe('buildPaginationOptions', () => {
     it('should return page and per page from query', () => {
-      const query = { page: '2', 'per-page': '10' };
+      const query = { [PAGINATION_QUERY_PARAMS.PAGE]: '2', [PAGINATION_QUERY_PARAMS.PER_PAGE]: '10' };
 
-      const result = buildPaginationParams(query);
+      const result = buildPaginationOptions(query);
 
       expect(result.page).toBe(2);
       expect(result.perPage).toBe(10);
     });
 
     it('should return default page if not defined', () => {
-      const query = { 'per-page': '10' };
+      const query = { [PAGINATION_QUERY_PARAMS.PER_PAGE]: '10' };
 
-      const result = buildPaginationParams(query);
+      const result = buildPaginationOptions(query);
 
       expect(result.page).toBe(1);
     });
 
     it('should return default per page if not defined', () => {
-      const query = { page: '1' };
+      const query = { [PAGINATION_QUERY_PARAMS.PAGE]: '1' };
 
-      const result = buildPaginationParams(query);
+      const result = buildPaginationOptions(query);
 
       expect(result.perPage).toBe(DEFAULT_PER_PAGE);
     });
 
     it('should return offset based on page and per page', () => {
-      const query = { page: '2', 'per-page': '10' };
+      const query = { [PAGINATION_QUERY_PARAMS.PAGE]: '2', [PAGINATION_QUERY_PARAMS.PER_PAGE]: '10' };
 
-      const result = buildPaginationParams(query);
+      const result = buildPaginationOptions(query);
 
       expect(result.offset).toBe(10);
     });
@@ -59,10 +60,10 @@ describe('Pagination utils', () => {
 
   describe('buildPaginationMeta', () => {
     it('should build pagination meta correctly', () => {
-      const paginationParams = { page: 2, perPage: 10, offset: 10 };
+      const paginationOptions = { page: 2, perPage: 10, offset: 10 };
       const totalAmount = 100;
 
-      const result = buildPaginationMeta(paginationParams, totalAmount);
+      const result = buildPaginationMeta(paginationOptions, totalAmount);
 
       expect(result.total).toBe(totalAmount);
       expect(result.perPage).toBe(10);

@@ -82,9 +82,7 @@ describe('AuthGuard', () => {
 
       expect(result).toBe(true);
 
-      // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(guard.extractTokenFromHeader).toHaveBeenCalledWith(context.switchToHttp().getRequest());
-      // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(guard.isPublicRequest).toHaveBeenCalledWith(context);
     });
 
@@ -123,7 +121,6 @@ describe('AuthGuard', () => {
 
       await expect(guard.canActivate(context)).rejects.toThrow(UnauthorizedException);
 
-      // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(guard.extractTokenFromHeader).toHaveBeenCalledWith(context.switchToHttp().getRequest());
       expect(mockAuthTokenService.validateToken).not.toHaveBeenCalled();
     });
@@ -149,7 +146,6 @@ describe('AuthGuard', () => {
 
       await expect(guard.canActivate(context)).rejects.toThrow(UnauthorizedException);
 
-      // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(guard.extractTokenFromHeader).toHaveBeenCalledWith(context.switchToHttp().getRequest());
       expect(mockAuthTokenService.validateToken).toHaveBeenCalled();
     });
@@ -188,9 +184,7 @@ describe('AuthGuard', () => {
 
         expect(result).toBe(true);
 
-        // eslint-disable-next-line @typescript-eslint/unbound-method
         expect(guard.extractTokenFromHeader).toHaveBeenCalledWith(context.switchToHttp().getRequest());
-        // eslint-disable-next-line @typescript-eslint/unbound-method
         expect(guard.getExpectRefreshTokenAuth).toHaveBeenCalledWith(context);
         expect(mockAuthTokenService.validateToken).toHaveBeenCalledWith(expectedJwtToken, { expectRefreshToken });
 

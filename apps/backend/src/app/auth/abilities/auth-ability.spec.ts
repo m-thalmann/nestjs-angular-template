@@ -76,7 +76,6 @@ describe('AuthAbility', () => {
       const result = authAbility.cannot('read', 'Post', ['title', 'author']);
 
       expect(result).toBe(expectedResult);
-      // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(authAbility.can).toHaveBeenCalledWith('read', 'Post', ['title', 'author']);
     });
   });
@@ -86,7 +85,6 @@ describe('AuthAbility', () => {
       authAbility.cannot = jest.fn().mockReturnValue(true);
 
       expect(() => authAbility.authorize('read', 'Post', ['title', 'author'])).toThrow(ForbiddenException);
-      // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(authAbility.cannot).toHaveBeenCalledWith('read', 'Post', ['title', 'author']);
     });
 
@@ -94,7 +92,6 @@ describe('AuthAbility', () => {
       authAbility.cannot = jest.fn().mockReturnValue(false);
 
       expect(() => authAbility.authorize('read', 'Post', ['title', 'author'])).not.toThrow();
-      // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(authAbility.cannot).toHaveBeenCalledWith('read', 'Post', ['title', 'author']);
     });
   });
@@ -104,7 +101,6 @@ describe('AuthAbility', () => {
       authAbility.cannot = jest.fn().mockReturnValue(true);
 
       expect(() => authAbility.authorizeAnonymous('read', 'Post', ['title', 'author'])).toThrow(NotFoundException);
-      // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(authAbility.cannot).toHaveBeenCalledWith('read', 'Post', ['title', 'author']);
     });
 
@@ -112,7 +108,6 @@ describe('AuthAbility', () => {
       authAbility.cannot = jest.fn().mockReturnValue(false);
 
       expect(() => authAbility.authorizeAnonymous('read', 'Post', ['title', 'author'])).not.toThrow();
-      // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(authAbility.cannot).toHaveBeenCalledWith('read', 'Post', ['title', 'author']);
     });
   });

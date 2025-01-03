@@ -468,14 +468,11 @@ describe('AuthTokenService', () => {
 
       expect(tokenPair).toEqual({ refreshToken: expectedRefreshToken, accessToken: expectedAccessToken });
 
-      // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(service.buildJwtToken).toHaveBeenCalledTimes(2);
-      // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(service.buildJwtToken).toHaveBeenNthCalledWith(1, authToken, {
         isRefreshToken: true,
         expirationMinutes: mockAuthConfig.refreshTokenExpirationMinutes,
       });
-      // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(service.buildJwtToken).toHaveBeenNthCalledWith(2, authToken);
     });
   });
@@ -497,16 +494,12 @@ describe('AuthTokenService', () => {
       expect(accessToken).toBe(expectedTokenPair.accessToken);
       expect(authToken).toBe(expectedAuthToken);
 
-      // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(service.createAuthToken).toHaveBeenCalledTimes(1);
-      // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(service.createAuthToken).toHaveBeenCalledWith(user, {
         expirationMinutes: mockAuthConfig.refreshTokenExpirationMinutes,
       });
 
-      // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(service.buildJwtTokenPair).toHaveBeenCalledTimes(1);
-      // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(service.buildJwtTokenPair).toHaveBeenCalledWith(expectedAuthToken);
     });
   });
@@ -552,9 +545,7 @@ describe('AuthTokenService', () => {
       expect(mockAuthTokenRepository.save).toHaveBeenCalledTimes(1);
       expect(mockAuthTokenRepository.save).toHaveBeenCalledWith(expectedUpdatedToken);
 
-      // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(service.buildJwtTokenPair).toHaveBeenCalledTimes(1);
-      // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(service.buildJwtTokenPair).toHaveBeenCalledWith(expectedUpdatedToken);
     });
   });

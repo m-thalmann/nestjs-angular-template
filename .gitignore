@@ -46,4 +46,4 @@ database.sqlite
 
 .angular
 
-apps/frontend/public/config.json
+apps/frontend/public/assets/config.json

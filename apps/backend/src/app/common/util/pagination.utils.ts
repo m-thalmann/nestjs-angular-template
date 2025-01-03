@@ -1,10 +1,8 @@
-import { PaginationMeta } from '@app/shared-types';
+import { PAGINATION_QUERY_PARAMS, PaginationMeta, PaginationParams } from '@app/shared-types';
 
 export const DEFAULT_PER_PAGE = 20;
 
-export interface PaginationParams {
-  page: number;
-  perPage: number;
+export interface PaginationOptions extends Required<PaginationParams> {
   offset: number;
 }
 
@@ -12,20 +10,20 @@ export function calculateLastPage(totalAmount: number, pageSize: number): number
   return Math.ceil(totalAmount / pageSize);
 }
 
-export function buildPaginationParams(queryParams: Record<string, string>): PaginationParams {
-  const page = queryParams.page === undefined ? 1 : parseInt(queryParams.page, 10);
-  const perPage = queryParams['per-page'] === undefined ? DEFAULT_PER_PAGE : parseInt(queryParams['per-page'], 10);
+export function buildPaginationOptions(queryParams: Record<string, string>): PaginationOptions {
+  const page = parseInt(queryParams[PAGINATION_QUERY_PARAMS.PAGE] ?? '1', 10);
+  const perPage = parseInt(queryParams[PAGINATION_QUERY_PARAMS.PER_PAGE] ?? DEFAULT_PER_PAGE.toString(), 10);
 
   const offset = (page - 1) * perPage;
 
   return { page, perPage, offset };
 }
 
-export function buildPaginationMeta(paginationParams: PaginationParams, totalAmount: number): PaginationMeta {
+export function buildPaginationMeta(paginationOptions: PaginationOptions, totalAmount: number): PaginationMeta {
   return {
     total: totalAmount,
-    perPage: paginationParams.perPage,
-    currentPage: paginationParams.page,
-    lastPage: calculateLastPage(totalAmount, paginationParams.perPage),
+    perPage: paginationOptions.perPage,
+    currentPage: paginationOptions.page,
+    lastPage: calculateLastPage(totalAmount, paginationOptions.perPage),
   };
 }

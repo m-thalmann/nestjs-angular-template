@@ -28,7 +28,7 @@ import { Auth } from '../common/decorators/auth-decorator';
 import { AuthorizeAbility } from '../common/decorators/authorize-ability-decorator';
 import { ApiAuth, ApiPaginationQueryParams, ApiValidationErrorResponse } from '../common/decorators/controller';
 import { buildDtoArray } from '../common/util/build-dto.utils';
-import { buildPaginationParams } from '../common/util/pagination.utils';
+import { buildPaginationOptions } from '../common/util/pagination.utils';
 import { getResponseSchema } from '../common/util/swagger.utils';
 import { CreateUserDto } from './dto/create-user.dto';
 import { PatchAuthUserDto } from './dto/patch-auth-user.dto';
@@ -77,9 +77,9 @@ export class UsersController {
   ): Promise<PaginatedApiResponse<Array<UserDto>>> {
     ability.authorize('readAll', User);
 
-    const paginationParams = buildPaginationParams(queryParams);
+    const paginationOptions = buildPaginationOptions(queryParams);
 
-    const { users, paginationMeta } = await this.usersService.findAll({ pagination: paginationParams });
+    const { users, paginationMeta } = await this.usersService.findAll({ pagination: paginationOptions });
 
     return { data: buildDtoArray(users, (user) => buildUserDto(user)), meta: paginationMeta };
   }

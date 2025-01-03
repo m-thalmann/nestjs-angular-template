@@ -3,7 +3,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { AuthTokenService } from '../auth/tokens/auth-token.service';
-import { buildPaginationMeta, PaginationParams } from '../common/util/pagination.utils';
+import { buildPaginationMeta, PaginationOptions } from '../common/util/pagination.utils';
 import { UniqueValidator } from '../common/validation/unique.validator';
 import { UserCreatedEvent } from './events/user-created.event';
 import { UserEmailUpdatedEvent } from './events/user-email-updated.event';
@@ -72,21 +72,21 @@ describe('UsersService', () => {
 
   describe('findAll', () => {
     it('should return all users', async () => {
-      const paginationParams: PaginationParams = { offset: 10, perPage: 10, page: 1 };
+      const paginationOptions: PaginationOptions = { offset: 10, perPage: 10, page: 1 };
 
       const expectedUsers = [new User(), new User()];
-      const expectedPaginationMeta = buildPaginationMeta(paginationParams, expectedUsers.length);
+      const expectedPaginationMeta = buildPaginationMeta(paginationOptions, expectedUsers.length);
 
       (mockUsersRepository.find as jest.Mock).mockResolvedValue(expectedUsers);
       (mockUsersRepository.count as jest.Mock).mockResolvedValue(expectedUsers.length);
 
-      const result = await service.findAll({ pagination: paginationParams });
+      const result = await service.findAll({ pagination: paginationOptions });
 
       expect(result).toEqual({ users: expectedUsers, paginationMeta: expectedPaginationMeta });
 
       expect(mockUsersRepository.find).toHaveBeenCalledWith({
-        skip: paginationParams.offset,
-        take: paginationParams.perPage,
+        skip: paginationOptions.offset,
+        take: paginationOptions.perPage,
       });
       expect(mockUsersRepository.count).toHaveBeenCalledWith();
     });

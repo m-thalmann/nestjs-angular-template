@@ -98,7 +98,6 @@ describe('ResetPasswordService', () => {
 
       await service.sendResetPasswordEmail(user.email);
 
-      // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(service.generateResetToken).toHaveBeenCalledWith(user.email, user.updatedAt);
       expect(mockEventEmitter.emit).toHaveBeenCalledWith(
         RequestPasswordResetEvent.ID,

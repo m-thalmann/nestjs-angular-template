@@ -4,7 +4,7 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FindManyOptions, Repository } from 'typeorm';
 import { AuthTokenService } from '../auth/tokens/auth-token.service';
-import { buildPaginationMeta, PaginationParams } from '../common/util/pagination.utils';
+import { buildPaginationMeta, PaginationOptions } from '../common/util/pagination.utils';
 import { UniqueValidator } from '../common/validation/unique.validator';
 import { CreateUserDto } from './dto/create-user.dto';
 import { PatchUserDto } from './dto/patch-user.dto';
@@ -23,7 +23,7 @@ export class UsersService {
   ) {}
 
   async findAll(options: {
-    pagination: PaginationParams;
+    pagination: PaginationOptions;
   }): Promise<{ users: Array<User>; paginationMeta: PaginationMeta }> {
     const findOptions: FindManyOptions<User> = {
       skip: options.pagination.offset,

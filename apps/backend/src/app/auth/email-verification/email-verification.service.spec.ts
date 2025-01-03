@@ -88,7 +88,6 @@ describe('EmailVerificationService', () => {
       service.validateVerificationToken = jest.fn().mockResolvedValue(false);
 
       await expect(service.verifyEmail(user, 'token')).rejects.toThrow(ForbiddenException);
-      // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(service.validateVerificationToken).toHaveBeenCalledWith(user, 'token');
     });
 
