@@ -8,7 +8,7 @@ import { Config } from './config.model';
   providedIn: 'root',
 })
 export class ConfigService {
-  static readonly API_URL: string = 'assets/config.json';
+  static readonly CONFIG_URL: string = 'assets/config.json';
 
   private readonly httpClient: HttpClient = inject(HttpClient);
 
@@ -23,12 +23,16 @@ export class ConfigService {
   }
 
   async load(): Promise<void> {
-    try {
-      const config = await firstValueFrom(this.httpClient.get<Config>(ConfigService.API_URL));
+    let config: Config | null = null;
 
-      this._config = config;
+    try {
+      config = await firstValueFrom(this.httpClient.get<Config>(ConfigService.CONFIG_URL));
     } catch (e) {
       throw new Error(`Failed to load config: ${getErrorMessage(e)}`);
     }
+
+    this._config = {
+      apiUrl: config.apiUrl.replace(/\/+$/, ''), // trim trailing slash(es),
+    };
   }
 }

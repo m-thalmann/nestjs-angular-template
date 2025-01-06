@@ -9,7 +9,7 @@ const prettierConfig = require('eslint-config-prettier');
 
 module.exports = [
   {
-    ignores: ['dist/', '.nx', '.angular'],
+    ignores: ['dist/', 'tmp/', 'coverage/', '.nx', '.angular'],
   },
 
   {

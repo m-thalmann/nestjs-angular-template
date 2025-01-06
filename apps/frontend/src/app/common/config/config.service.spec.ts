@@ -46,22 +46,22 @@ describe('ConfigService', () => {
 
   describe('load', () => {
     it('should load the config', async () => {
-      const config: Config = { apiUrl: 'http://localhost:3000' };
+      const config: Config = { apiUrl: 'http://localhost:3000/' };
 
       const loadingPromise = service.load();
 
-      const req = httpTesting.expectOne(ConfigService.API_URL);
+      const req = httpTesting.expectOne(ConfigService.CONFIG_URL);
       req.flush(config);
 
       await loadingPromise;
 
-      expect(service.config).toEqual(config);
+      expect(service.config).toEqual({ apiUrl: 'http://localhost:3000' }); // trims trailing slash
     });
 
     it('should throw an error if loading the config fails', async () => {
       const loadingPromise = service.load();
 
-      const req = httpTesting.expectOne(ConfigService.API_URL);
+      const req = httpTesting.expectOne(ConfigService.CONFIG_URL);
       req.flush('Failed!', { status: 500, statusText: 'Internal Server Error' });
 
       await expect(loadingPromise).rejects.toThrow();

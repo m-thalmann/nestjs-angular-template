@@ -6,6 +6,7 @@ import { PAGINATION_QUERY_PARAMS } from '@app/shared-types';
 import { firstValueFrom } from 'rxjs';
 import { ConfigService } from '../config/config.service';
 import { ApiService } from './api.service';
+import { USE_REFRESH_TOKEN_HTTP_CONTEXT } from './auth.interceptor';
 
 @Injectable()
 class ApiServiceTestClass extends ApiService {
@@ -173,6 +174,42 @@ describe('ApiService', () => {
       const result = await resultPromise;
 
       expect(result).toEqual(expectedResponse);
+    });
+
+    it('should set the use refresh token context when tokenType is refresh', async () => {
+      const method = 'GET';
+      const url = '/test';
+      const tokenType = 'refresh';
+
+      const expectedResponse = 'test';
+
+      const resultPromise = firstValueFrom(apiService.request<string>(method, url, { tokenType }));
+
+      const req = httpTesting.expectOne(`${apiService.apiUrl}${url}`);
+      req.flush(expectedResponse);
+
+      const result = await resultPromise;
+
+      expect(result).toEqual(expectedResponse);
+      expect(req.request.context.get(USE_REFRESH_TOKEN_HTTP_CONTEXT)).toBe(true);
+    });
+
+    it('should not set the use refresh token context when tokenType is access', async () => {
+      const method = 'GET';
+      const url = '/test';
+      const tokenType = 'access';
+
+      const expectedResponse = 'test';
+
+      const resultPromise = firstValueFrom(apiService.request<string>(method, url, { tokenType }));
+
+      const req = httpTesting.expectOne(`${apiService.apiUrl}${url}`);
+      req.flush(expectedResponse);
+
+      const result = await resultPromise;
+
+      expect(result).toEqual(expectedResponse);
+      expect(req.request.context.get(USE_REFRESH_TOKEN_HTTP_CONTEXT)).toBe(false);
     });
   });
 

@@ -1,3 +1,4 @@
+import { EMAIL_UNVERIFIED_MESSAGE } from '@app/shared-types';
 import {
   CanActivate,
   CustomDecorator,
@@ -54,7 +55,7 @@ export class AuthGuard implements CanActivate {
     const requiresVerifiedEmail = this.getRequiresVerifiedEmail(context);
 
     if (requiresVerifiedEmail && !user.isEmailVerified()) {
-      throw new UnauthorizedException('Email not verified');
+      throw new UnauthorizedException(EMAIL_UNVERIFIED_MESSAGE);
     }
 
     // @ts-expect-error Add user to request

@@ -3,6 +3,7 @@ import { inject, Injectable } from '@angular/core';
 import { PAGINATION_QUERY_PARAMS, PaginationParams } from '@app/shared-types';
 import { Observable } from 'rxjs';
 import { ConfigService } from '../config/config.service';
+import { USE_REFRESH_TOKEN_HTTP_CONTEXT } from './auth.interceptor';
 
 export type HttpMethod = 'DELETE' | 'GET' | 'PATCH' | 'POST' | 'PUT';
 
@@ -13,7 +14,7 @@ export class ApiService {
   private readonly configService: ConfigService = inject(ConfigService);
   private readonly httpClient: HttpClient = inject(HttpClient);
 
-  protected get apiUrl(): string {
+  get apiUrl(): string {
     return this.configService.config.apiUrl;
   }
 
@@ -28,6 +29,7 @@ export class ApiService {
       observe?: 'body';
       reportProgress?: boolean;
       responseType?: 'json';
+      tokenType?: 'access' | 'refresh';
     },
   ): Observable<TResponse>;
   request(
@@ -41,6 +43,7 @@ export class ApiService {
       observe?: 'body';
       reportProgress?: boolean;
       responseType: 'blob';
+      tokenType?: 'access' | 'refresh';
     },
   ): Observable<Blob>;
   request<TResponse>(
@@ -54,6 +57,7 @@ export class ApiService {
       observe: 'events';
       reportProgress?: boolean;
       responseType?: 'json';
+      tokenType?: 'access' | 'refresh';
     },
   ): Observable<HttpEvent<TResponse>>;
   request(
@@ -67,6 +71,7 @@ export class ApiService {
       observe: 'events';
       reportProgress?: boolean;
       responseType: 'blob';
+      tokenType?: 'access' | 'refresh';
     },
   ): Observable<HttpEvent<Blob>>;
   request<TResponse>(
@@ -80,6 +85,7 @@ export class ApiService {
       observe: 'response';
       reportProgress?: boolean;
       responseType?: 'json';
+      tokenType?: 'access' | 'refresh';
     },
   ): Observable<HttpResponse<TResponse>>;
   request(
@@ -93,6 +99,7 @@ export class ApiService {
       observe: 'response';
       reportProgress?: boolean;
       responseType: 'blob';
+      tokenType?: 'access' | 'refresh';
     },
   ): Observable<HttpResponse<Blob>>;
   request(
@@ -106,6 +113,7 @@ export class ApiService {
       observe?: 'body' | 'events' | 'response';
       reportProgress?: boolean;
       responseType?: 'blob' | 'json';
+      tokenType?: 'access' | 'refresh';
     },
   ): Observable<unknown>;
   request(
@@ -119,9 +127,23 @@ export class ApiService {
       observe?: 'body' | 'events' | 'response';
       reportProgress?: boolean;
       responseType?: 'blob' | 'json';
+      tokenType?: 'access' | 'refresh';
     },
   ): Observable<unknown> {
-    const { body, headers, context, params, observe, reportProgress, responseType } = options ?? {};
+    const {
+      body,
+      headers,
+      context = new HttpContext(),
+      params,
+      observe,
+      reportProgress,
+      responseType,
+      tokenType = 'access',
+    } = options ?? {};
+
+    if (tokenType === 'refresh') {
+      context.set(USE_REFRESH_TOKEN_HTTP_CONTEXT, true);
+    }
 
     // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return this.httpClient.request(method, this.apiUrl + url, {

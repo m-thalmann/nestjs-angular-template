@@ -1,5 +1,8 @@
-import { StorageService } from './storage.service';
+import { Injectable } from '@angular/core';
+import { TestBed } from '@angular/core/testing';
+import { STORAGE_IMPLEMENTATION, StorageService } from './storage.service';
 
+@Injectable()
 class StorageServiceTestClass extends StorageService {
   static getPrefix(): string {
     return StorageService.PREFIX;
@@ -22,7 +25,17 @@ describe('StorageService', () => {
       removeItem: jest.fn(),
     };
 
-    service = new StorageServiceTestClass(mockStorage as Storage);
+    TestBed.configureTestingModule({
+      providers: [
+        StorageServiceTestClass,
+        {
+          provide: STORAGE_IMPLEMENTATION,
+          useValue: mockStorage,
+        },
+      ],
+    });
+
+    service = TestBed.inject(StorageServiceTestClass);
   });
 
   describe('get', () => {

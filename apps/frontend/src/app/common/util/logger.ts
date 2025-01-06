@@ -30,12 +30,21 @@ export class Logger {
   }
 
   protected static write(context: string, type: LoggerType, ...message: Array<unknown>): void {
-    if (typeof jest !== 'undefined') {
+    if (Logger.isRunningInTestEnvironment()) {
       // do not log in tests
       return;
     }
 
     // eslint-disable-next-line no-console
     console[type](`%c ${context} `, `color: white; background: orange; border-radius: 2px`, ...message);
+  }
+
+  // TODO: move to a shared util lib
+  protected static isRunningInTestEnvironment(): boolean {
+    if ('process' in window) {
+      return (window.process as unknown as { env: { NODE_ENV: string } }).env.NODE_ENV === 'test';
+    }
+
+    return false;
   }
 }

@@ -1,6 +1,10 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable, InjectionToken } from '@angular/core';
 import { getErrorMessage } from './error.utils';
 import { Logger } from './logger';
+
+export const STORAGE_IMPLEMENTATION = new InjectionToken<Storage>('STORAGE_IMPLEMENTATION', {
+  factory: () => localStorage,
+});
 
 @Injectable({
   providedIn: 'root',
@@ -8,9 +12,8 @@ import { Logger } from './logger';
 export class StorageService {
   protected static readonly PREFIX: string = 'APP_';
 
+  protected readonly storage: Storage = inject(STORAGE_IMPLEMENTATION);
   protected readonly logger: Logger = new Logger(StorageService.name);
-
-  constructor(private readonly storage: Storage = localStorage) {}
 
   get<T>(key: string, defaultValue: T | null = null): T | null {
     const value = this.storage.getItem(StorageService.generateKey(key));

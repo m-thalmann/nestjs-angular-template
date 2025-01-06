@@ -294,7 +294,7 @@ describe('AuthTokenService', () => {
       const authToken = await service.createAuthToken(user);
 
       expect(authToken.uuid).toBe(expectedTokenUuid);
-      expect(authToken.user).resolves.toBe(user);
+      await expect(authToken.user).resolves.toBe(user);
       expect(authToken.version).toBe(1);
       expect(authToken.expiresAt).toBeNull();
     });
@@ -314,7 +314,7 @@ describe('AuthTokenService', () => {
       const authToken = await service.createAuthToken(user, { version: expectedVersion });
 
       expect(authToken.uuid).toBe(expectedTokenUuid);
-      expect(authToken.user).resolves.toBe(user);
+      await expect(authToken.user).resolves.toBe(user);
       expect(authToken.version).toBe(expectedVersion);
       expect(authToken.name).toBeNull();
       expect(authToken.expiresAt).toBeNull();

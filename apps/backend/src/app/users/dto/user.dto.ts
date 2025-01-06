@@ -1,9 +1,10 @@
 /* eslint-disable max-classes-per-file */
+import { DetailedUserDto as SharedDetailedUserDto, UserDto as SharedUserDto } from '@app/shared-types';
 import { ApiProperty } from '@nestjs/swagger';
 import { convertDateToUnixTimestamp } from '../../common/util/date.utils';
 import { User } from '../user.entity';
 
-export class UserDto {
+export class UserDto implements SharedUserDto {
   @ApiProperty({
     type: 'string',
     format: 'uuid',
@@ -28,7 +29,7 @@ export class UserDto {
   email!: string;
 }
 
-export class DetailedUserDto extends UserDto {
+export class DetailedUserDto extends UserDto implements SharedDetailedUserDto {
   @ApiProperty({
     type: 'boolean',
     description: 'Whether the user is an admin or not',
