@@ -59,16 +59,13 @@
       "style": "scss",
       "standalone": true,
       "changeDetection": "OnPush",
-      "displayBlock": true,
-      "nameAndDirectoryFormat": "derived"
+      "displayBlock": true
     },
     "@nx/angular:directive": {
-      "standalone": true,
-      "nameAndDirectoryFormat": "derived"
+      "standalone": true
     },
     "@nx/angular:pipe": {
-      "standalone": true,
-      "nameAndDirectoryFormat": "derived"
+      "standalone": true
     }
   }
 }
