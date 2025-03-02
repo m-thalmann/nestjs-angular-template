@@ -1,0 +1,21 @@
+<form [formGroup]="loginForm">
+  <label>
+    Email
+    <p-iconfield>
+      <p-inputicon styleClass="pi pi-envelope" />
+      <input type="email" pInputText variant="filled" pSize="large" formControlName="email" />
+    </p-iconfield>
+  </label>
+
+  <label>
+    Password
+    <p-iconfield>
+      <p-inputicon styleClass="pi pi-key" />
+      <input type="password" pInputText variant="filled" pSize="large" formControlName="password" />
+    </p-iconfield>
+  </label>
+
+  <p-button label="Login" (onClick)="login()" />
+</form>
+
+{{ loginForm.valid ? 'true' : 'false' }}

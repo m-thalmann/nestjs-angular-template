@@ -1,5 +1,9 @@
 import { HttpErrorResponse, HttpStatusCode } from '@angular/common/http';
 
+export interface HttpValidationErrorResponse extends HttpErrorResponse {
+  error: { message: string; errors: Record<string, Array<string>>; statusCode: number };
+}
+
 export function getErrorMessage(e: unknown): string {
   if (e instanceof Error) {
     return e.message;
@@ -27,4 +31,17 @@ export function getApiErrorMessage(error: unknown): string {
   }
 
   return getErrorMessage(error);
+}
+
+export function isApiValidationResponse(response: unknown): response is HttpValidationErrorResponse {
+  return (
+    response instanceof HttpErrorResponse &&
+    response.status === HttpStatusCode.UnprocessableEntity.valueOf() &&
+    response.error !== undefined &&
+    'errors' in response.error &&
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+    response.error.errors !== undefined &&
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+    typeof response.error.errors === 'object'
+  );
 }

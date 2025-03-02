@@ -1,4 +1,4 @@
-import { HttpStatus, INestApplication, Logger, ValidationPipe } from '@nestjs/common';
+import { INestApplication, Logger } from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import { FastifyAdapter } from '@nestjs/platform-fastify';
@@ -7,6 +7,7 @@ import { useContainer as classValidatorUseContainer } from 'class-validator';
 import { AppModule } from './app/app.module';
 import { appConfigDefinition } from './app/common/config/app.config';
 import { PaginationMetaDto } from './app/common/dto/pagination-meta.dto';
+import { AppValidationPipe } from './app/common/validation/app-validation.pipe';
 
 function setupSwagger(app: INestApplication<unknown>, serverUrl: string): void {
   const config = new DocumentBuilder()
@@ -57,17 +58,11 @@ async function bootstrap(): Promise<void> {
   const port = appConfig.port;
   const basePath = appConfig.basePath;
 
+  // TODO: add allowed cors origins as config
   app.enableCors();
   app.setGlobalPrefix(basePath);
 
-  app.useGlobalPipes(
-    new ValidationPipe({
-      transform: true,
-      whitelist: true,
-      forbidNonWhitelisted: true,
-      errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
-    }),
-  );
+  app.useGlobalPipes(AppValidationPipe);
 
   classValidatorUseContainer(app.select(AppModule), { fallbackOnErrors: true });
 

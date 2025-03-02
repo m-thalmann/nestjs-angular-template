@@ -11,8 +11,8 @@ export type HttpMethod = 'DELETE' | 'GET' | 'PATCH' | 'POST' | 'PUT';
   providedIn: 'root',
 })
 export class ApiService {
-  private readonly configService: ConfigService = inject(ConfigService);
-  private readonly httpClient: HttpClient = inject(HttpClient);
+  private readonly configService = inject(ConfigService);
+  private readonly httpClient = inject(HttpClient);
 
   get apiUrl(): string {
     return this.configService.config.apiUrl;

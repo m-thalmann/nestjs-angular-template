@@ -7,7 +7,7 @@ import { RequestPasswordResetEvent } from '../events/request-password-reset.even
 
 @Injectable()
 export class ResetPasswordService {
-  static readonly TOKEN_EXPIRATION_MINUTES: number = 10;
+  static readonly TOKEN_EXPIRATION_MINUTES = 10;
 
   constructor(
     private readonly usersService: UsersService,

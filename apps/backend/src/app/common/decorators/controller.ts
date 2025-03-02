@@ -26,16 +26,19 @@ export function ApiValidationErrorResponse(): ReturnType<typeof applyDecorators>
       schema: {
         type: 'object',
         properties: {
-          message: {
-            type: 'array',
-            items: { type: 'string' },
-            description: 'The validation error messages',
-            example: ['name should not be empty', 'email must be an email'],
+          message: { type: 'string', description: 'The error description message', example: 'Validation failed' },
+          errors: {
+            description:
+              'All found errors with the key being the field of the error and the value the list of errors encountered',
+            type: 'object',
+            additionalProperties: {
+              type: 'array',
+              items: { description: 'The error message', type: 'string', example: 'Email should not be empty' },
+            },
           },
-          error: { type: 'string', description: 'The HTTP status message', example: 'Unprocessable Entity' },
           statusCode: { type: 'integer', description: 'The HTTP status code', example: 422 },
         },
-        required: ['message', 'error', 'statusCode'],
+        required: ['message', 'errors', 'statusCode'],
       },
     }),
   );

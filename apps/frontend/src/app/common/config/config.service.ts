@@ -8,9 +8,9 @@ import { Config } from './config.model';
   providedIn: 'root',
 })
 export class ConfigService {
-  static readonly CONFIG_URL: string = 'assets/config.json';
+  static readonly CONFIG_URL = 'assets/config.json';
 
-  private readonly httpClient: HttpClient = inject(HttpClient);
+  private readonly httpClient = inject(HttpClient);
 
   protected _config: Config | null = null;
 

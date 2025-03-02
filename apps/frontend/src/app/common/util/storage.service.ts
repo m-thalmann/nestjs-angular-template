@@ -10,10 +10,10 @@ export const STORAGE_IMPLEMENTATION = new InjectionToken<Storage>('STORAGE_IMPLE
   providedIn: 'root',
 })
 export class StorageService {
-  protected static readonly PREFIX: string = 'APP_';
+  protected static readonly PREFIX = 'APP_';
 
-  protected readonly storage: Storage = inject(STORAGE_IMPLEMENTATION);
-  protected readonly logger: Logger = new Logger(StorageService.name);
+  protected readonly storage = inject(STORAGE_IMPLEMENTATION);
+  protected readonly logger = new Logger(StorageService.name);
 
   get<T>(key: string, defaultValue: T | null = null): T | null {
     const value = this.storage.getItem(StorageService.generateKey(key));

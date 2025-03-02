@@ -32,12 +32,12 @@ export const REQUEST_REFRESH_TRIED_CONTEXT = new HttpContextToken<boolean>(() =>
 
 @Injectable()
 export class AuthInterceptor implements HttpInterceptor {
-  private readonly authDataService: AuthDataService = inject(AuthDataService);
-  private readonly authService: AuthService = inject(AuthService);
-  private readonly apiService: ApiService = inject(ApiService);
+  private readonly authDataService = inject(AuthDataService);
+  private readonly authService = inject(AuthService);
+  private readonly apiService = inject(ApiService);
 
-  protected isRefreshing: boolean = false;
-  protected doneRefreshing$: Subject<Error | undefined> = new Subject<Error | undefined>();
+  protected isRefreshing = false;
+  protected doneRefreshing$ = new Subject<Error | undefined>();
 
   intercept(request: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
     if (request.url === ConfigService.CONFIG_URL || !request.url.startsWith(this.apiService.apiUrl)) {

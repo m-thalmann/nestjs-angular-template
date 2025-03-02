@@ -31,7 +31,7 @@ import { AuthTokenService } from './tokens/auth-token.service';
 @ApiTags('Auth')
 @ApiExtraModels(SuccessfulAuthDto)
 export class AuthController {
-  protected static readonly REQUESTS_PER_MINUTE: number = 5;
+  protected static readonly REQUESTS_PER_MINUTE = 5;
 
   constructor(
     private readonly authService: AuthService,

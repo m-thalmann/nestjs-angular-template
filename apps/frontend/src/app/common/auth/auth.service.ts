@@ -9,7 +9,6 @@ import {
   filter,
   firstValueFrom,
   map,
-  Observable,
   ReplaySubject,
   shareReplay,
 } from 'rxjs';
@@ -23,23 +22,21 @@ import { AuthDataService } from './auth-data.service';
   providedIn: 'root',
 })
 export class AuthService {
-  protected static readonly ACCESS_TOKEN_KEY: string = 'ACCESS_TOKEN';
-  protected static readonly REFRESH_TOKEN_KEY: string = 'REFRESH_TOKEN';
+  protected static readonly ACCESS_TOKEN_KEY = 'ACCESS_TOKEN';
+  protected static readonly REFRESH_TOKEN_KEY = 'REFRESH_TOKEN';
 
-  private readonly storageService: StorageService = inject(StorageService);
-  private readonly authDataService: AuthDataService = inject(AuthDataService);
-  private readonly router: Router = inject(Router);
-  private readonly logger: Logger = new Logger(AuthService.name);
+  private readonly storageService = inject(StorageService);
+  private readonly authDataService = inject(AuthDataService);
+  private readonly router = inject(Router);
+  private readonly logger = new Logger(AuthService.name);
 
-  protected readonly _isInitialized$: ReplaySubject<boolean> = new ReplaySubject<boolean>(1);
-  readonly isInitialized$: Observable<boolean> = this._isInitialized$.asObservable();
+  protected readonly _isInitialized$ = new ReplaySubject<boolean>(1);
+  readonly isInitialized$ = this._isInitialized$.asObservable();
 
-  protected readonly _user$: BehaviorSubject<DetailedUserDto | null> = new BehaviorSubject<DetailedUserDto | null>(
-    null,
-  );
-  readonly user$: Observable<DetailedUserDto | null> = this._user$.asObservable();
+  protected readonly _user$ = new BehaviorSubject<DetailedUserDto | null>(null);
+  readonly user$ = this._user$.asObservable();
 
-  readonly isAuthenticated$: Observable<boolean> = combineLatest([this.isInitialized$, this._user$]).pipe(
+  readonly isAuthenticated$ = combineLatest([this.isInitialized$, this._user$]).pipe(
     filter(([isInitialized]) => isInitialized),
     map(([, user]) => user !== null),
     distinctUntilChanged(),

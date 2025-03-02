@@ -7,7 +7,7 @@ import { UsersService } from '../../users/users.service';
 
 @Injectable()
 export class EmailVerificationService {
-  static readonly TOKEN_EXPIRATION_MINUTES: number = 10;
+  static readonly TOKEN_EXPIRATION_MINUTES = 10;
 
   constructor(
     private readonly usersService: UsersService,
