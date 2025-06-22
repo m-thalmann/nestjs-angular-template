@@ -7,7 +7,7 @@ import { BaseMessage } from './base.message';
 
 @Injectable()
 export class MailService {
-  private readonly logger: Logger = new Logger(MailService.name);
+  private readonly logger = new Logger(MailService.name);
 
   constructor(
     private readonly mailerService: MailerService,

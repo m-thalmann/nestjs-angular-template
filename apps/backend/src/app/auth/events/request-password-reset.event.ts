@@ -1,5 +1,5 @@
 export class RequestPasswordResetEvent {
-  static readonly ID: string = 'auth.request-password-reset';
+  static readonly ID = 'auth.request-password-reset';
 
   constructor(
     public readonly email: string,

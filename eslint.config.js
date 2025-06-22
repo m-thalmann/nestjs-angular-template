@@ -47,4 +47,18 @@ module.exports = [
   ...angularConfig,
 
   prettierConfig,
+
+  {
+    files: ['**/*.ts'],
+    rules: {
+      '@typescript-eslint/typedef': [
+        'error',
+        {
+          memberVariableDeclaration: false,
+          parameter: true,
+          propertyDeclaration: true,
+        },
+      ],
+    },
+  },
 ];
