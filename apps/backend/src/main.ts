@@ -1,16 +1,26 @@
 import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
+import { FastifyAdapter } from '@nestjs/platform-fastify';
 import { AppModule } from './app/app.module';
 
-const DEFAULT_PORT = 3000;
-
 async function bootstrap(): Promise<void> {
-  const app = await NestFactory.create(AppModule);
-  const globalPrefix = 'api';
-  app.setGlobalPrefix(globalPrefix);
-  const port = process.env.PORT || DEFAULT_PORT;
+  // TODO: trust proxies: https://fastify.dev/docs/latest/Reference/Server/#trustproxy, https://docs.nestjs.com/security/rate-limiting#proxies
+  const app = await NestFactory.create(AppModule, new FastifyAdapter({ maxParamLength: 1000 }));
+
+  const port = 3000; // TODO: use config
+  const basePath = 'api'; // TODO: use config
+
+  // TODO: add allowed cors origins as config
+  app.enableCors();
+  app.setGlobalPrefix(basePath);
+
+  const serverUrl = `http://localhost:${port}${basePath}`;
+
   await app.listen(port);
-  Logger.log(`🚀 Application is running on: http://localhost:${port}/${globalPrefix}`);
+
+  app.setGlobalPrefix(basePath);
+
+  Logger.log(`🚀 Application is running on: ${serverUrl}`);
 }
 
 bootstrap();
