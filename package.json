@@ -1,0 +1,38 @@
+{
+  "name": "@nestjs-angular-template/source",
+  "version": "0.0.0",
+  "license": "MIT",
+  "scripts": {
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "*": [
+      "eslint --max-warnings=0 --no-warn-ignored",
+      "prettier --ignore-unknown --write"
+    ]
+  },
+  "private": true,
+  "devDependencies": {
+    "@commitlint/cli": "^20.1.0",
+    "@commitlint/config-conventional": "^20.0.0",
+    "@m-thalmann/eslint-config-angular": "^0.3.3",
+    "@m-thalmann/eslint-config-base": "^0.2.0",
+    "@m-thalmann/eslint-config-rxjs": "^0.3.3",
+    "@m-thalmann/eslint-config-typescript": "^0.2.1",
+    "@m-thalmann/prettier-config": "^1.0.0",
+    "@nx/eslint": "^22.0.1",
+    "@nx/eslint-plugin": "^22.0.1",
+    "@nx/js": "22.0.1",
+    "@swc-node/register": "~1.9.1",
+    "@swc/core": "~1.5.7",
+    "@swc/helpers": "~0.5.11",
+    "eslint-config-prettier": "^10.1.8",
+    "globals": "^16.4.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.2.6",
+    "nx": "22.0.1",
+    "prettier": "^3.6.2",
+    "tslib": "^2.3.0",
+    "typescript": "~5.9.2"
+  }
+}
