@@ -19,8 +19,11 @@
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
     "noUncheckedIndexedAccess": true,
+    "noImplicitAny": true,
     "baseUrl": ".",
-    "paths": {}
+    "paths": {
+      "@backend/common": ["libs/backend/common/src/index.ts"]
+    }
   },
   "exclude": ["node_modules", "tmp"]
 }

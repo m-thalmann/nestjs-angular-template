@@ -25,7 +25,8 @@
           "buildDepsName": "build-deps",
           "watchDepsName": "watch-deps"
         }
-      }
+      },
+      "exclude": ["libs/backend/common/*"]
     },
     {
       "plugin": "@nx/webpack/plugin",
@@ -50,6 +51,15 @@
         "targetName": "test"
       },
       "exclude": ["apps/backend-e2e/**/*"]
+    },
+    {
+      "plugin": "@nx/js/typescript",
+      "include": ["libs/backend/common/*"],
+      "options": {
+        "typecheck": {
+          "targetName": "typecheck"
+        }
+      }
     }
   ]
 }
