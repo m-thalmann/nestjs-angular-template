@@ -1,5 +1,22 @@
 const { NxAppWebpackPlugin } = require('@nx/webpack/app-plugin');
-const { join } = require('path');
+const { join, resolve, basename } = require('path');
+const glob = require('glob');
+
+const migrationEntries = glob
+  .sync(resolve(__dirname, 'src/database/migrations/*.ts').replace(/\\/g, '/'))
+  .reduce((entries, filename) => {
+    const migrationName = basename(filename, '.ts');
+
+    return {
+      ...entries,
+      [`database/migrations/${migrationName}`]: {
+        import: filename,
+        library: {
+          type: 'commonjs2',
+        },
+      },
+    };
+  }, {});
 
 module.exports = {
   output: {
@@ -23,4 +40,13 @@ module.exports = {
       sourceMaps: true,
     }),
   ],
+  entry: {
+    'database/data-source': {
+      import: './src/database/data-source.ts',
+      library: {
+        type: 'commonjs2',
+      },
+    },
+    ...migrationEntries,
+  },
 };

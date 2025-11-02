@@ -65,6 +65,37 @@
       "options": {
         "passWithNoTests": true
       }
+    },
+    "typeorm": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "npx ts-node -P {projectRoot}/tsconfig.app.json -r tsconfig-paths/register ./node_modules/typeorm/cli.js -d {projectRoot}/src/database/data-source"
+      }
+    },
+    "db:create-migration": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "{projectRoot}",
+        "command": "npx typeorm-ts-node-commonjs migration:create ./src/database/migrations/{args.name}"
+      }
+    },
+    "db:migrate": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "npx nx run backend:typeorm -- migration:run"
+      }
+    },
+    "db:migrate:revert": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "npx nx run backend:typeorm -- migration:revert"
+      }
+    },
+    "db:migrate:drop-all": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "npx nx run backend:typeorm -- schema:drop"
+      }
     }
   }
 }

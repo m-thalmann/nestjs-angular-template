@@ -1,0 +1,14 @@
+{
+  "name": "@nestjs-angular-template/backend",
+  "scripts": {
+    "typeorm": "npx typeorm -d ./database/data-source",
+    "db:migrate": "npm run typeorm -- migration:run",
+    "db:migrate:revert": "npm run typeorm -- migration:revert",
+    "db:migrate:drop-all": "npm run typeorm -- schema:drop"
+  },
+  "optionalDependencies": {
+    "mysql2": "^3.15.3",
+    "pg": "^8.16.3",
+    "sqlite3": "^5.1.7"
+  }
+}
