@@ -26,7 +26,7 @@
           "watchDepsName": "watch-deps"
         }
       },
-      "exclude": ["libs/backend/common/*"]
+      "exclude": ["libs/backend/common/*", "libs/backend/feature-users/*"]
     },
     {
       "plugin": "@nx/webpack/plugin",
@@ -54,12 +54,20 @@
     },
     {
       "plugin": "@nx/js/typescript",
-      "include": ["libs/backend/common/*"],
+      "include": ["libs/backend/common/*", "libs/backend/feature-users/*"],
       "options": {
         "typecheck": {
           "targetName": "typecheck"
         }
       }
     }
-  ]
+  ],
+  "generators": {
+    "@nx/nest:library": {
+      "linter": "eslint",
+      "unitTestRunner": "jest",
+      "tags": "backend,lib",
+      "useProjectJson": true
+    }
+  }
 }

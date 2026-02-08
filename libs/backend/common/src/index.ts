@@ -7,4 +7,5 @@ export * from './lib/dto/api-response.dto';
 export * from './lib/dto/pagination-meta.dto';
 export * from './lib/types/deep-readonly';
 export * from './lib/types/pagination';
+export * from './lib/util/date.util';
 export * from './lib/util/swagger.util';
