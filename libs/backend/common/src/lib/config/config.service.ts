@@ -29,6 +29,7 @@ export class ConfigService {
   protected getAppConfig(): AppConfig['app'] {
     return {
       port: process.env.APP_PORT === undefined ? DEFAULT_APP_PORT : parseInt(process.env.APP_PORT, 10),
+      host: process.env.APP_HOST ?? 'localhost',
       basePath: process.env.APP_BASE_PATH ?? DEFAULT_APP_BASE_PATH,
     };
   }

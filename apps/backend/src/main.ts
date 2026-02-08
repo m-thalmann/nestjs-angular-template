@@ -1,8 +1,34 @@
-import { ConfigService } from '@backend/common';
-import { Logger } from '@nestjs/common';
+import { ConfigService, PaginationMetaDto } from '@backend/common';
+import { INestApplication, Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { FastifyAdapter } from '@nestjs/platform-fastify';
+import { DocumentBuilder, OpenAPIObject, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app/app.module';
+
+function setupSwagger(app: INestApplication<unknown>, serverUrl: string): void {
+  const config = new DocumentBuilder()
+    .setTitle('@nestjs-angular-template API')
+    .setDescription('API for @nestjs-angular-template')
+    .setLicense('MIT', 'https://opensource.org/licenses/MIT')
+    .setVersion('v1')
+    .setExternalDoc('OpenAPI JSON', `${serverUrl}/docs/openapi.json`)
+    .addServer(serverUrl)
+    .build();
+
+  const documentFactory: () => OpenAPIObject = () =>
+    SwaggerModule.createDocument(app, config, { extraModels: [PaginationMetaDto] });
+
+  SwaggerModule.setup('docs', app, documentFactory, {
+    jsonDocumentUrl: '/docs/openapi.json',
+    yamlDocumentUrl: '/docs/openapi.yaml',
+    customSiteTitle: '@nestjs-angular-template - OpenAPI Documentation',
+    useGlobalPrefix: true,
+    swaggerOptions: {
+      defaultModelsExpandDepth: 2,
+      defaultModelExpandDepth: 2,
+    },
+  });
+}
 
 async function bootstrap(): Promise<void> {
   // TODO: trust proxies: https://fastify.dev/docs/latest/Reference/Server/#trustproxy, https://docs.nestjs.com/security/rate-limiting#proxies
@@ -11,15 +37,18 @@ async function bootstrap(): Promise<void> {
   const configService = app.get(ConfigService);
 
   const port = configService.app.port;
+  const host = configService.app.host;
   const basePath = configService.app.basePath;
 
   // TODO: add allowed cors origins as config
   app.enableCors();
   app.setGlobalPrefix(basePath);
 
-  const serverUrl = `http://localhost:${port}${basePath}`;
+  const serverUrl = `http://${host}:${port}${basePath}`;
 
-  await app.listen(port);
+  setupSwagger(app, serverUrl);
+
+  await app.listen(port, host);
 
   app.setGlobalPrefix(basePath);
 

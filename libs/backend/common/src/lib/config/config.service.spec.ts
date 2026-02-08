@@ -46,6 +46,7 @@ describe('ConfigService', () => {
     it('should return the correct app config', () => {
       const MOCK_ENV = {
         APP_PORT: '3111',
+        APP_HOST: '0.0.0.0',
         APP_BASE_PATH: '/my-api',
       };
 
@@ -54,6 +55,7 @@ describe('ConfigService', () => {
       const config = service.getAppConfig();
 
       expect(config.port).toBe(3111);
+      expect(config.host).toBe('0.0.0.0');
       expect(config.basePath).toBe('/my-api');
     });
 
@@ -61,6 +63,7 @@ describe('ConfigService', () => {
       const config = service.getAppConfig();
 
       expect(config.port).toBe(3000);
+      expect(config.host).toBe('localhost');
       expect(config.basePath).toBe('/api');
     });
   });

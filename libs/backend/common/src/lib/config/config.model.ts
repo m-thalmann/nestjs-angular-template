@@ -1,6 +1,7 @@
 export interface AppConfig {
   app: {
     port: number;
+    host: string;
     basePath: string;
   };
   database: DatabaseConfig;
