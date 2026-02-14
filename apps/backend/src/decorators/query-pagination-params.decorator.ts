@@ -1,6 +1,6 @@
+import { PaginationParams } from '@backend/models';
 import { BadRequestException, createParamDecorator, ExecutionContext } from '@nestjs/common';
 import { FastifyRequest } from 'fastify';
-import { PaginationParams } from '../types/pagination';
 
 const DEFAULT_PER_PAGE = 20;
 const MAX_PER_PAGE = 100;

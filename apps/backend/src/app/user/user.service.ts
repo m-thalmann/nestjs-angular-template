@@ -1,4 +1,4 @@
-import { PaginationMetaDto, PaginationParams } from '@backend/common';
+import { PaginationMetaDto, PaginationParams } from '@backend/models';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FindManyOptions, Repository } from 'typeorm';

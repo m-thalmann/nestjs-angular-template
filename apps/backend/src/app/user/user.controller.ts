@@ -1,11 +1,6 @@
-import {
-  ApiPaginationQueryParams,
-  ApiResponseDto,
-  ApiResponseWithPaginationDto,
-  getResponseSchema,
-  QueryPaginationParams,
-  type PaginationParams,
-} from '@backend/common';
+import { ApiPaginationQueryParams, QueryPaginationParams } from '@backend/decorators';
+import { ApiResponseDto, ApiResponseWithPaginationDto, PaginationParams } from '@backend/models';
+import { getResponseSchema } from '@backend/util';
 import { Controller, Get, NotFoundException, Param } from '@nestjs/common';
 import {
   ApiExtraModels,

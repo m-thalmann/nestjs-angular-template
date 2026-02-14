@@ -1,8 +1,0 @@
-{
-  "name": "backend-auth",
-  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "libs/backend/auth/src",
-  "projectType": "library",
-  "tags": ["backend", "lib"],
-  "targets": {}
-}
