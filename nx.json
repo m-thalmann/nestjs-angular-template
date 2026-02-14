@@ -26,7 +26,7 @@
           "watchDepsName": "watch-deps"
         }
       },
-      "exclude": ["libs/backend/common/*", "libs/backend/feature-users/*"]
+      "exclude": ["libs/backend/common/*", "libs/backend/feature-users/*", "libs/backend/auth/*"]
     },
     {
       "plugin": "@nx/webpack/plugin",
@@ -54,7 +54,7 @@
     },
     {
       "plugin": "@nx/js/typescript",
-      "include": ["libs/backend/common/*", "libs/backend/feature-users/*"],
+      "include": ["libs/backend/common/*", "libs/backend/feature-users/*", "libs/backend/auth/*"],
       "options": {
         "typecheck": {
           "targetName": "typecheck"
