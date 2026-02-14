@@ -3,6 +3,7 @@ import { NestFactory } from '@nestjs/core';
 import { FastifyAdapter } from '@nestjs/platform-fastify';
 import { DocumentBuilder, OpenAPIObject, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app/app.module';
+import { AppConfig, appConfigDefinition } from './config';
 import { PaginationMetaDto } from './models';
 
 function setupSwagger(app: INestApplication<unknown>, serverUrl: string): void {
@@ -34,11 +35,11 @@ async function bootstrap(): Promise<void> {
   // TODO: trust proxies: https://fastify.dev/docs/latest/Reference/Server/#trustproxy, https://docs.nestjs.com/security/rate-limiting#proxies
   const app = await NestFactory.create(AppModule, new FastifyAdapter({ routerOptions: { maxParamLength: 1000 } }));
 
-  const configService = app.get(ConfigService);
+  const appConfig = await app.resolve<unknown, AppConfig>(appConfigDefinition.KEY);
 
-  const port = configService.app.port;
-  const host = configService.app.host;
-  const basePath = configService.app.basePath;
+  const port = appConfig.port;
+  const host = appConfig.host;
+  const basePath = appConfig.basePath;
 
   // TODO: add allowed cors origins as config
   app.enableCors();

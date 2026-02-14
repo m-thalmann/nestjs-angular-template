@@ -1,21 +1,32 @@
+import { appConfigDefinition, databaseConfigDefinition } from '@backend/config';
 import { Module } from '@nestjs/common';
+import { ConfigModule, ConfigType } from '@nestjs/config';
 import { ScheduleModule } from '@nestjs/schedule';
+import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
+import { resolve } from 'path';
 import { AppController } from './app.controller';
-import { AuthModule } from './auth/auth.module';
-import { UserModule } from './user/user.module';
 
 @Module({
   imports: [
-    // TypeOrmModule.forRootAsync({
-    //   inject: [ConfigService],
-    //   useFactory: (configService: ConfigService) =>
-    //     ({
-    //       ...configService.database,
-    //       autoLoadEntities: true,
-    //       synchronize: false,
-    //       migrationsRun: false,
-    //     }) satisfies TypeOrmModuleOptions,
-    // }),
+    ConfigModule.forRoot({
+      isGlobal: true,
+      expandVariables: true,
+      cache: true,
+      envFilePath: resolve(__dirname, '.env'), // located  in /src directory
+      load: [appConfigDefinition, databaseConfigDefinition],
+    }),
+
+    TypeOrmModule.forRootAsync({
+      imports: [ConfigModule.forFeature(databaseConfigDefinition)],
+      inject: [databaseConfigDefinition.KEY],
+      useFactory: (dbConfig: ConfigType<typeof databaseConfigDefinition>) =>
+        ({
+          ...dbConfig,
+          autoLoadEntities: true,
+          synchronize: false,
+          migrationsRun: false,
+        }) satisfies TypeOrmModuleOptions,
+    }),
 
     ScheduleModule.forRoot(),
 
@@ -33,8 +44,8 @@ import { UserModule } from './user/user.module';
     //   }),
     // }),
 
-    AuthModule,
-    UserModule,
+    // AuthModule,
+    // UserModule,
   ],
   controllers: [AppController],
   providers: [],

@@ -1,4 +1,4 @@
-import { User } from '@backend/feature-users';
+import { User } from '@backend/app/user/user.entity';
 import { BeforeInsert, Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity('auth_tokens')
