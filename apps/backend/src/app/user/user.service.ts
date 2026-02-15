@@ -1,7 +1,10 @@
 import { PaginationMetaDto, PaginationParams } from '@backend/models';
+import { UniqueValidator } from '@backend/validation';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FindManyOptions, Repository } from 'typeorm';
+import { CreateUserDto } from './dto/create-user.dto';
+import { PatchUserDto } from './dto/patch-user.dto';
 import { User } from './user.entity';
 
 @Injectable()
@@ -10,7 +13,7 @@ export class UserService {
     @InjectRepository(User)
     private readonly usersRepository: Repository<User>,
     // private readonly authTokenService: AuthTokenService,
-    // private readonly uniqueValidator: UniqueValidator,
+    private readonly uniqueValidator: UniqueValidator,
     // private readonly eventEmitter: EventEmitter2,
   ) {}
 
@@ -34,60 +37,63 @@ export class UserService {
     return await this.usersRepository.findOneBy({ uuid });
   }
 
-  // async findOneByEmail(email: string): Promise<User | null> {
-  //   return await this.usersRepository.findOneBy({ email });
-  // }
+  async findOneByEmail(email: string): Promise<User | null> {
+    return await this.usersRepository.findOneBy({ email });
+  }
 
-  // async create(data: CreateUserDto): Promise<User> {
-  //   const user = this.usersRepository.create(data);
-  //   const createdUser = await this.usersRepository.save(user);
+  async create(data: CreateUserDto): Promise<User> {
+    const user = this.usersRepository.create(data);
+    const createdUser = await this.usersRepository.save(user);
 
-  //   this.eventEmitter.emit(UserCreatedEvent.ID, new UserCreatedEvent(createdUser));
+    // TODO: implement
+    // this.eventEmitter.emit(UserCreatedEvent.ID, new UserCreatedEvent(createdUser));
 
-  //   return createdUser;
-  // }
+    return createdUser;
+  }
 
-  // async patch(user: User, data: PatchUserDto): Promise<User> {
-  //   const emailUpdated = data.email !== undefined && user.email !== data.email;
-  //   const passwordUpdated = data.password !== undefined;
+  async patch(user: User, data: PatchUserDto): Promise<User> {
+    const emailUpdated = data.email !== undefined && user.email !== data.email;
+    const passwordUpdated = data.password !== undefined;
 
-  //   if (data.email !== undefined && data.email !== user.email) {
-  //     await this.uniqueValidator.validateProperty({
-  //       entityClass: User,
-  //       column: 'email',
-  //       value: data.email,
-  //       entityDisplayName: 'User',
-  //     });
-  //   }
+    if (data.email !== undefined && data.email !== user.email) {
+      await this.uniqueValidator.validateProperty({
+        entityClass: User,
+        column: 'email',
+        value: data.email,
+        entityDisplayName: 'User',
+      });
+    }
 
-  //   const patchedUser = this.usersRepository.merge(user, data);
+    const patchedUser = this.usersRepository.merge(user, data);
 
-  //   if (emailUpdated) {
-  //     patchedUser.emailVerifiedAt = null;
-  //   }
+    if (emailUpdated) {
+      patchedUser.emailVerifiedAt = null;
+    }
 
-  //   const updatedUser = await this.usersRepository.save(patchedUser);
+    const updatedUser = await this.usersRepository.save(patchedUser);
 
-  //   if (emailUpdated) {
-  //     this.eventEmitter.emit(UserEmailUpdatedEvent.ID, new UserEmailUpdatedEvent(updatedUser));
-  //   }
+    // TODO: implement
+    // if (emailUpdated) {
+    //   this.eventEmitter.emit(UserEmailUpdatedEvent.ID, new UserEmailUpdatedEvent(updatedUser));
+    // }
 
-  //   if (emailUpdated || passwordUpdated || data.isAdmin !== undefined) {
-  //     await this.authTokenService.deleteAllForUser(updatedUser);
-  //   }
+    // TODO: implement
+    // if (emailUpdated || passwordUpdated || data.isAdmin !== undefined) {
+    //   await this.authTokenService.deleteAllForUser(updatedUser);
+    // }
 
-  //   return updatedUser;
-  // }
+    return updatedUser;
+  }
 
-  // async markEmailAsVerified(user: User): Promise<User> {
-  //   const updatedUser = this.usersRepository.merge(user, {
-  //     emailVerifiedAt: new Date(),
-  //   });
+  async markEmailAsVerified(user: User): Promise<User> {
+    const updatedUser = this.usersRepository.merge(user, {
+      emailVerifiedAt: new Date(),
+    });
 
-  //   return await this.usersRepository.save(updatedUser);
-  // }
+    return await this.usersRepository.save(updatedUser);
+  }
 
-  // async remove(uuid: string): Promise<void> {
-  //   await this.usersRepository.delete({ uuid });
-  // }
+  async remove(uuid: string): Promise<void> {
+    await this.usersRepository.delete({ uuid });
+  }
 }

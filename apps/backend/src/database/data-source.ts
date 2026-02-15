@@ -4,7 +4,7 @@ import { resolve } from 'path';
 import { DataSource } from 'typeorm';
 import { buildDatabaseConfig } from './config';
 
-dotenvExpand(dotenvConfig({ quiet: false, path: resolve(__dirname, '../.env') }));
+dotenvExpand(dotenvConfig({ quiet: true, path: resolve(__dirname, '../.env') }));
 
 const databaseConfig = buildDatabaseConfig(resolve(__dirname, '..'));
 

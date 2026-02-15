@@ -1,15 +1,30 @@
-import { ApiPaginationQueryParams, QueryPaginationParams } from '@backend/decorators';
+import { ApiPaginationQueryParams, ApiValidationErrorResponse, QueryPaginationParams } from '@backend/decorators';
 import { ApiResponseDto, ApiResponseWithPaginationDto, PaginationParams } from '@backend/models';
 import { getResponseSchema } from '@backend/util';
-import { Controller, Get, NotFoundException, Param } from '@nestjs/common';
 import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  HttpStatus,
+  NotFoundException,
+  Param,
+  Patch,
+  Post,
+} from '@nestjs/common';
+import {
+  ApiCreatedResponse,
   ApiExtraModels,
   ApiForbiddenResponse,
+  ApiNoContentResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
+import { CreateUserDto } from './dto/create-user.dto';
+import { PatchUserDto } from './dto/patch-user.dto';
 import { DetailedUserDto, UserDto } from './dto/user.dto';
 import { User } from './user.entity';
 import { UserService } from './user.service';
@@ -21,24 +36,24 @@ import { UserService } from './user.service';
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  // @Post()
-  // @ApiOperation({ summary: 'Creates a user' })
-  // @ApiCreatedResponse({
-  //   description: 'OK',
-  //   schema: getResponseSchema(DetailedUserDto),
-  // })
-  // @ApiForbiddenResponse({ description: 'Forbidden' })
-  // @ApiValidationErrorResponse()
-  // async create(
-  //   @AuthorizeAbility() ability: AuthAbility,
-  //   @Body() createUserDto: CreateUserDto,
-  // ): Promise<ApiResponse<DetailedUserDto>> {
-  //   ability.authorize('create', User);
+  @Post()
+  @ApiOperation({ summary: 'Creates a user' })
+  @ApiCreatedResponse({
+    description: 'OK',
+    schema: getResponseSchema(DetailedUserDto),
+  })
+  @ApiForbiddenResponse({ description: 'Forbidden' })
+  @ApiValidationErrorResponse()
+  async create(
+    // @AuthorizeAbility() ability: AuthAbility,
+    @Body() createUserDto: CreateUserDto,
+  ): Promise<ApiResponseDto<DetailedUserDto>> {
+    // ability.authorize('create', User);
 
-  //   const user = await this.usersService.create(createUserDto);
+    const user = await this.userService.create(createUserDto);
 
-  //   return { data: buildUserDto(user, true) };
-  // }
+    return { data: DetailedUserDto.fromEntity(user) };
+  }
 
   @Get()
   @ApiOperation({ summary: 'Returns all users' })
@@ -98,45 +113,48 @@ export class UserController {
   //   return { data: buildUserDto(updatedUser, true) };
   // }
 
-  // @Patch(':uuid')
-  // @ApiOperation({
-  //   summary: 'Updates a user by UUID',
-  //   description: 'Allows updating of additional fields. This route is only accessible by admins',
-  // })
-  // @ApiOkResponse({
-  //   description: 'OK',
-  //   schema: getResponseSchema(DetailedUserDto),
-  // })
-  // @ApiForbiddenResponse({ description: 'Forbidden' })
-  // @ApiNotFoundResponse({ description: 'Not found' })
-  // @ApiValidationErrorResponse()
-  // async update(
-  //   @AuthorizeAbility() ability: AuthAbility,
-  //   @Param('uuid') uuid: string,
-  //   @Body() patchUserDto: PatchUserDto,
-  // ): Promise<ApiResponse<DetailedUserDto>> {
-  //   ability.authorize('manage', User);
+  @Patch(':uuid')
+  @ApiOperation({
+    summary: 'Updates a user by UUID',
+    description: 'Allows updating of additional fields. This route is only accessible by admins',
+  })
+  @ApiOkResponse({
+    description: 'OK',
+    schema: getResponseSchema(DetailedUserDto),
+  })
+  @ApiForbiddenResponse({ description: 'Forbidden' })
+  @ApiNotFoundResponse({ description: 'Not found' })
+  @ApiValidationErrorResponse()
+  async update(
+    // @AuthorizeAbility() ability: AuthAbility,
+    @Param('uuid') uuid: string,
+    @Body() patchUserDto: PatchUserDto,
+  ): Promise<ApiResponseDto<DetailedUserDto>> {
+    // ability.authorize('manage', User);
 
-  //   const user = await this.resolveUser(uuid);
+    const user = await this.resolveUser(uuid);
 
-  //   const updatedUser = await this.usersService.patch(user, patchUserDto);
+    const updatedUser = await this.userService.patch(user, patchUserDto);
 
-  //   return { data: buildUserDto(updatedUser, true) };
-  // }
+    return { data: DetailedUserDto.fromEntity(updatedUser) };
+  }
 
-  // @Delete(':uuid')
-  // @HttpCode(HttpStatus.NO_CONTENT)
+  @Delete(':uuid')
+  @HttpCode(HttpStatus.NO_CONTENT)
   // @EmailMustBeVerified(false)
-  // @ApiOperation({ summary: 'Deletes a user by UUID' })
-  // @ApiNoContentResponse({ description: 'OK' })
-  // @ApiNotFoundResponse({ description: 'Not found' })
-  // async remove(@AuthorizeAbility() authAbility: AuthAbility, @Param('uuid') uuid: string): Promise<void> {
-  //   const user = await this.resolveUser(uuid);
+  @ApiOperation({ summary: 'Deletes a user by UUID' })
+  @ApiNoContentResponse({ description: 'OK' })
+  @ApiNotFoundResponse({ description: 'Not found' })
+  async remove(
+    // @AuthorizeAbility() authAbility: AuthAbility,
+    @Param('uuid') uuid: string,
+  ): Promise<void> {
+    const user = await this.resolveUser(uuid);
 
-  //   authAbility.authorizeAnonymous('delete', User);
+    // authAbility.authorizeAnonymous('delete', User);
 
-  //   this.usersService.remove(user.uuid);
-  // }
+    await this.userService.remove(user.uuid);
+  }
 
   private async resolveUser(uuid: string): Promise<User> {
     const user = await this.userService.findOne(uuid);

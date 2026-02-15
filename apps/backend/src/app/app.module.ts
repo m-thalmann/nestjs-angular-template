@@ -1,10 +1,12 @@
 import { appConfigDefinition, databaseConfigDefinition } from '@backend/config';
+import { UniqueValidator } from '@backend/validation';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigType } from '@nestjs/config';
 import { ScheduleModule } from '@nestjs/schedule';
 import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { resolve } from 'path';
 import { AppController } from './app.controller';
+import { UserModule } from './user/user.module';
 
 @Module({
   imports: [
@@ -49,9 +51,10 @@ import { AppController } from './app.controller';
     // }),
 
     // AuthModule,
-    // UserModule,
+    UserModule,
   ],
   controllers: [AppController],
-  providers: [],
+  providers: [UniqueValidator],
+  exports: [UniqueValidator],
 })
 export class AppModule {}
