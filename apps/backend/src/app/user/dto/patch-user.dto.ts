@@ -10,5 +10,5 @@ export class PatchUserDto extends PatchAuthUserDto {
     required: false,
     description: 'Whether the user is an admin or not',
   })
-  readonly isAdmin?: boolean;
+  declare isAdmin?: boolean;
 }

@@ -1,9 +1,9 @@
 import { IsUnique } from '@backend/validation';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsBoolean, IsEmail, IsNotEmpty } from 'class-validator';
-import { User } from '../user.entity';
+import { IsEmail, IsNotEmpty } from 'class-validator';
+import { User } from '../../user/user.entity';
 
-export class CreateUserDto {
+export class SignUpDto {
   @IsNotEmpty()
   @ApiProperty({
     type: 'string',
@@ -30,11 +30,4 @@ export class CreateUserDto {
     example: 'password',
   })
   declare password: string;
-
-  @IsBoolean()
-  @ApiProperty({
-    type: 'boolean',
-    description: 'Whether the new user is an admin or not',
-  })
-  declare isAdmin: boolean;
 }

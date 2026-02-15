@@ -10,7 +10,7 @@ export class PatchAuthUserDto {
     description: 'The new name of the user',
     example: 'Jane Doe',
   })
-  readonly name?: string;
+  declare name?: string;
 
   @IsOptional()
   @IsEmail()
@@ -21,7 +21,7 @@ export class PatchAuthUserDto {
     description: 'The new email of the user',
     example: 'jane.doe@example.com',
   })
-  readonly email?: string;
+  declare email?: string;
 
   @IsOptional()
   @IsNotEmpty()
@@ -32,5 +32,5 @@ export class PatchAuthUserDto {
     description: 'The new password of the user',
     example: 'password',
   })
-  readonly password?: string;
+  declare password?: string;
 }

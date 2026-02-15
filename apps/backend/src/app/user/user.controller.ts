@@ -1,4 +1,10 @@
-import { ApiPaginationQueryParams, ApiValidationErrorResponse, QueryPaginationParams } from '@backend/decorators';
+import {
+  ApiAuth,
+  ApiPaginationQueryParams,
+  ApiValidationErrorResponse,
+  EmailMustBeVerified,
+  QueryPaginationParams,
+} from '@backend/decorators';
 import { ApiResponseDto, ApiResponseWithPaginationDto, PaginationParams } from '@backend/models';
 import { getResponseSchema } from '@backend/util';
 import {
@@ -30,7 +36,7 @@ import { User } from './user.entity';
 import { UserService } from './user.service';
 
 @Controller('users')
-// @ApiAuth({ emailMustBeVerified: true })
+@ApiAuth({ emailMustBeVerified: true })
 @ApiTags('Users')
 @ApiExtraModels(UserDto)
 export class UserController {
@@ -141,7 +147,7 @@ export class UserController {
 
   @Delete(':uuid')
   @HttpCode(HttpStatus.NO_CONTENT)
-  // @EmailMustBeVerified(false)
+  @EmailMustBeVerified(false)
   @ApiOperation({ summary: 'Deletes a user by UUID' })
   @ApiNoContentResponse({ description: 'OK' })
   @ApiNotFoundResponse({ description: 'Not found' })

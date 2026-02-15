@@ -1,7 +1,7 @@
 import { Global, Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { resolve } from 'path';
-import { appConfigDefinition, databaseConfigDefinition } from './config';
+import { appConfigDefinition, authConfigDefinition, databaseConfigDefinition } from './config';
 import { UniqueValidator } from './validation/unique.validator';
 
 @Global()
@@ -16,7 +16,7 @@ import { UniqueValidator } from './validation/unique.validator';
         process.env.NX_WORKSPACE_ROOT ? `${process.env.NX_WORKSPACE_ROOT}/apps/backend/src` : __dirname,
         '.env',
       ),
-      load: [appConfigDefinition, databaseConfigDefinition],
+      load: [appConfigDefinition, databaseConfigDefinition, authConfigDefinition],
     }),
   ],
   providers: [UniqueValidator],

@@ -1,4 +1,4 @@
-import { convertDateToUnixTimestamp } from './date.util';
+import { convertDateToUnixTimestamp, getDateAfterMinutes } from './date.util';
 
 describe('DateUtil', () => {
   describe('convertDateToUnixTimestamp', () => {
@@ -9,6 +9,18 @@ describe('DateUtil', () => {
       const result = convertDateToUnixTimestamp(date);
 
       expect(result).toBe(expectedTimestamp);
+    });
+  });
+
+  describe('getDateAfterMinutes', () => {
+    it('should return a date after the given minutes', () => {
+      const minutes = 5;
+      const expectedDate = new Date();
+      expectedDate.setMinutes(expectedDate.getMinutes() + minutes);
+
+      const result = getDateAfterMinutes(minutes);
+
+      expect(result.getTime() / 1000).toBeCloseTo(expectedDate.getTime() / 1000, 1);
     });
   });
 });

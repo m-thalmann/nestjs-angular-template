@@ -4,29 +4,29 @@ import { User } from '../../user/user.entity';
 @Entity('auth_tokens')
 export class AuthToken {
   @PrimaryGeneratedColumn()
-  id!: number;
+  declare id: number;
 
   @Column('uuid', { generated: 'uuid' })
-  uuid!: string;
+  declare uuid: string;
 
   @Column('integer', { name: 'user_id' })
-  userId!: number;
+  declare userId: number;
 
   @ManyToOne(() => User)
   @JoinColumn({ name: 'user_id' })
-  user!: Promise<User>;
+  declare user: Promise<User>;
 
   @Column('integer', { name: 'version' })
-  version!: number;
+  declare version: number;
 
   @Column('varchar')
-  name!: string | null;
+  declare name: string | null;
 
   @Column('datetime', { name: 'expires_at' })
-  expiresAt!: Date | null;
+  declare expiresAt: Date | null;
 
   @Column('datetime', { name: 'created_at' })
-  createdAt!: Date;
+  declare createdAt: Date;
 
   @BeforeInsert()
   async beforeInsert(): Promise<void> {

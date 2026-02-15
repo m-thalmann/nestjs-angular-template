@@ -1,14 +1,16 @@
-import { User, UsersService } from '@backend/feature-users';
 import { UnauthorizedException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import * as argon2 from 'argon2';
+import { CreateUserDto } from '../user/dto/create-user.dto';
+import { User } from '../user/user.entity';
+import { UserService } from '../user/user.service';
 import { AuthService } from './auth.service';
 import { SignUpDto } from './dto/sign-up.dto';
 
 describe('AuthService', () => {
   let service: AuthService;
 
-  let mockUserService: Partial<UsersService>;
+  let mockUserService: Partial<UserService>;
 
   beforeEach(async () => {
     mockUserService = {
@@ -20,7 +22,7 @@ describe('AuthService', () => {
       providers: [
         AuthService,
         {
-          provide: UsersService,
+          provide: UserService,
           useValue: mockUserService,
         },
       ],
@@ -76,7 +78,11 @@ describe('AuthService', () => {
 
       expect(result).toBe(expectedUser);
 
-      expect(mockUserService.create).toHaveBeenCalledWith({ ...signUpDto, isAdmin: false });
+      const createUser = new CreateUserDto();
+      Object.assign(createUser, signUpDto);
+      createUser.isAdmin = false;
+
+      expect(mockUserService.create).toHaveBeenCalledWith(createUser);
     });
   });
 });
