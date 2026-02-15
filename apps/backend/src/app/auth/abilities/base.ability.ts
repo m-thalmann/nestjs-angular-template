@@ -1,5 +1,5 @@
 /* eslint-disable max-classes-per-file */
-import { User } from '@backend/app/user/user.entity';
+import { User } from '../../user/user.entity';
 
 export type AbilityResponse = Promise<boolean> | boolean;
 

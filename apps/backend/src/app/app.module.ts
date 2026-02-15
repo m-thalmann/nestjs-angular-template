@@ -1,26 +1,15 @@
-import { appConfigDefinition, databaseConfigDefinition } from '@backend/config';
-import { UniqueValidator } from '@backend/validation';
+import { CommonModule } from '@backend/common.module';
+import { databaseConfigDefinition } from '@backend/config';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigType } from '@nestjs/config';
 import { ScheduleModule } from '@nestjs/schedule';
 import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
-import { resolve } from 'path';
 import { AppController } from './app.controller';
 import { UserModule } from './user/user.module';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({
-      isGlobal: true,
-      expandVariables: true,
-      cache: true,
-      envFilePath: resolve(
-        // check whether the app is in dev-serve or build-run -> different location of .env file
-        process.env.NX_WORKSPACE_ROOT ? `${process.env.NX_WORKSPACE_ROOT}/apps/backend/src` : __dirname,
-        '.env',
-      ),
-      load: [appConfigDefinition, databaseConfigDefinition],
-    }),
+    CommonModule,
 
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule.forFeature(databaseConfigDefinition)],
@@ -54,7 +43,6 @@ import { UserModule } from './user/user.module';
     UserModule,
   ],
   controllers: [AppController],
-  providers: [UniqueValidator],
-  exports: [UniqueValidator],
+  providers: [],
 })
 export class AppModule {}

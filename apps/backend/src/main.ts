@@ -4,8 +4,8 @@ import { FastifyAdapter } from '@nestjs/platform-fastify';
 import { DocumentBuilder, OpenAPIObject, SwaggerModule } from '@nestjs/swagger';
 import { useContainer as classValidatorUseContainer } from 'class-validator';
 import { AppModule } from './app/app.module';
-import { AppConfig, appConfigDefinition } from './config';
-import { PaginationMetaDto } from './models';
+import { AppConfig, appConfigDefinition } from './common/config';
+import { PaginationMetaDto } from './common/models';
 
 function setupSwagger(app: INestApplication<unknown>, serverUrl: string): void {
   const config = new DocumentBuilder()
@@ -14,7 +14,6 @@ function setupSwagger(app: INestApplication<unknown>, serverUrl: string): void {
     .setLicense('MIT', 'https://opensource.org/licenses/MIT')
     .setVersion('v1')
     .setExternalDoc('OpenAPI JSON', `${serverUrl}/docs/openapi.json`)
-    .addServer(serverUrl)
     .build();
 
   const documentFactory: () => OpenAPIObject = () =>

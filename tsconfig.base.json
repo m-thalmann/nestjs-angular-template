@@ -22,7 +22,8 @@
     "noImplicitAny": true,
     "baseUrl": ".",
     "paths": {
-      "@backend/*": ["apps/backend/src/*"]
+      "@backend/*": ["apps/backend/src/common/*"],
+      "@backend/database": ["apps/backend/src/database/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

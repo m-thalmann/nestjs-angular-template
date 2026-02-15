@@ -71,7 +71,7 @@ export class UserController {
 
     const { users, paginationMeta } = await this.userService.findAll({ pagination: paginationParams });
 
-    return { data: DetailedUserDto.fromEntityArray(users), meta: paginationMeta };
+    return { data: UserDto.fromEntityArray(users), meta: paginationMeta };
   }
 
   @Get(':uuid')

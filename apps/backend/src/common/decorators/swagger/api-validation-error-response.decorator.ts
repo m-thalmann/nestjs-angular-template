@@ -1,6 +1,7 @@
 import { applyDecorators } from '@nestjs/common';
 import { ApiUnprocessableEntityResponse } from '@nestjs/swagger';
 
+// TODO: improve validation to have one key in errors per invalid field
 export function ApiValidationErrorResponse(): ReturnType<typeof applyDecorators> {
   return applyDecorators(
     ApiUnprocessableEntityResponse({
