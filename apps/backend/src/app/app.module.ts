@@ -12,7 +12,11 @@ import { AppController } from './app.controller';
       isGlobal: true,
       expandVariables: true,
       cache: true,
-      envFilePath: resolve(__dirname, '.env'), // located  in /src directory
+      envFilePath: resolve(
+        // check whether the app is in dev-serve or build-run -> different location of .env file
+        process.env.NX_WORKSPACE_ROOT ? `${process.env.NX_WORKSPACE_ROOT}/apps/backend/src` : __dirname,
+        '.env',
+      ),
       load: [appConfigDefinition, databaseConfigDefinition],
     }),
 

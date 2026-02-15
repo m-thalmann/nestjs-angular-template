@@ -1,13 +1,10 @@
 import { config as dotenvConfig } from 'dotenv';
+import { expand as dotenvExpand } from 'dotenv-expand';
 import { resolve } from 'path';
 import { DataSource } from 'typeorm';
 import { buildDatabaseConfig } from './config';
 
-const isRunningWithNx = process.env.NX_WORKSPACE_ROOT !== undefined; // when running with nx the .env file is loaded automatically
-
-const envPath = resolve(__dirname, '../.env'); // data-source lives in database folder, .env on root level
-
-dotenvConfig({ path: isRunningWithNx ? undefined : envPath, quiet: true });
+dotenvExpand(dotenvConfig({ quiet: false, path: resolve(__dirname, '../.env') }));
 
 const databaseConfig = buildDatabaseConfig(resolve(__dirname, '..'));
 
