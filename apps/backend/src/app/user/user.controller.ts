@@ -5,7 +5,7 @@ import {
   EmailMustBeVerified,
   QueryPaginationParams,
 } from '@backend/decorators';
-import { ApiResponseDto, ApiResponseWithPaginationDto, PaginationParams } from '@backend/models';
+import { ApiResponseDto, ApiResponseWithPaginationDto, type PaginationParams } from '@backend/models';
 import { getResponseSchema } from '@backend/util';
 import {
   Body,
@@ -29,7 +29,9 @@ import {
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
+import { Auth } from '../auth/decorators/auth.decorator';
 import { CreateUserDto } from './dto/create-user.dto';
+import { PatchAuthUserDto } from './dto/patch-auth-user.dto';
 import { PatchUserDto } from './dto/patch-user.dto';
 import { DetailedUserDto, UserDto } from './dto/user.dto';
 import { User } from './user.entity';
@@ -98,26 +100,26 @@ export class UserController {
     return { data: UserDto.fromEntity(user) };
   }
 
-  // @Patch()
-  // @EmailMustBeVerified(false)
-  // @ApiOperation({ summary: 'Updates the authenticated user' })
-  // @ApiOkResponse({
-  //   description: 'OK',
-  //   schema: getResponseSchema(DetailedUserDto),
-  // })
-  // @ApiNotFoundResponse({ description: 'Not found' })
-  // @ApiValidationErrorResponse()
-  // async updateAuthUser(
-  //   @Auth('user') user: User,
-  //   @AuthorizeAbility() ability: AuthAbility,
-  //   @Body() patchAuthUserDto: PatchAuthUserDto,
-  // ): Promise<ApiResponse<DetailedUserDto>> {
-  //   ability.authorize('update', user, Object.keys(patchAuthUserDto));
+  @Patch()
+  @EmailMustBeVerified(false)
+  @ApiOperation({ summary: 'Updates the authenticated user' })
+  @ApiOkResponse({
+    description: 'OK',
+    schema: getResponseSchema(DetailedUserDto),
+  })
+  @ApiNotFoundResponse({ description: 'Not found' })
+  @ApiValidationErrorResponse()
+  async updateAuthUser(
+    @Auth('user') user: User,
+    // @AuthorizeAbility() ability: AuthAbility,
+    @Body() patchAuthUserDto: PatchAuthUserDto,
+  ): Promise<ApiResponseDto<DetailedUserDto>> {
+    // ability.authorize('update', user, Object.keys(patchAuthUserDto));
 
-  //   const updatedUser = await this.usersService.patch(user, patchAuthUserDto);
+    const updatedUser = await this.userService.patch(user, patchAuthUserDto);
 
-  //   return { data: buildUserDto(updatedUser, true) };
-  // }
+    return { data: DetailedUserDto.fromEntity(updatedUser) };
+  }
 
   @Patch(':uuid')
   @ApiOperation({

@@ -2,7 +2,7 @@ import { buildDatabaseConfig } from '@backend/database';
 import { registerAs } from '@nestjs/config';
 import { resolve } from 'path';
 
-type DatabaseConfig = ServerDatabaseConfig | SqliteDatabaseConfig;
+export type DatabaseConfig = ServerDatabaseConfig | SqliteDatabaseConfig;
 
 interface BaseDatabaseConfig {
   type: 'mariadb' | 'mysql' | 'postgres' | 'sqlite';

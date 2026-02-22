@@ -1,19 +1,22 @@
 import { Module } from '@nestjs/common';
 import { APP_GUARD } from '@nestjs/core';
-import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserModule } from '../user/user.module';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
+import { EmailVerificationController } from './email-verification/email-verification.controller';
+import { EmailVerificationService } from './email-verification/email-verification.service';
 import { AuthGuard } from './guards/auth.guard';
-import { AuthToken } from './tokens/auth-token.entity';
-import { AuthTokenService } from './tokens/auth-token.service';
+import { ResetPasswordController } from './reset-password/reset-password.controller';
+import { ResetPasswordService } from './reset-password/reset-password.service';
+import { AuthTokenModule } from './tokens/auth-token.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([AuthToken]), UserModule],
-  controllers: [AuthController],
+  imports: [AuthTokenModule, UserModule],
+  controllers: [AuthController, ResetPasswordController, EmailVerificationController],
   providers: [
     AuthService,
-    AuthTokenService,
+    ResetPasswordService,
+    EmailVerificationService,
     {
       provide: APP_GUARD,
       useClass: AuthGuard,

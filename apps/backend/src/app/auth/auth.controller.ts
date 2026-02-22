@@ -4,11 +4,13 @@ import { getResponseSchema } from '@backend/util';
 import { Body, Controller, Get, HttpCode, HttpStatus, Post, UseGuards } from '@nestjs/common';
 import {
   ApiCreatedResponse,
+  ApiExtraModels,
   ApiMethodNotAllowedResponse,
   ApiNoContentResponse,
   ApiOkResponse,
   ApiOperation,
   ApiTags,
+  ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { DetailedUserDto } from '../user/dto/user.dto';
 import { User } from '../user/user.entity';
@@ -23,7 +25,7 @@ import { AuthTokenService } from './tokens/auth-token.service';
 
 @Controller('auth')
 @ApiTags('Auth')
-// @ApiExtraModels(SuccessfulAuthDto)
+@ApiExtraModels(SuccessfulAuthDto)
 export class AuthController {
   // protected static readonly REQUESTS_PER_MINUTE: number = 5;
 
@@ -53,6 +55,9 @@ export class AuthController {
   @ApiOkResponse({
     description: 'OK',
     schema: getResponseSchema(SuccessfulAuthDto),
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Unauthorized',
   })
   @ApiValidationErrorResponse()
   async login(@Body() loginDto: LoginDto): Promise<ApiResponseDto<SuccessfulAuthDto>> {

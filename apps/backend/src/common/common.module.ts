@@ -2,6 +2,7 @@ import { Global, Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { resolve } from 'path';
 import { appConfigDefinition, authConfigDefinition, databaseConfigDefinition } from './config';
+import { MailModule } from './mail/mail.module';
 import { UniqueValidator } from './validation/unique.validator';
 
 @Global()
@@ -18,8 +19,10 @@ import { UniqueValidator } from './validation/unique.validator';
       ),
       load: [appConfigDefinition, databaseConfigDefinition, authConfigDefinition],
     }),
+
+    MailModule,
   ],
   providers: [UniqueValidator],
-  exports: [UniqueValidator],
+  exports: [UniqueValidator, MailModule],
 })
 export class CommonModule {}

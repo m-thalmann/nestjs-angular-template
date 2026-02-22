@@ -10,7 +10,9 @@ export interface AppConfig {
   host: string;
   basePath: string;
   secret: string;
+  frontendUrl: string;
   signUpEnabled: boolean;
+  emailVerificationEnabled: boolean;
 }
 
 export const appConfigDefinition = registerAs<AppConfig>('app', () => {
@@ -28,7 +30,9 @@ export const appConfigDefinition = registerAs<AppConfig>('app', () => {
     port: process.env.APP_PORT === undefined ? DEFAULT_PORT : parseInt(process.env.APP_PORT, 10),
     host: process.env.APP_HOST ?? 'localhost',
     basePath: process.env.APP_BASE_PATH ?? DEFAULT_BASE_PATH,
+    frontendUrl: process.env.APP_FRONTEND_URL ?? 'http://localhost:4200/',
     secret,
     signUpEnabled: process.env.APP_SIGN_UP_ENABLED === 'true',
+    emailVerificationEnabled: process.env.APP_EMAIL_VERIFICATION_ENABLED === 'true',
   };
 });
