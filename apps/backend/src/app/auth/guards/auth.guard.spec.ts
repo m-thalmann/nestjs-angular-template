@@ -16,6 +16,10 @@ class AuthGuardTestClass extends AuthGuard {
     return super.getExpectRefreshTokenAuth(context);
   }
 
+  override getRequiresVerifiedEmail(context: ExecutionContext): boolean {
+    return super.getRequiresVerifiedEmail(context);
+  }
+
   override extractTokenFromHeader(request: FastifyRequest): string | undefined {
     return super.extractTokenFromHeader(request);
   }
@@ -121,6 +125,31 @@ describe('AuthGuard', () => {
       expect(mockAuthTokenService.validateToken).not.toHaveBeenCalled();
     });
 
+    it("should throw an UnauthorizedException if the user's email is not verified", async () => {
+      const context = buildMockContext();
+
+      const expectedJwtToken = 'mock-jwt-token';
+
+      const expectedUser = new User();
+      const expectedAuthToken = new AuthToken();
+      expectedAuthToken.user = Promise.resolve(expectedUser);
+
+      guard.getRequiresVerifiedEmail = jest.fn().mockReturnValue(true);
+
+      guard.isPublicRequest = jest.fn().mockReturnValue(false);
+      guard.extractTokenFromHeader = jest.fn().mockReturnValue(expectedJwtToken);
+      guard.getExpectRefreshTokenAuth = jest.fn().mockReturnValue(false);
+
+      mockAuthTokenService.validateToken = jest
+        .fn()
+        .mockResolvedValue({ user: expectedUser, authToken: expectedAuthToken });
+
+      await expect(guard.canActivate(context)).rejects.toThrow(UnauthorizedException);
+
+      expect(guard.extractTokenFromHeader).toHaveBeenCalledWith(context.switchToHttp().getRequest());
+      expect(mockAuthTokenService.validateToken).toHaveBeenCalled();
+    });
+
     it.each([
       [false, false],
       [false, true],
@@ -145,6 +174,7 @@ describe('AuthGuard', () => {
         guard.isPublicRequest = jest.fn().mockReturnValue(false);
         guard.extractTokenFromHeader = jest.fn().mockReturnValue(expectedJwtToken);
         guard.getExpectRefreshTokenAuth = jest.fn().mockReturnValue(expectRefreshToken);
+        guard.getRequiresVerifiedEmail = jest.fn().mockReturnValue(emailMustBeVerified);
 
         mockAuthTokenService.validateToken = jest
           .fn()
@@ -247,6 +277,36 @@ describe('AuthGuard', () => {
 
       expect(result).toBe(false);
       expect(mockReflector.getAllAndOverride).toHaveBeenCalledWith('useRefreshTokenAuth', [
+        context.getHandler(),
+        context.getClass(),
+      ]);
+    });
+  });
+
+  describe('getRequiresVerifiedEmail', () => {
+    it('should return true if the EmailMustBeVerified decorator is used', () => {
+      const context = buildMockContext();
+
+      mockReflector.getAllAndOverride = jest.fn().mockReturnValue(true);
+
+      const result = guard.getRequiresVerifiedEmail(context);
+
+      expect(result).toBe(true);
+      expect(mockReflector.getAllAndOverride).toHaveBeenCalledWith('requiresVerifiedEmail', [
+        context.getHandler(),
+        context.getClass(),
+      ]);
+    });
+
+    it('should return false if the EmailMustBeVerified decorator is not used', () => {
+      const context = buildMockContext();
+
+      mockReflector.getAllAndOverride = jest.fn().mockReturnValue(undefined);
+
+      const result = guard.getRequiresVerifiedEmail(context);
+
+      expect(result).toBe(false);
+      expect(mockReflector.getAllAndOverride).toHaveBeenCalledWith('requiresVerifiedEmail', [
         context.getHandler(),
         context.getClass(),
       ]);
