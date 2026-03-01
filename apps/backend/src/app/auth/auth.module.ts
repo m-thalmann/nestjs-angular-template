@@ -6,13 +6,16 @@ import { AuthService } from './auth.service';
 import { EmailVerificationController } from './email-verification/email-verification.controller';
 import { EmailVerificationService } from './email-verification/email-verification.service';
 import { AuthGuard } from './guards/auth.guard';
+import { ResetPasswordController } from './reset-password/reset-password.controller';
+import { ResetPasswordService } from './reset-password/reset-password.service';
 import { AuthTokenModule } from './tokens/auth-token.module';
 
 @Module({
   imports: [AuthTokenModule, UserModule],
-  controllers: [AuthController, EmailVerificationController],
+  controllers: [AuthController, ResetPasswordController, EmailVerificationController],
   providers: [
     AuthService,
+    ResetPasswordService,
     EmailVerificationService,
     {
       provide: APP_GUARD,
