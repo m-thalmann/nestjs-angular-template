@@ -1,8 +1,0 @@
-{
-  "name": "backend-feature-users",
-  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "libs/backend/feature-users/src",
-  "projectType": "library",
-  "tags": ["backend", "lib"],
-  "targets": {}
-}

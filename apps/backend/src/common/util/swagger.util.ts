@@ -1,6 +1,6 @@
+import { PaginationMetaDto } from '@backend/models';
 import { getSchemaPath } from '@nestjs/swagger';
 import { SchemaObject } from '@nestjs/swagger/dist/interfaces/open-api-spec.interface';
-import { PaginationMetaDto } from '../dto/pagination-meta.dto';
 
 export function getResponseSchema(
   // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type

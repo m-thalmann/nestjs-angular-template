@@ -22,8 +22,8 @@
     "noImplicitAny": true,
     "baseUrl": ".",
     "paths": {
-      "@backend/common": ["libs/backend/common/src/index.ts"],
-      "@backend/feature-users": ["libs/backend/feature-users/src/index.ts"]
+      "@backend/*": ["apps/backend/src/common/*"],
+      "@backend/database": ["apps/backend/src/database/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

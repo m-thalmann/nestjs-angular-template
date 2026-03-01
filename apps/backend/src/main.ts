@@ -1,9 +1,10 @@
-import { ConfigService, PaginationMetaDto } from '@backend/common';
 import { INestApplication, Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { FastifyAdapter } from '@nestjs/platform-fastify';
 import { DocumentBuilder, OpenAPIObject, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app/app.module';
+import { AppConfig, appConfigDefinition } from './common/config';
+import { PaginationMetaDto } from './common/models';
 
 function setupSwagger(app: INestApplication<unknown>, serverUrl: string): void {
   const config = new DocumentBuilder()
@@ -12,7 +13,6 @@ function setupSwagger(app: INestApplication<unknown>, serverUrl: string): void {
     .setLicense('MIT', 'https://opensource.org/licenses/MIT')
     .setVersion('v1')
     .setExternalDoc('OpenAPI JSON', `${serverUrl}/docs/openapi.json`)
-    .addServer(serverUrl)
     .build();
 
   const documentFactory: () => OpenAPIObject = () =>
@@ -34,11 +34,11 @@ async function bootstrap(): Promise<void> {
   // TODO: trust proxies: https://fastify.dev/docs/latest/Reference/Server/#trustproxy, https://docs.nestjs.com/security/rate-limiting#proxies
   const app = await NestFactory.create(AppModule, new FastifyAdapter({ routerOptions: { maxParamLength: 1000 } }));
 
-  const configService = app.get(ConfigService);
+  const appConfig = await app.resolve<unknown, AppConfig>(appConfigDefinition.KEY);
 
-  const port = configService.app.port;
-  const host = configService.app.host;
-  const basePath = configService.app.basePath;
+  const port = appConfig.port;
+  const host = appConfig.host;
+  const basePath = appConfig.basePath;
 
   // TODO: add allowed cors origins as config
   app.enableCors();
@@ -49,9 +49,6 @@ async function bootstrap(): Promise<void> {
   setupSwagger(app, serverUrl);
 
   await app.listen(port, host);
-
-  app.setGlobalPrefix(basePath);
-
   Logger.log(`🚀 Application is running on: ${serverUrl}`);
 }
 
