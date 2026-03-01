@@ -1,8 +1,8 @@
+import { User } from '@backend/user';
 import { ForbiddenException } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { JwtService } from '@nestjs/jwt';
 import { Test, TestingModule } from '@nestjs/testing';
-import { User } from '../../user/user.entity';
 import { UserService } from '../../user/user.service';
 import { RequestPasswordResetEvent } from '../events/request-password-reset.event';
 import { ResetPasswordService } from './reset-password.service';

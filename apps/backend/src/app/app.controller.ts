@@ -1,11 +1,13 @@
 import { Public } from '@backend/decorators';
 import { Controller, Get } from '@nestjs/common';
+import { ApiExcludeController } from '@nestjs/swagger';
 
 @Controller()
 @Public()
+@ApiExcludeController()
 export class AppController {
   @Get()
-  getData(): { message: string } {
-    return { message: 'Hello API' };
+  getMessage(): { message: string } {
+    return { message: '@nestjs-angular-template REST API' };
   }
 }

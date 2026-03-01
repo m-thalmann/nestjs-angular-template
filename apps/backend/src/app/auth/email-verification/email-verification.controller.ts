@@ -1,7 +1,7 @@
 import { ApiAuth, ApiValidationErrorResponse } from '@backend/decorators';
+import { User } from '@backend/user';
 import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common';
 import { ApiForbiddenResponse, ApiNoContentResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { User } from '../../user/user.entity';
 import { Auth } from '../decorators/auth.decorator';
 import { VerifyEmailDto } from './dto/verify-email.dto';
 import { EmailVerificationService } from './email-verification.service';

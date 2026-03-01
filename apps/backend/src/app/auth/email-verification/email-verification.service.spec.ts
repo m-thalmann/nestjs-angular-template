@@ -1,8 +1,8 @@
-import { MailService } from '@backend/mail/mail.service';
+import { MailService } from '@backend/mail';
+import { User } from '@backend/user';
 import { ForbiddenException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Test, TestingModule } from '@nestjs/testing';
-import { User } from '../../user/user.entity';
 import { UserService } from '../../user/user.service';
 import { EmailVerificationMessage } from '../messages/email-verification.message';
 import { EmailVerificationService } from './email-verification.service';

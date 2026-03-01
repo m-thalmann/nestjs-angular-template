@@ -1,4 +1,4 @@
-import { MailService } from '@backend/mail/mail.service';
+import { MailService } from '@backend/mail';
 import { Injectable } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
 import { UserCreatedEvent } from '../user/events/user-created.event';

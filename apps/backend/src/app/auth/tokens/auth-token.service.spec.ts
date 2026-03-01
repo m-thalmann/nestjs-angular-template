@@ -1,13 +1,13 @@
 /* eslint-disable @typescript-eslint/no-magic-numbers */
 /* eslint-disable max-lines */
 import { authConfigDefinition } from '@backend/config';
+import { User } from '@backend/user';
 import { UnauthorizedException } from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { FindOperator, FindOptionsWhere, Repository } from 'typeorm';
-import { User } from '../../user/user.entity';
 import { AuthToken } from './auth-token.entity';
 import { AuthTokenService } from './auth-token.service';
 

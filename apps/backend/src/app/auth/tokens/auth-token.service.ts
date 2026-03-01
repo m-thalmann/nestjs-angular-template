@@ -1,4 +1,5 @@
 import { authConfigDefinition } from '@backend/config';
+import { User } from '@backend/user';
 import { getDateAfterMinutes } from '@backend/util';
 import { Inject, Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
@@ -6,7 +7,6 @@ import { JwtService, JwtSignOptions } from '@nestjs/jwt';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { InjectRepository } from '@nestjs/typeorm';
 import { LessThanOrEqual, Repository } from 'typeorm';
-import { User } from '../../user/user.entity';
 import { AuthToken } from './auth-token.entity';
 
 interface TokenPayload {

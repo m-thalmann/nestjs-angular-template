@@ -1,5 +1,5 @@
 import { appConfigDefinition } from '@backend/config';
-import { BaseMessage } from '@backend/mail/base.message';
+import { BaseMessage } from '@backend/mail';
 import { ConfigType } from '@nestjs/config';
 import { ResetPasswordService } from 'apps/backend/src/app/auth/reset-password/reset-password.service';
 

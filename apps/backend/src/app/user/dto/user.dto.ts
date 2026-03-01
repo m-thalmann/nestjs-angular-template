@@ -34,10 +34,6 @@ export class UserDto {
     dto.email = user.email;
     return dto;
   }
-
-  static fromEntityArray(users: Array<User>): Array<UserDto> {
-    return users.map((user) => this.fromEntity(user));
-  }
 }
 
 export class DetailedUserDto extends UserDto {
@@ -77,9 +73,5 @@ export class DetailedUserDto extends UserDto {
     dto.createdAt = convertDateToUnixTimestamp(user.createdAt);
     dto.updatedAt = convertDateToUnixTimestamp(user.updatedAt);
     return dto;
-  }
-
-  static override fromEntityArray(users: Array<User>): Array<DetailedUserDto> {
-    return users.map((user) => this.fromEntity(user));
   }
 }

@@ -1,3 +1,4 @@
+import { AbilityAction, Auth, AuthAbility, AuthorizeAbility } from '@backend/auth';
 import {
   ApiAuth,
   ApiPaginationQueryParams,
@@ -6,7 +7,7 @@ import {
   QueryPaginationParams,
 } from '@backend/decorators';
 import { ApiResponseDto, ApiResponseWithPaginationDto, type PaginationParams } from '@backend/models';
-import { getResponseSchema } from '@backend/util';
+import { buildDtoArray, getResponseSchema } from '@backend/util';
 import {
   Body,
   Controller,
@@ -29,7 +30,6 @@ import {
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
-import { Auth } from '../auth/decorators/auth.decorator';
 import { CreateUserDto } from './dto/create-user.dto';
 import { PatchAuthUserDto } from './dto/patch-auth-user.dto';
 import { PatchUserDto } from './dto/patch-user.dto';
@@ -52,7 +52,12 @@ export class UserController {
   })
   @ApiForbiddenResponse({ description: 'Forbidden' })
   @ApiValidationErrorResponse()
-  async create(@Body() createUserDto: CreateUserDto): Promise<ApiResponseDto<DetailedUserDto>> {
+  async create(
+    @AuthorizeAbility() ability: AuthAbility,
+    @Body() createUserDto: CreateUserDto,
+  ): Promise<ApiResponseDto<DetailedUserDto>> {
+    ability.authorize('create', User);
+
     const user = await this.userService.create(createUserDto);
 
     return { data: DetailedUserDto.fromEntity(user) };
@@ -67,11 +72,14 @@ export class UserController {
   })
   @ApiForbiddenResponse({ description: 'Forbidden' })
   async findAll(
+    @AuthorizeAbility() ability: AuthAbility,
     @QueryPaginationParams() paginationParams: PaginationParams,
   ): Promise<ApiResponseWithPaginationDto<Array<UserDto>>> {
+    ability.authorize('readAll', User);
+
     const { users, paginationMeta } = await this.userService.findAll({ pagination: paginationParams });
 
-    return { data: UserDto.fromEntityArray(users), meta: paginationMeta };
+    return { data: buildDtoArray(users, UserDto.fromEntity), meta: paginationMeta };
   }
 
   @Get(':uuid')
@@ -81,8 +89,13 @@ export class UserController {
     schema: getResponseSchema(UserDto),
   })
   @ApiNotFoundResponse({ description: 'Not found' })
-  async findOne(@Param('uuid') uuid: string): Promise<ApiResponseDto<UserDto>> {
+  async findOne(
+    @AuthorizeAbility() ability: AuthAbility,
+    @Param('uuid') uuid: string,
+  ): Promise<ApiResponseDto<UserDto>> {
     const user = await this.resolveUser(uuid);
+
+    ability.authorizeAnonymous(AbilityAction.Read, user);
 
     return { data: UserDto.fromEntity(user) };
   }
@@ -98,8 +111,11 @@ export class UserController {
   @ApiValidationErrorResponse()
   async updateAuthUser(
     @Auth('user') user: User,
+    @AuthorizeAbility() ability: AuthAbility,
     @Body() patchAuthUserDto: PatchAuthUserDto,
   ): Promise<ApiResponseDto<DetailedUserDto>> {
+    ability.authorize('update', user, Object.keys(patchAuthUserDto));
+
     const updatedUser = await this.userService.patch(user, patchAuthUserDto);
 
     return { data: DetailedUserDto.fromEntity(updatedUser) };
@@ -118,9 +134,12 @@ export class UserController {
   @ApiNotFoundResponse({ description: 'Not found' })
   @ApiValidationErrorResponse()
   async update(
+    @AuthorizeAbility() ability: AuthAbility,
     @Param('uuid') uuid: string,
     @Body() patchUserDto: PatchUserDto,
   ): Promise<ApiResponseDto<DetailedUserDto>> {
+    ability.authorize(AbilityAction.Manage, User);
+
     const user = await this.resolveUser(uuid);
 
     const updatedUser = await this.userService.patch(user, patchUserDto);
@@ -134,8 +153,10 @@ export class UserController {
   @ApiOperation({ summary: 'Deletes a user by UUID' })
   @ApiNoContentResponse({ description: 'OK' })
   @ApiNotFoundResponse({ description: 'Not found' })
-  async remove(@Param('uuid') uuid: string): Promise<void> {
+  async remove(@AuthorizeAbility() authAbility: AuthAbility, @Param('uuid') uuid: string): Promise<void> {
     const user = await this.resolveUser(uuid);
+
+    authAbility.authorizeAnonymous(AbilityAction.Delete, user);
 
     await this.userService.remove(user.uuid);
   }

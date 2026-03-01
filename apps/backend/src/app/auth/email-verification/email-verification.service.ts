@@ -1,7 +1,7 @@
-import { MailService } from '@backend/mail/mail.service';
+import { MailService } from '@backend/mail';
+import { User } from '@backend/user';
 import { ForbiddenException, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { User } from '../../user/user.entity';
 import { UserService } from '../../user/user.service';
 import { EmailVerificationMessage } from '../messages/email-verification.message';
 

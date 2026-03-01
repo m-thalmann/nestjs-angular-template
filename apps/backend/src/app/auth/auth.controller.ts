@@ -1,5 +1,6 @@
 import { ApiAuth, ApiValidationErrorResponse, Public } from '@backend/decorators';
 import { ApiResponseDto } from '@backend/models';
+import { User } from '@backend/user';
 import { getResponseSchema } from '@backend/util';
 import { Body, Controller, Get, HttpCode, HttpStatus, Post, UseGuards } from '@nestjs/common';
 import {
@@ -14,7 +15,6 @@ import {
 } from '@nestjs/swagger';
 import { Throttle } from '@nestjs/throttler';
 import { DetailedUserDto } from '../user/dto/user.dto';
-import { User } from '../user/user.entity';
 import { AuthService } from './auth.service';
 import { Auth } from './decorators/auth.decorator';
 import { LoginDto } from './dto/login.dto';

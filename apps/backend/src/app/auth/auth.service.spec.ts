@@ -1,8 +1,8 @@
+import { User } from '@backend/user';
 import { UnauthorizedException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import * as argon2 from 'argon2';
 import { CreateUserDto } from '../user/dto/create-user.dto';
-import { User } from '../user/user.entity';
 import { UserService } from '../user/user.service';
 import { AuthService } from './auth.service';
 import { SignUpDto } from './dto/sign-up.dto';
