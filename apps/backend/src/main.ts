@@ -14,6 +14,22 @@ function setupSwagger(app: INestApplication<unknown>, serverUrl: string): void {
     .setLicense('MIT', 'https://opensource.org/licenses/MIT')
     .setVersion('v1')
     .setExternalDoc('OpenAPI JSON', `${serverUrl}/docs/openapi.json`)
+    .addBearerAuth(
+      {
+        type: 'http',
+        description: 'JWT Access token',
+        bearerFormat: 'JWT',
+      },
+      'AccessToken',
+    )
+    .addBearerAuth(
+      {
+        type: 'http',
+        description: 'JWT Refresh token',
+        bearerFormat: 'JWT',
+      },
+      'RefreshToken',
+    )
     .build();
 
   const documentFactory: () => OpenAPIObject = () =>

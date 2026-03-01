@@ -1,4 +1,10 @@
-import { ApiPaginationQueryParams, ApiValidationErrorResponse, QueryPaginationParams } from '@backend/decorators';
+import {
+  ApiAuth,
+  ApiPaginationQueryParams,
+  ApiValidationErrorResponse,
+  EmailMustBeVerified,
+  QueryPaginationParams,
+} from '@backend/decorators';
 import { ApiResponseDto, ApiResponseWithPaginationDto, type PaginationParams } from '@backend/models';
 import { getResponseSchema } from '@backend/util';
 import {
@@ -23,13 +29,16 @@ import {
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
+import { Auth } from '../auth/decorators/auth.decorator';
 import { CreateUserDto } from './dto/create-user.dto';
+import { PatchAuthUserDto } from './dto/patch-auth-user.dto';
 import { PatchUserDto } from './dto/patch-user.dto';
 import { DetailedUserDto, UserDto } from './dto/user.dto';
 import { User } from './user.entity';
 import { UserService } from './user.service';
 
 @Controller('users')
+@ApiAuth({ emailMustBeVerified: true })
 @ApiTags('Users')
 @ApiExtraModels(UserDto)
 export class UserController {
@@ -78,6 +87,24 @@ export class UserController {
     return { data: UserDto.fromEntity(user) };
   }
 
+  @Patch()
+  @EmailMustBeVerified(false)
+  @ApiOperation({ summary: 'Updates the authenticated user' })
+  @ApiOkResponse({
+    description: 'OK',
+    schema: getResponseSchema(DetailedUserDto),
+  })
+  @ApiNotFoundResponse({ description: 'Not found' })
+  @ApiValidationErrorResponse()
+  async updateAuthUser(
+    @Auth('user') user: User,
+    @Body() patchAuthUserDto: PatchAuthUserDto,
+  ): Promise<ApiResponseDto<DetailedUserDto>> {
+    const updatedUser = await this.userService.patch(user, patchAuthUserDto);
+
+    return { data: DetailedUserDto.fromEntity(updatedUser) };
+  }
+
   @Patch(':uuid')
   @ApiOperation({
     summary: 'Updates a user by UUID',
@@ -103,6 +130,7 @@ export class UserController {
 
   @Delete(':uuid')
   @HttpCode(HttpStatus.NO_CONTENT)
+  @EmailMustBeVerified(false)
   @ApiOperation({ summary: 'Deletes a user by UUID' })
   @ApiNoContentResponse({ description: 'OK' })
   @ApiNotFoundResponse({ description: 'Not found' })

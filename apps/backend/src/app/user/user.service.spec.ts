@@ -3,6 +3,7 @@ import { UniqueValidator } from '@backend/validation';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { AuthTokenService } from '../auth/tokens/auth-token.service';
 import { User } from './user.entity';
 import { UserService } from './user.service';
 
@@ -10,6 +11,7 @@ describe('UserService', () => {
   let service: UserService;
 
   let mockUsersRepository: Partial<Repository<User>>;
+  let mockAuthTokenService: Partial<AuthTokenService>;
   let mockUniqueValidator: Partial<UniqueValidator>;
 
   beforeEach(async () => {
@@ -23,6 +25,10 @@ describe('UserService', () => {
       delete: jest.fn(),
     };
 
+    mockAuthTokenService = {
+      deleteAllForUser: jest.fn(),
+    };
+
     mockUniqueValidator = {
       validateProperty: jest.fn(),
     };
@@ -33,6 +39,10 @@ describe('UserService', () => {
         {
           provide: getRepositoryToken(User),
           useValue: mockUsersRepository,
+        },
+        {
+          provide: AuthTokenService,
+          useValue: mockAuthTokenService,
         },
         {
           provide: UniqueValidator,

@@ -3,6 +3,7 @@ import { UniqueValidator } from '@backend/validation';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FindManyOptions, Repository } from 'typeorm';
+import { AuthTokenService } from '../auth/tokens/auth-token.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { PatchUserDto } from './dto/patch-user.dto';
 import { User } from './user.entity';
@@ -12,6 +13,7 @@ export class UserService {
   constructor(
     @InjectRepository(User)
     private readonly usersRepository: Repository<User>,
+    private readonly authTokenService: AuthTokenService,
     private readonly uniqueValidator: UniqueValidator,
   ) {}
 
@@ -48,6 +50,7 @@ export class UserService {
 
   async patch(user: User, data: PatchUserDto): Promise<User> {
     const emailUpdated = data.email !== undefined && user.email !== data.email;
+    const passwordUpdated = data.password !== undefined;
 
     if (data.email !== undefined && data.email !== user.email) {
       await this.uniqueValidator.validateProperty({
@@ -64,7 +67,13 @@ export class UserService {
       patchedUser.emailVerifiedAt = null;
     }
 
-    return await this.usersRepository.save(patchedUser);
+    const updatedUser = await this.usersRepository.save(patchedUser);
+
+    if (emailUpdated || passwordUpdated || data.isAdmin !== undefined) {
+      await this.authTokenService.deleteAllForUser(updatedUser);
+    }
+
+    return updatedUser;
   }
 
   async markEmailAsVerified(user: User): Promise<User> {
