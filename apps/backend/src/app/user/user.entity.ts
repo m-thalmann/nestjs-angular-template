@@ -6,31 +6,31 @@ import { BeforeInsert, BeforeUpdate, Column, Entity, PrimaryGeneratedColumn } fr
 @Entity('users')
 export class User {
   @PrimaryGeneratedColumn()
-  id!: number;
+  declare id: number;
 
   @Column('uuid', { generated: 'uuid' })
-  uuid!: string;
+  declare uuid: string;
 
   @Column('varchar')
-  name!: string;
+  declare name: string;
 
   @Column('varchar')
-  email!: string;
+  declare email: string;
 
   @Column('datetime', { name: 'email_verified_at' })
   emailVerifiedAt: Date | null = null;
 
   @Column('varchar')
-  password!: string;
+  declare password: string;
 
   @Column('boolean', { name: 'is_admin' })
-  isAdmin!: boolean;
+  declare isAdmin: boolean;
 
   @Column('datetime', { name: 'created_at' })
-  createdAt!: Date;
+  declare createdAt: Date;
 
   @Column('datetime', { name: 'updated_at' })
-  updatedAt!: Date;
+  declare updatedAt: Date;
 
   get isEmailVerified(): boolean {
     return this.emailVerifiedAt !== null;

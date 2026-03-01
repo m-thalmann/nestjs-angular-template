@@ -1,7 +1,8 @@
-import { INestApplication, Logger } from '@nestjs/common';
+import { HttpStatus, INestApplication, Logger, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { FastifyAdapter } from '@nestjs/platform-fastify';
 import { DocumentBuilder, OpenAPIObject, SwaggerModule } from '@nestjs/swagger';
+import { useContainer as classValidatorUseContainer } from 'class-validator';
 import { AppModule } from './app/app.module';
 import { AppConfig, appConfigDefinition } from './common/config';
 import { PaginationMetaDto } from './common/models';
@@ -43,6 +44,17 @@ async function bootstrap(): Promise<void> {
   // TODO: add allowed cors origins as config
   app.enableCors();
   app.setGlobalPrefix(basePath);
+
+  app.useGlobalPipes(
+    new ValidationPipe({
+      transform: true,
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
+    }),
+  );
+
+  classValidatorUseContainer(app.select(AppModule), { fallbackOnErrors: true });
 
   const serverUrl = `http://${host}:${port}${basePath}`;
 

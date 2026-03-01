@@ -2,6 +2,7 @@ import { Global, Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { resolve } from 'path';
 import { appConfigDefinition, databaseConfigDefinition } from './config';
+import { UniqueValidator } from './validation/unique.validator';
 
 @Global()
 @Module({
@@ -18,7 +19,7 @@ import { appConfigDefinition, databaseConfigDefinition } from './config';
       load: [appConfigDefinition, databaseConfigDefinition],
     }),
   ],
-  providers: [],
-  exports: [],
+  providers: [UniqueValidator],
+  exports: [UniqueValidator],
 })
 export class CommonModule {}

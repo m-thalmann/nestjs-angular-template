@@ -4,12 +4,12 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigType } from '@nestjs/config';
 import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
-import { FeatureUsersModule } from './feature-users/feature-users.module';
+import { UserModule } from './user/user.module';
 
 @Module({
   imports: [
     CommonModule,
-    FeatureUsersModule,
+
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule.forFeature(databaseConfigDefinition)],
       inject: [databaseConfigDefinition.KEY],
@@ -21,6 +21,8 @@ import { FeatureUsersModule } from './feature-users/feature-users.module';
           migrationsRun: false,
         }) satisfies TypeOrmModuleOptions,
     }),
+
+    UserModule,
   ],
   controllers: [AppController],
   providers: [],
