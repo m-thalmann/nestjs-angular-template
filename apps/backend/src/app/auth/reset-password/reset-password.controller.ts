@@ -1,6 +1,8 @@
 import { ApiValidationErrorResponse, Public } from '@backend/decorators';
 import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common';
 import { ApiForbiddenResponse, ApiNoContentResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { Throttle } from '@nestjs/throttler';
+import { AuthController } from '../auth.controller';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { SendResetPasswordDto } from './dto/send-reset-password.dto';
 import { ResetPasswordService } from './reset-password.service';
@@ -13,6 +15,7 @@ export class ResetPasswordController {
 
   @Post()
   @HttpCode(HttpStatus.NO_CONTENT)
+  @Throttle({ default: { limit: AuthController.REQUESTS_PER_MINUTE } })
   @ApiOperation({ summary: "Resets the user's password" })
   @ApiNoContentResponse({ description: 'OK' })
   @ApiForbiddenResponse({ description: 'Invalid token' })
@@ -23,6 +26,7 @@ export class ResetPasswordController {
 
   @Post('send')
   @HttpCode(HttpStatus.NO_CONTENT)
+  @Throttle({ default: { limit: AuthController.REQUESTS_PER_MINUTE } })
   @ApiOperation({ summary: 'Requests a password reset email' })
   @ApiNoContentResponse({ description: 'OK' })
   @ApiForbiddenResponse({ description: 'Email already verified' })

@@ -12,6 +12,7 @@ import {
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
+import { Throttle } from '@nestjs/throttler';
 import { DetailedUserDto } from '../user/dto/user.dto';
 import { User } from '../user/user.entity';
 import { AuthService } from './auth.service';
@@ -27,6 +28,8 @@ import { AuthTokenService } from './tokens/auth-token.service';
 @ApiTags('Auth')
 @ApiExtraModels(SuccessfulAuthDto)
 export class AuthController {
+  static readonly REQUESTS_PER_MINUTE = 5;
+
   constructor(
     private readonly authService: AuthService,
     private readonly authTokenService: AuthTokenService,
@@ -48,6 +51,7 @@ export class AuthController {
   @Post('login')
   @HttpCode(HttpStatus.OK)
   @Public()
+  @Throttle({ default: { limit: AuthController.REQUESTS_PER_MINUTE } })
   @ApiOperation({ summary: 'Performs a login for the user' })
   @ApiOkResponse({
     description: 'OK',
@@ -74,6 +78,7 @@ export class AuthController {
   @Post('sign-up')
   @Public()
   @UseGuards(SignUpEnabledGuard)
+  @Throttle({ default: { limit: AuthController.REQUESTS_PER_MINUTE } })
   @ApiOperation({ summary: 'Creates an account for a new user' })
   @ApiCreatedResponse({
     description: 'OK',

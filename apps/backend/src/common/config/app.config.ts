@@ -5,6 +5,8 @@ const DEFAULT_BASE_PATH = '/api';
 
 const MIN_SECRET_LENGTH = 32;
 
+const DEFAULT_REQUESTS_PER_MINUTE = 60;
+
 export interface AppConfig {
   port: number;
   host: string;
@@ -12,6 +14,7 @@ export interface AppConfig {
   secret: string;
   frontendUrl: string;
   signUpEnabled: boolean;
+  requestsPerMinute: number;
 }
 
 export const appConfigDefinition = registerAs<AppConfig>('app', () => {
@@ -32,5 +35,6 @@ export const appConfigDefinition = registerAs<AppConfig>('app', () => {
     frontendUrl: process.env.APP_FRONTEND_URL ?? 'http://localhost:4200/',
     secret,
     signUpEnabled: process.env.APP_SIGN_UP_ENABLED === 'true',
+    requestsPerMinute: DEFAULT_REQUESTS_PER_MINUTE,
   };
 });
