@@ -33,7 +33,7 @@ module.exports = {
       compiler: 'swc',
       main: './src/main.ts',
       tsConfig: './tsconfig.app.json',
-      assets: ['./src/assets', { input: './src', output: '.', glob: '.env.example' }],
+      assets: ['./src/assets', './src/templates', { input: './src', output: '.', glob: '.env.example' }],
       optimization: false,
       outputHashing: 'none',
       generatePackageJson: true,
