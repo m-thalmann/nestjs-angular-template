@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { APP_GUARD } from '@nestjs/core';
 import { UserModule } from '../user/user.module';
 import { AuthController } from './auth.controller';
+import { AuthListener } from './auth.listener';
 import { AuthService } from './auth.service';
 import { EmailVerificationController } from './email-verification/email-verification.controller';
 import { EmailVerificationService } from './email-verification/email-verification.service';
@@ -17,6 +18,9 @@ import { AuthTokenModule } from './tokens/auth-token.module';
     AuthService,
     ResetPasswordService,
     EmailVerificationService,
+
+    AuthListener,
+
     {
       provide: APP_GUARD,
       useClass: AuthGuard,

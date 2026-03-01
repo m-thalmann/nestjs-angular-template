@@ -12,7 +12,6 @@ export interface AppConfig {
   secret: string;
   frontendUrl: string;
   signUpEnabled: boolean;
-  emailVerificationEnabled: boolean;
 }
 
 export const appConfigDefinition = registerAs<AppConfig>('app', () => {
@@ -33,6 +32,5 @@ export const appConfigDefinition = registerAs<AppConfig>('app', () => {
     frontendUrl: process.env.APP_FRONTEND_URL ?? 'http://localhost:4200/',
     secret,
     signUpEnabled: process.env.APP_SIGN_UP_ENABLED === 'true',
-    emailVerificationEnabled: process.env.APP_EMAIL_VERIFICATION_ENABLED === 'true',
   };
 });

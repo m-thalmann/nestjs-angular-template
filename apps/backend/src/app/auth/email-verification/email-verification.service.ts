@@ -1,16 +1,16 @@
 import { MailService } from '@backend/mail/mail.service';
-import { EmailVerificationMessage } from '@backend/mail/messages/email-verification.message';
 import { ForbiddenException, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { User } from '../../user/user.entity';
 import { UserService } from '../../user/user.service';
+import { EmailVerificationMessage } from '../messages/email-verification.message';
 
 @Injectable()
 export class EmailVerificationService {
   static readonly TOKEN_EXPIRATION_MINUTES: number = 10;
 
   constructor(
-    private readonly usersService: UserService,
+    private readonly userService: UserService,
     private readonly jwtService: JwtService,
     private readonly mailService: MailService,
   ) {}
@@ -26,7 +26,11 @@ export class EmailVerificationService {
       throw new ForbiddenException('Invalid token');
     }
 
-    await this.usersService.markEmailAsVerified(user);
+    await this.userService.markEmailAsVerified(user);
+  }
+
+  async sendVerificationEmail(user: User, isNewUser: boolean): Promise<void> {
+    await this.mailService.build(EmailVerificationMessage).context({ user, isNewUser }).to(user.email).send();
   }
 
   async resendVerificationEmail(user: User): Promise<void> {
@@ -36,7 +40,7 @@ export class EmailVerificationService {
 
     const isNewUser = user.createdAt.getTime() === user.updatedAt.getTime();
 
-    await this.mailService.build(EmailVerificationMessage).context({ user, isNewUser }).to(user.email).send();
+    await this.sendVerificationEmail(user, isNewUser);
   }
 
   async generateVerificationToken(user: User): Promise<string> {

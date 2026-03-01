@@ -1,10 +1,10 @@
 import { MailService } from '@backend/mail/mail.service';
-import { EmailVerificationMessage } from '@backend/mail/messages/email-verification.message';
 import { ForbiddenException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Test, TestingModule } from '@nestjs/testing';
 import { User } from '../../user/user.entity';
 import { UserService } from '../../user/user.service';
+import { EmailVerificationMessage } from '../messages/email-verification.message';
 import { EmailVerificationService } from './email-verification.service';
 
 function createMockUser(emailVerified: boolean): User {
@@ -20,14 +20,14 @@ function createMockUser(emailVerified: boolean): User {
 describe('EmailVerificationService', () => {
   let service: EmailVerificationService;
 
-  let mockUsersService: Partial<UserService>;
+  let mockUserService: Partial<UserService>;
   let mockJwtService: Partial<JwtService>;
   let mockMailService: Partial<MailService>;
 
   let mockMailBuilder: Partial<EmailVerificationMessage>;
 
   beforeEach(async () => {
-    mockUsersService = {
+    mockUserService = {
       markEmailAsVerified: jest.fn(),
     };
 
@@ -51,7 +51,7 @@ describe('EmailVerificationService', () => {
         EmailVerificationService,
         {
           provide: UserService,
-          useValue: mockUsersService,
+          useValue: mockUserService,
         },
         {
           provide: JwtService,
@@ -98,7 +98,23 @@ describe('EmailVerificationService', () => {
 
       await service.verifyEmail(user, 'token');
 
-      expect(mockUsersService.markEmailAsVerified).toHaveBeenCalledWith(user);
+      expect(mockUserService.markEmailAsVerified).toHaveBeenCalledWith(user);
+    });
+  });
+
+  describe('sendVerificationEmail', () => {
+    it.each([true, false])('should send verification email with isNewUser (%s)', async (isNewUser) => {
+      const user = createMockUser(false);
+      user.createdAt = new Date();
+      user.updatedAt = new Date(user.createdAt.getTime() + 1);
+
+      await service.sendVerificationEmail(user, isNewUser);
+
+      expect(mockMailService.build).toHaveBeenCalledWith(EmailVerificationMessage);
+
+      expect(mockMailBuilder.context).toHaveBeenCalledWith({ user, isNewUser });
+      expect(mockMailBuilder.to).toHaveBeenCalledWith(user.email);
+      expect(mockMailBuilder.send).toHaveBeenCalled();
     });
   });
 
@@ -114,13 +130,11 @@ describe('EmailVerificationService', () => {
       user.createdAt = new Date();
       user.updatedAt = new Date(user.createdAt.getTime() + 1);
 
+      service.sendVerificationEmail = jest.fn().mockResolvedValue(undefined);
+
       await service.resendVerificationEmail(user);
 
-      expect(mockMailService.build).toHaveBeenCalledWith(EmailVerificationMessage);
-
-      expect(mockMailBuilder.context).toHaveBeenCalledWith({ user, isNewUser: false });
-      expect(mockMailBuilder.to).toHaveBeenCalledWith(user.email);
-      expect(mockMailBuilder.send).toHaveBeenCalled();
+      expect(service.sendVerificationEmail).toHaveBeenCalledWith(user, false);
     });
 
     it('should set isNewUser to true if user was just created', async () => {
@@ -128,9 +142,11 @@ describe('EmailVerificationService', () => {
       user.createdAt = new Date();
       user.updatedAt = new Date(user.createdAt);
 
+      service.sendVerificationEmail = jest.fn().mockResolvedValue(undefined);
+
       await service.resendVerificationEmail(user);
 
-      expect(mockMailBuilder.context).toHaveBeenCalledWith({ user, isNewUser: true });
+      expect(service.sendVerificationEmail).toHaveBeenCalledWith(user, true);
     });
   });
 

@@ -1,11 +1,9 @@
-import { appConfigDefinition } from '@backend/config';
 import {
   EMAIL_MUST_BE_VERIFIED_DECORATOR_KEY,
   IS_PUBLIC_DECORATOR_KEY,
   REFRESH_TOKEN_AUTH_DECORATOR_KEY,
 } from '@backend/decorators';
-import { CanActivate, ExecutionContext, Inject, Injectable, UnauthorizedException } from '@nestjs/common';
-import { ConfigType } from '@nestjs/config';
+import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { FastifyRequest } from 'fastify';
 import { AuthTokenService } from '../tokens/auth-token.service';
@@ -17,8 +15,6 @@ export class AuthGuard implements CanActivate {
   constructor(
     private readonly authTokenService: AuthTokenService,
     private readonly reflector: Reflector,
-    @Inject(appConfigDefinition.KEY)
-    private readonly appConfig: ConfigType<typeof appConfigDefinition>,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -70,11 +66,6 @@ export class AuthGuard implements CanActivate {
   }
 
   protected getRequiresVerifiedEmail(context: ExecutionContext): boolean {
-    // TODO: add this check everywhere where it is needed (or remove this flag if not possible)
-    if (!this.appConfig.emailVerificationEnabled) {
-      return false;
-    }
-
     return (
       this.reflector.getAllAndOverride<boolean | undefined>(EMAIL_MUST_BE_VERIFIED_DECORATOR_KEY, [
         context.getHandler(),

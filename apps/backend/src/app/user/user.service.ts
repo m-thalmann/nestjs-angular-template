@@ -1,11 +1,14 @@
 import { PaginationMetaDto, PaginationParams } from '@backend/models';
 import { UniqueValidator } from '@backend/validation';
 import { Injectable } from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FindManyOptions, Repository } from 'typeorm';
 import { AuthTokenService } from '../auth/tokens/auth-token.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { PatchUserDto } from './dto/patch-user.dto';
+import { UserCreatedEvent } from './events/user-created.event';
+import { UserEmailUpdatedEvent } from './events/user-email-updated.event';
 import { User } from './user.entity';
 
 @Injectable()
@@ -15,6 +18,7 @@ export class UserService {
     private readonly usersRepository: Repository<User>,
     private readonly authTokenService: AuthTokenService,
     private readonly uniqueValidator: UniqueValidator,
+    private readonly eventEmitter: EventEmitter2,
   ) {}
 
   async findAll(options: {
@@ -45,6 +49,8 @@ export class UserService {
     const user = this.usersRepository.create(data);
     const createdUser = await this.usersRepository.save(user);
 
+    this.eventEmitter.emit(UserCreatedEvent.ID, new UserCreatedEvent(createdUser));
+
     return createdUser;
   }
 
@@ -68,6 +74,10 @@ export class UserService {
     }
 
     const updatedUser = await this.usersRepository.save(patchedUser);
+
+    if (emailUpdated) {
+      this.eventEmitter.emit(UserEmailUpdatedEvent.ID, new UserEmailUpdatedEvent(updatedUser));
+    }
 
     if (emailUpdated || passwordUpdated || data.isAdmin !== undefined) {
       await this.authTokenService.deleteAllForUser(updatedUser);

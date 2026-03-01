@@ -1,8 +1,8 @@
+import { appConfigDefinition } from '@backend/config';
+import { BaseMessage } from '@backend/mail/base.message';
 import { ConfigType } from '@nestjs/config';
-import { EmailVerificationService } from '../../../app/auth/email-verification/email-verification.service';
-import { User } from '../../../app/user/user.entity';
-import { appConfigDefinition } from '../../config/app.config';
-import { BaseMessage } from '../base.message';
+import { User } from '../../user/user.entity';
+import { EmailVerificationService } from '../email-verification/email-verification.service';
 
 interface EmailVerificationMessageContext {
   user: User;

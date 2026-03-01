@@ -1,18 +1,21 @@
 import { ForbiddenException } from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { JwtService } from '@nestjs/jwt';
 import { Test, TestingModule } from '@nestjs/testing';
 import { User } from '../../user/user.entity';
 import { UserService } from '../../user/user.service';
+import { RequestPasswordResetEvent } from '../events/request-password-reset.event';
 import { ResetPasswordService } from './reset-password.service';
 
 describe('ResetPasswordService', () => {
   let service: ResetPasswordService;
 
-  let mockUsersService: Partial<UserService>;
+  let mockUserService: Partial<UserService>;
   let mockJwtService: Partial<JwtService>;
+  let mockEventEmitter: Partial<EventEmitter2>;
 
   beforeEach(async () => {
-    mockUsersService = {
+    mockUserService = {
       findOneByEmail: jest.fn(),
       patch: jest.fn(),
     };
@@ -22,16 +25,24 @@ describe('ResetPasswordService', () => {
       verifyAsync: jest.fn(),
     };
 
+    mockEventEmitter = {
+      emit: jest.fn(),
+    };
+
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         ResetPasswordService,
         {
           provide: UserService,
-          useValue: mockUsersService,
+          useValue: mockUserService,
         },
         {
           provide: JwtService,
           useValue: mockJwtService,
+        },
+        {
+          provide: EventEmitter2,
+          useValue: mockEventEmitter,
         },
       ],
     }).compile();
@@ -55,7 +66,7 @@ describe('ResetPasswordService', () => {
 
       await service.resetPassword('token', 'newPassword');
 
-      expect(mockUsersService.patch).not.toHaveBeenCalled();
+      expect(mockUserService.patch).not.toHaveBeenCalled();
     });
 
     it('should update password for valid token', async () => {
@@ -64,7 +75,39 @@ describe('ResetPasswordService', () => {
 
       await service.resetPassword('valid-token', 'newPassword');
 
-      expect(mockUsersService.patch).toHaveBeenCalledWith(user, { password: 'newPassword' });
+      expect(mockUserService.patch).toHaveBeenCalledWith(user, { password: 'newPassword' });
+    });
+  });
+
+  describe('sendResetPasswordEmail', () => {
+    it('should do nothing if user is not found', async () => {
+      (mockUserService.findOneByEmail as jest.Mock).mockResolvedValue(null);
+
+      await service.sendResetPasswordEmail('nonexistent@example.com');
+
+      expect(mockEventEmitter.emit).not.toHaveBeenCalled();
+    });
+
+    it('should emit reset password event for existing user', async () => {
+      const user = new User();
+      user.email = 'user@example.com';
+      user.updatedAt = new Date();
+
+      (mockUserService.findOneByEmail as jest.Mock).mockResolvedValue(user);
+      service.generateResetToken = jest.fn().mockResolvedValue('generated-token');
+
+      await service.sendResetPasswordEmail(user.email);
+
+      expect(service.generateResetToken).toHaveBeenCalledWith(user.email, user.updatedAt);
+      expect(mockEventEmitter.emit).toHaveBeenCalledWith(
+        RequestPasswordResetEvent.ID,
+        expect.any(RequestPasswordResetEvent),
+      );
+
+      const [, sentEvent] = (mockEventEmitter.emit as jest.Mock).mock.calls[0] as [string, RequestPasswordResetEvent];
+
+      expect(sentEvent.email).toBe(user.email);
+      expect(sentEvent.token).toBe('generated-token');
     });
   });
 
@@ -86,13 +129,13 @@ describe('ResetPasswordService', () => {
     it('should return null if user not found', async () => {
       const payload = { email: 'test@example.com', userUpdatedAt: Date.now() };
       (mockJwtService.verifyAsync as jest.Mock).mockResolvedValue(payload);
-      (mockUsersService.findOneByEmail as jest.Mock).mockResolvedValue(null);
+      (mockUserService.findOneByEmail as jest.Mock).mockResolvedValue(null);
 
       const result = await service.getUserFromToken('token');
 
       expect(result).toBeNull();
       expect(mockJwtService.verifyAsync).toHaveBeenCalledWith('token');
-      expect(mockUsersService.findOneByEmail).toHaveBeenCalledWith('test@example.com');
+      expect(mockUserService.findOneByEmail).toHaveBeenCalledWith('test@example.com');
     });
 
     it('should throw error if user was updated after token was issued', async () => {
@@ -101,7 +144,7 @@ describe('ResetPasswordService', () => {
 
       const payload = { email: 'test@example.com', userUpdatedAt: user.updatedAt.getTime() - 1000 };
       (mockJwtService.verifyAsync as jest.Mock).mockResolvedValue(payload);
-      (mockUsersService.findOneByEmail as jest.Mock).mockResolvedValue(user);
+      (mockUserService.findOneByEmail as jest.Mock).mockResolvedValue(user);
 
       await expect(service.getUserFromToken('token')).rejects.toThrow();
     });
@@ -112,7 +155,7 @@ describe('ResetPasswordService', () => {
 
       const payload = { email: 'test@example.com', userUpdatedAt: user.updatedAt.getTime() };
       (mockJwtService.verifyAsync as jest.Mock).mockResolvedValue(payload);
-      (mockUsersService.findOneByEmail as jest.Mock).mockResolvedValue(user);
+      (mockUserService.findOneByEmail as jest.Mock).mockResolvedValue(user);
 
       const result = await service.getUserFromToken('valid-token');
 

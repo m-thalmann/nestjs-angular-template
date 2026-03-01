@@ -1,9 +1,12 @@
 import { PaginationMetaDto, PaginationParams } from '@backend/models';
 import { UniqueValidator } from '@backend/validation';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { AuthTokenService } from '../auth/tokens/auth-token.service';
+import { UserCreatedEvent } from './events/user-created.event';
+import { UserEmailUpdatedEvent } from './events/user-email-updated.event';
 import { User } from './user.entity';
 import { UserService } from './user.service';
 
@@ -13,6 +16,7 @@ describe('UserService', () => {
   let mockUsersRepository: Partial<Repository<User>>;
   let mockAuthTokenService: Partial<AuthTokenService>;
   let mockUniqueValidator: Partial<UniqueValidator>;
+  let mockEventEmitter: Partial<EventEmitter2>;
 
   beforeEach(async () => {
     mockUsersRepository = {
@@ -33,6 +37,10 @@ describe('UserService', () => {
       validateProperty: jest.fn(),
     };
 
+    mockEventEmitter = {
+      emit: jest.fn(),
+    };
+
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         UserService,
@@ -47,6 +55,10 @@ describe('UserService', () => {
         {
           provide: UniqueValidator,
           useValue: mockUniqueValidator,
+        },
+        {
+          provide: EventEmitter2,
+          useValue: mockEventEmitter,
         },
       ],
     }).compile();
@@ -129,6 +141,12 @@ describe('UserService', () => {
       expect(mockUsersRepository.create).toHaveBeenCalledWith(createUserDto);
       expect(mockUsersRepository.save).toHaveBeenCalledWith(expectedUser);
       expect(expectedUser.isEmailVerified).toBe(false);
+
+      expect(mockEventEmitter.emit).toHaveBeenCalledWith(UserCreatedEvent.ID, expect.any(UserCreatedEvent));
+
+      const [, sentEvent] = (mockEventEmitter.emit as jest.Mock).mock.calls[0] as [string, UserCreatedEvent];
+
+      expect(sentEvent.user).toBe(result);
     });
   });
 
@@ -150,6 +168,9 @@ describe('UserService', () => {
 
       expect(mockUsersRepository.merge).toHaveBeenCalledWith(user, patchUserDto);
       expect(mockUsersRepository.save).toHaveBeenCalledWith(updatedUser);
+
+      expect(mockEventEmitter.emit).not.toHaveBeenCalled();
+      expect(mockAuthTokenService.deleteAllForUser).not.toHaveBeenCalled();
     });
 
     it("should update a user's email, trigger email verification and log it out from everywhere", async () => {
@@ -169,6 +190,14 @@ describe('UserService', () => {
 
       expect(result).toEqual(updatedUser);
       expect(result.emailVerifiedAt).toBeNull();
+
+      expect(mockEventEmitter.emit).toHaveBeenCalledWith(UserEmailUpdatedEvent.ID, expect.any(UserEmailUpdatedEvent));
+
+      const [, sentEvent] = (mockEventEmitter.emit as jest.Mock).mock.calls[0] as [string, UserEmailUpdatedEvent];
+
+      expect(sentEvent.user).toBe(result);
+
+      expect(mockAuthTokenService.deleteAllForUser).toHaveBeenCalledWith(result);
     });
 
     it("should update a user's password, trigger email verification and log it out from everywhere", async () => {
@@ -186,6 +215,9 @@ describe('UserService', () => {
       const result = await service.patch(user, patchUserDto);
 
       expect(result).toEqual(updatedUser);
+
+      expect(mockEventEmitter.emit).not.toHaveBeenCalled();
+      expect(mockAuthTokenService.deleteAllForUser).toHaveBeenCalledWith(result);
     });
 
     it('should validate the email uniqueness', async () => {

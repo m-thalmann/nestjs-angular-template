@@ -2,6 +2,7 @@ import { CommonModule } from '@backend/common.module';
 import { appConfigDefinition, authConfigDefinition, databaseConfigDefinition } from '@backend/config';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigType } from '@nestjs/config';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 import { JwtModule } from '@nestjs/jwt';
 import { ScheduleModule } from '@nestjs/schedule';
 import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
@@ -23,6 +24,11 @@ import { UserModule } from './user/user.module';
           synchronize: false,
           migrationsRun: false,
         }) satisfies TypeOrmModuleOptions,
+    }),
+
+    EventEmitterModule.forRoot({
+      global: true,
+      verboseMemoryLeak: true,
     }),
 
     ScheduleModule.forRoot(),
