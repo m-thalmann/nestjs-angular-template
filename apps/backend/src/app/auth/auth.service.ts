@@ -1,3 +1,4 @@
+import { Role } from '@backend/permissions';
 import { User } from '@backend/user';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import * as argon2 from 'argon2';
@@ -28,7 +29,7 @@ export class AuthService {
   async signUpUser(signUpDto: SignUpDto): Promise<User> {
     const user = new CreateUserDto();
     Object.assign(user, signUpDto);
-    user.isAdmin = false;
+    user.role = Role.User;
 
     return await this.userService.create(user);
   }

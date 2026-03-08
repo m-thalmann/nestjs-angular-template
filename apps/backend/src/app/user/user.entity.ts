@@ -1,3 +1,4 @@
+import { Role } from '@backend/permissions';
 import * as argon2 from 'argon2';
 import { BeforeInsert, BeforeUpdate, Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
@@ -23,8 +24,8 @@ export class User {
   @Column('varchar')
   declare password: string;
 
-  @Column('boolean', { name: 'is_admin' })
-  declare isAdmin: boolean;
+  @Column('varchar')
+  declare role: Role;
 
   @Column('datetime', { name: 'created_at' })
   declare createdAt: Date;

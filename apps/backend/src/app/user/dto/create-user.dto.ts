@@ -1,6 +1,7 @@
+import { Role, ROLES } from '@backend/permissions';
 import { IsUnique } from '@backend/validation';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsBoolean, IsEmail, IsNotEmpty } from 'class-validator';
+import { IsEmail, IsEnum, IsNotEmpty } from 'class-validator';
 import { User } from '../user.entity';
 
 export class CreateUserDto {
@@ -31,10 +32,11 @@ export class CreateUserDto {
   })
   declare password: string;
 
-  @IsBoolean()
+  @IsEnum(Role)
   @ApiProperty({
-    type: 'boolean',
-    description: 'Whether the new user is an admin or not',
+    type: 'string',
+    enum: ROLES,
+    description: 'The role of the new user',
   })
-  declare isAdmin: boolean;
+  declare role: Role;
 }

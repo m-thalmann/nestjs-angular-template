@@ -1,3 +1,4 @@
+import { ROLES } from '@backend/permissions';
 import { MigrationInterface, QueryRunner, Table } from 'typeorm';
 
 export class CreateUsersTable1762116720714 implements MigrationInterface {
@@ -39,8 +40,9 @@ export class CreateUsersTable1762116720714 implements MigrationInterface {
             type: 'varchar',
           },
           {
-            name: 'is_admin',
-            type: 'boolean',
+            name: 'role',
+            type: 'enum',
+            enum: ROLES,
           },
           {
             name: 'created_at',

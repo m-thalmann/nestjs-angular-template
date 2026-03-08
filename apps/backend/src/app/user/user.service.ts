@@ -79,7 +79,7 @@ export class UserService {
       this.eventEmitter.emit(UserEmailUpdatedEvent.ID, new UserEmailUpdatedEvent(updatedUser));
     }
 
-    if (emailUpdated || passwordUpdated || data.isAdmin !== undefined) {
+    if (emailUpdated || passwordUpdated || data.role !== undefined) {
       await this.authTokenService.deleteAllForUser(updatedUser);
     }
 

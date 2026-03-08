@@ -1,4 +1,5 @@
 /* eslint-disable max-classes-per-file */
+import { Role, ROLES } from '@backend/permissions';
 import { convertDateToUnixTimestamp } from '@backend/util';
 import { ApiProperty } from '@nestjs/swagger';
 import { User } from '../user.entity';
@@ -38,10 +39,11 @@ export class UserDto {
 
 export class DetailedUserDto extends UserDto {
   @ApiProperty({
-    type: 'boolean',
-    description: 'Whether the user is an admin or not',
+    type: 'string',
+    enum: ROLES,
+    description: 'The role of the user',
   })
-  declare isAdmin: boolean;
+  declare role: Role;
 
   @ApiProperty({
     type: 'boolean',
@@ -68,7 +70,7 @@ export class DetailedUserDto extends UserDto {
     dto.uuid = user.uuid;
     dto.name = user.name;
     dto.email = user.email;
-    dto.isAdmin = user.isAdmin;
+    dto.role = user.role;
     dto.isEmailVerified = user.isEmailVerified;
     dto.createdAt = convertDateToUnixTimestamp(user.createdAt);
     dto.updatedAt = convertDateToUnixTimestamp(user.updatedAt);

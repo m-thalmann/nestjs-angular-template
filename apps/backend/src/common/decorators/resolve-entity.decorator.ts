@@ -3,7 +3,6 @@ import {
   createParamDecorator,
   ExecutionContext,
   Injectable,
-  mixin,
   NotFoundException,
   PipeTransform,
   Type,
@@ -59,11 +58,12 @@ class ResolveEntityPipe<TEntity extends ObjectLiteral> implements PipeTransform<
 export function ResolveEntity<TEntity extends ObjectLiteral>(
   entityType: Type<TEntity>,
   paramKey: string,
-  options?: { entityKey?: string },
+  options: { entityKey?: string } = {},
+  ...pipes: Array<PipeTransform | Type<PipeTransform>>
 ): ParameterDecorator {
-  const { entityKey = paramKey } = options ?? {};
+  const { entityKey = paramKey } = options;
 
-  const entityParamDecorator = EntityParamDecorator({ entityType, paramKey, entityKey }, mixin(ResolveEntityPipe));
+  const entityParamDecorator = EntityParamDecorator({ entityType, paramKey, entityKey }, ResolveEntityPipe, ...pipes);
   const apiParamDecorator = ApiParam({ name: paramKey, required: true, type: String });
 
   return (target: object, propertyKey: string | symbol | undefined, parameterIndex: number): void => {

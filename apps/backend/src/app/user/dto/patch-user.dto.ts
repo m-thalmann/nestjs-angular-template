@@ -1,14 +1,16 @@
+import { Role, ROLES } from '@backend/permissions';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsOptional } from 'class-validator';
+import { IsEnum, IsOptional } from 'class-validator';
 import { PatchAuthUserDto } from './patch-auth-user.dto';
 
 export class PatchUserDto extends PatchAuthUserDto {
   @IsOptional()
-  @IsNotEmpty()
+  @IsEnum(Role)
   @ApiProperty({
-    type: 'boolean',
+    type: 'string',
+    enum: ROLES,
     required: false,
-    description: 'Whether the user is an admin or not',
+    description: 'The role of the user',
   })
-  declare isAdmin?: boolean;
+  declare role?: Role;
 }

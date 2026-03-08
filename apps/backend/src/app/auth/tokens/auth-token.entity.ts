@@ -16,7 +16,7 @@ export class AuthToken {
   @JoinColumn({ name: 'user_id' })
   declare user: Promise<User>;
 
-  @Column('integer', { name: 'version' })
+  @Column('integer')
   declare version: number;
 
   @Column('varchar')
