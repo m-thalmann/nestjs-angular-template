@@ -5,21 +5,11 @@ import {
   ApiValidationErrorResponse,
   EmailMustBeVerified,
   QueryPaginationParams,
+  ResolveEntity,
 } from '@backend/decorators';
 import { ApiResponseDto, ApiResponseWithPaginationDto, type PaginationParams } from '@backend/models';
 import { buildDtoArray, getResponseSchema } from '@backend/util';
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  HttpCode,
-  HttpStatus,
-  NotFoundException,
-  Param,
-  Patch,
-  Post,
-} from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Patch, Post } from '@nestjs/common';
 import {
   ApiCreatedResponse,
   ApiExtraModels,
@@ -91,10 +81,8 @@ export class UserController {
   @ApiNotFoundResponse({ description: 'Not found' })
   async findOne(
     @AuthorizeAbility() ability: AuthAbility,
-    @Param('uuid') uuid: string,
+    @ResolveEntity(User, 'uuid') user: User,
   ): Promise<ApiResponseDto<UserDto>> {
-    const user = await this.resolveUser(uuid);
-
     ability.authorizeAnonymous(AbilityAction.Read, user);
 
     return { data: UserDto.fromEntity(user) };
@@ -135,39 +123,35 @@ export class UserController {
   @ApiValidationErrorResponse()
   async update(
     @AuthorizeAbility() ability: AuthAbility,
-    @Param('uuid') uuid: string,
+    @ResolveEntity(User, 'uuid') user: User,
     @Body() patchUserDto: PatchUserDto,
   ): Promise<ApiResponseDto<DetailedUserDto>> {
     ability.authorize(AbilityAction.Manage, User);
-
-    const user = await this.resolveUser(uuid);
 
     const updatedUser = await this.userService.patch(user, patchUserDto);
 
     return { data: DetailedUserDto.fromEntity(updatedUser) };
   }
 
-  @Delete(':uuid')
+  @Delete()
   @HttpCode(HttpStatus.NO_CONTENT)
   @EmailMustBeVerified(false)
-  @ApiOperation({ summary: 'Deletes a user by UUID' })
+  @ApiOperation({ summary: 'Deletes the authenticated user' })
   @ApiNoContentResponse({ description: 'OK' })
-  @ApiNotFoundResponse({ description: 'Not found' })
-  async remove(@AuthorizeAbility() authAbility: AuthAbility, @Param('uuid') uuid: string): Promise<void> {
-    const user = await this.resolveUser(uuid);
-
+  async removeAuthUser(@AuthorizeAbility() authAbility: AuthAbility, @Auth('user') user: User): Promise<void> {
     authAbility.authorizeAnonymous(AbilityAction.Delete, user);
 
     await this.userService.remove(user.uuid);
   }
 
-  private async resolveUser(uuid: string): Promise<User> {
-    const user = await this.userService.findOne(uuid);
+  @Delete(':uuid')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ summary: 'Deletes a user by UUID' })
+  @ApiNoContentResponse({ description: 'OK' })
+  @ApiNotFoundResponse({ description: 'Not found' })
+  async remove(@AuthorizeAbility() authAbility: AuthAbility, @ResolveEntity(User, 'uuid') user: User): Promise<void> {
+    authAbility.authorizeAnonymous(AbilityAction.Delete, user);
 
-    if (user === null) {
-      throw new NotFoundException();
-    }
-
-    return user;
+    await this.userService.remove(user.uuid);
   }
 }
