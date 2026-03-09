@@ -1,4 +1,5 @@
-import { HttpStatus, INestApplication, Logger, ValidationPipe } from '@nestjs/common';
+import { AppValidationPipe } from '@backend/validation';
+import { INestApplication, Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { FastifyAdapter } from '@nestjs/platform-fastify';
 import { DocumentBuilder, OpenAPIObject, SwaggerModule } from '@nestjs/swagger';
@@ -61,14 +62,7 @@ async function bootstrap(): Promise<void> {
   app.enableCors();
   app.setGlobalPrefix(basePath);
 
-  app.useGlobalPipes(
-    new ValidationPipe({
-      transform: true,
-      whitelist: true,
-      forbidNonWhitelisted: true,
-      errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
-    }),
-  );
+  app.useGlobalPipes(AppValidationPipe);
 
   classValidatorUseContainer(app.select(AppModule), { fallbackOnErrors: true });
 
