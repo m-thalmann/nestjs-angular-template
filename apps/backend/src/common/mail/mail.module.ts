@@ -4,6 +4,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigType } from '@nestjs/config';
 import { join } from 'path';
 import { mailConfigDefinition } from '../config/mail.config';
+import { LogMailerTransport } from './log-mailer.transport';
 import { MailService } from './mail.service';
 
 @Module({
@@ -12,15 +13,18 @@ import { MailService } from './mail.service';
       imports: [ConfigModule.forFeature(mailConfigDefinition)],
       inject: [mailConfigDefinition.KEY],
       useFactory: (mailConfig: ConfigType<typeof mailConfigDefinition>) => ({
-        transport: {
-          host: mailConfig.host,
-          port: mailConfig.port,
-          secure: mailConfig.secure,
-          auth: {
-            user: mailConfig.username,
-            pass: mailConfig.password,
-          },
-        },
+        transport:
+          mailConfig.type === 'log'
+            ? LogMailerTransport
+            : {
+                host: mailConfig.host,
+                port: mailConfig.port,
+                secure: mailConfig.secure,
+                auth: {
+                  user: mailConfig.username,
+                  pass: mailConfig.password,
+                },
+              },
         defaults: {
           from: `"${mailConfig.fromName}" <${mailConfig.fromAddress}>`,
         },
