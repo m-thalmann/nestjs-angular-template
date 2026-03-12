@@ -1,9 +1,11 @@
-import { MailService } from '@backend/mail';
+import { appConfigDefinition } from '@backend/config';
+import { NotificationService } from '@backend/notifications';
 import { User } from '@backend/user';
-import { ForbiddenException, Injectable } from '@nestjs/common';
+import { ForbiddenException, Inject, Injectable } from '@nestjs/common';
+import { ConfigType } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { UserService } from '../../user/user.service';
-import { EmailVerificationMessage } from '../messages/email-verification.message';
+import { EmailVerificationNotification } from '../notifications/email-verification.notification';
 
 @Injectable()
 export class EmailVerificationService {
@@ -12,7 +14,9 @@ export class EmailVerificationService {
   constructor(
     private readonly userService: UserService,
     private readonly jwtService: JwtService,
-    private readonly mailService: MailService,
+    private readonly notificationService: NotificationService,
+    @Inject(appConfigDefinition.KEY)
+    private readonly appConfig: ConfigType<typeof appConfigDefinition>,
   ) {}
 
   async verifyEmail(user: User, token: string): Promise<void> {
@@ -30,7 +34,12 @@ export class EmailVerificationService {
   }
 
   async sendVerificationEmail(user: User, isNewUser: boolean): Promise<void> {
-    await this.mailService.build(EmailVerificationMessage).context({ user, isNewUser }).to(user.email).send();
+    const token = await this.generateVerificationToken(user);
+
+    await this.notificationService.send(
+      user,
+      new EmailVerificationNotification({ isNewUser, token, frontendUrl: this.appConfig.frontendUrl }),
+    );
   }
 
   async resendVerificationEmail(user: User): Promise<void> {

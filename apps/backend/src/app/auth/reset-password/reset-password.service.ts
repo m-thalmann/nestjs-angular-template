@@ -1,9 +1,11 @@
+import { appConfigDefinition } from '@backend/config';
+import { NotificationService } from '@backend/notifications';
 import { User } from '@backend/user';
-import { ForbiddenException, Injectable } from '@nestjs/common';
-import { EventEmitter2 } from '@nestjs/event-emitter';
+import { ForbiddenException, Inject, Injectable } from '@nestjs/common';
+import { ConfigType } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { UserService } from '../../user/user.service';
-import { RequestPasswordResetEvent } from '../events/request-password-reset.event';
+import { PasswordResetNotification } from '../notifications/password-reset.notification';
 
 @Injectable()
 export class ResetPasswordService {
@@ -12,7 +14,9 @@ export class ResetPasswordService {
   constructor(
     private readonly userService: UserService,
     private readonly jwtService: JwtService,
-    private readonly eventEmitter: EventEmitter2,
+    private readonly notificationService: NotificationService,
+    @Inject(appConfigDefinition.KEY)
+    private readonly appConfig: ConfigType<typeof appConfigDefinition>,
   ) {}
 
   async resetPassword(token: string, newPassword: string): Promise<void> {
@@ -40,7 +44,10 @@ export class ResetPasswordService {
 
     const token = await this.generateResetToken(user.email, user.updatedAt);
 
-    this.eventEmitter.emit(RequestPasswordResetEvent.ID, new RequestPasswordResetEvent(user.email, token));
+    await this.notificationService.send(
+      user,
+      new PasswordResetNotification({ frontendUrl: this.appConfig.frontendUrl, token }),
+    );
   }
 
   async generateResetToken(email: string, updatedAt: Date): Promise<string> {

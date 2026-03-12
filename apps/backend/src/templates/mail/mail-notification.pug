@@ -1,0 +1,9 @@
+extends layouts/default-layout
+include mixins/button
+
+block content
+    each line in lines
+        if line.actionText
+            +button(line.actionUrl, line.actionText)
+        else
+            p #{line}
