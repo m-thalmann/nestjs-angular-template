@@ -1,7 +1,6 @@
 import { Auth } from '@backend/auth';
 import {
   ApiAuth,
-  ApiPaginationQueryParams,
   ApiValidationErrorResponse,
   EmailMustBeVerified,
   QueryPaginationParams,
@@ -51,7 +50,6 @@ export class UserController {
   @Get()
   @HasPermission(Permission.ReadAllUsers)
   @ApiOperation({ summary: 'Returns all users' })
-  @ApiPaginationQueryParams()
   @ApiOkResponse({
     description: 'OK',
     schema: getResponseSchema(UserDto, { isArray: true, hasPagination: true }),

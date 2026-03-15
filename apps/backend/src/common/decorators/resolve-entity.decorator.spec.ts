@@ -8,7 +8,6 @@ import { DataSource } from 'typeorm';
 import { createMockUser } from '../../app/user/testing';
 import { ResolveEntity, ResolveEntityOptions } from './resolve-entity.decorator';
 
-// TODO: Test this with integer too in controller!
 describe('ResolveEntity', () => {
   let moduleRef: ModuleRef;
 
