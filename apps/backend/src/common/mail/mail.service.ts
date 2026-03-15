@@ -24,6 +24,7 @@ export class MailService {
 
   protected static getErrorContext(mailOptions: ISendMailOptions): string {
     return JSON.stringify({
+      subject: mailOptions.subject,
       to: mailOptions.to,
       cc: mailOptions.cc,
       bcc: mailOptions.bcc,

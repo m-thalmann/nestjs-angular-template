@@ -1,10 +1,10 @@
-import { User } from '@backend/user';
+import { appConfigDefinition } from '@backend/config';
+import { NotificationService } from '@backend/notifications';
 import { ForbiddenException } from '@nestjs/common';
-import { EventEmitter2 } from '@nestjs/event-emitter';
 import { JwtService } from '@nestjs/jwt';
 import { Test, TestingModule } from '@nestjs/testing';
+import { createMockUser } from '../../user/testing';
 import { UserService } from '../../user/user.service';
-import { RequestPasswordResetEvent } from '../events/request-password-reset.event';
 import { ResetPasswordService } from './reset-password.service';
 
 describe('ResetPasswordService', () => {
@@ -12,7 +12,8 @@ describe('ResetPasswordService', () => {
 
   let mockUserService: Partial<UserService>;
   let mockJwtService: Partial<JwtService>;
-  let mockEventEmitter: Partial<EventEmitter2>;
+  let mockNotificationService: Partial<NotificationService>;
+  const mockAppConfigFrontendUrl = 'http://localhost:3000';
 
   beforeEach(async () => {
     mockUserService = {
@@ -25,8 +26,8 @@ describe('ResetPasswordService', () => {
       verifyAsync: jest.fn(),
     };
 
-    mockEventEmitter = {
-      emit: jest.fn(),
+    mockNotificationService = {
+      send: jest.fn(),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -41,17 +42,17 @@ describe('ResetPasswordService', () => {
           useValue: mockJwtService,
         },
         {
-          provide: EventEmitter2,
-          useValue: mockEventEmitter,
+          provide: NotificationService,
+          useValue: mockNotificationService,
+        },
+        {
+          provide: appConfigDefinition.KEY,
+          useValue: { frontendUrl: mockAppConfigFrontendUrl },
         },
       ],
     }).compile();
 
-    service = module.get<ResetPasswordService>(ResetPasswordService);
-  });
-
-  it('should be defined', () => {
-    expect(service).toBeDefined();
+    service = await module.resolve<ResetPasswordService>(ResetPasswordService);
   });
 
   describe('resetPassword', () => {
@@ -70,7 +71,7 @@ describe('ResetPasswordService', () => {
     });
 
     it('should update password for valid token', async () => {
-      const user = new User();
+      const user = createMockUser();
       service.getUserFromToken = jest.fn().mockResolvedValue(user);
 
       await service.resetPassword('valid-token', 'newPassword');
@@ -85,11 +86,11 @@ describe('ResetPasswordService', () => {
 
       await service.sendResetPasswordEmail('nonexistent@example.com');
 
-      expect(mockEventEmitter.emit).not.toHaveBeenCalled();
+      expect(mockNotificationService.send).not.toHaveBeenCalled();
     });
 
-    it('should emit reset password event for existing user', async () => {
-      const user = new User();
+    it('should send reset password notification for existing user', async () => {
+      const user = createMockUser();
       user.email = 'user@example.com';
       user.updatedAt = new Date();
 
@@ -99,15 +100,15 @@ describe('ResetPasswordService', () => {
       await service.sendResetPasswordEmail(user.email);
 
       expect(service.generateResetToken).toHaveBeenCalledWith(user.email, user.updatedAt);
-      expect(mockEventEmitter.emit).toHaveBeenCalledWith(
-        RequestPasswordResetEvent.ID,
-        expect.any(RequestPasswordResetEvent),
+      expect(mockNotificationService.send).toHaveBeenCalledWith(
+        user,
+        expect.objectContaining({
+          options: {
+            frontendUrl: mockAppConfigFrontendUrl,
+            token: 'generated-token',
+          },
+        }),
       );
-
-      const [, sentEvent] = (mockEventEmitter.emit as jest.Mock).mock.calls[0] as [string, RequestPasswordResetEvent];
-
-      expect(sentEvent.email).toBe(user.email);
-      expect(sentEvent.token).toBe('generated-token');
     });
   });
 
@@ -139,7 +140,7 @@ describe('ResetPasswordService', () => {
     });
 
     it('should throw error if user was updated after token was issued', async () => {
-      const user = new User();
+      const user = createMockUser();
       user.updatedAt = new Date();
 
       const payload = { email: 'test@example.com', userUpdatedAt: user.updatedAt.getTime() - 1000 };
@@ -150,7 +151,7 @@ describe('ResetPasswordService', () => {
     });
 
     it('should return user for valid token with matching timestamp', async () => {
-      const user = new User();
+      const user = createMockUser();
       user.updatedAt = new Date();
 
       const payload = { email: 'test@example.com', userUpdatedAt: user.updatedAt.getTime() };

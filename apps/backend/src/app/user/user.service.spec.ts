@@ -1,4 +1,5 @@
 import { PaginationMetaDto, PaginationParams } from '@backend/models';
+import { Role } from '@backend/permissions';
 import { UniqueValidator } from '@backend/validation';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Test, TestingModule } from '@nestjs/testing';
@@ -63,16 +64,12 @@ describe('UserService', () => {
       ],
     }).compile();
 
-    service = module.get<UserService>(UserService);
-  });
-
-  it('should be defined', () => {
-    expect(service).toBeDefined();
+    service = await module.resolve<UserService>(UserService);
   });
 
   describe('findAll', () => {
     it('should return all users', async () => {
-      const paginationOptions: PaginationParams = { offset: 10, perPage: 10, page: 1 };
+      const paginationOptions: PaginationParams = { offset: 10, pageSize: 10, page: 1 };
 
       const expectedUsers = [new User(), new User()];
       const expectedPaginationMeta = PaginationMetaDto.build(paginationOptions, expectedUsers.length);
@@ -86,7 +83,7 @@ describe('UserService', () => {
 
       expect(mockUsersRepository.find).toHaveBeenCalledWith({
         skip: paginationOptions.offset,
-        take: paginationOptions.perPage,
+        take: paginationOptions.pageSize,
       });
       expect(mockUsersRepository.count).toHaveBeenCalledWith();
     });
@@ -123,13 +120,13 @@ describe('UserService', () => {
 
   describe('create', () => {
     it('should create a user', async () => {
-      const createUserDto = { name: 'Jane Doe', email: 'jane.doe@example.com', password: 'password', isAdmin: false };
+      const createUserDto = { name: 'Jane Doe', email: 'jane.doe@example.com', password: 'password', role: Role.Admin };
 
       const expectedUser = new User();
       expectedUser.name = createUserDto.name;
       expectedUser.email = createUserDto.email;
       expectedUser.password = createUserDto.password;
-      expectedUser.isAdmin = createUserDto.isAdmin;
+      expectedUser.role = createUserDto.role;
 
       (mockUsersRepository.create as jest.Mock).mockReturnValue(expectedUser);
       (mockUsersRepository.save as jest.Mock).mockResolvedValue(expectedUser);
@@ -200,7 +197,7 @@ describe('UserService', () => {
       expect(mockAuthTokenService.deleteAllForUser).toHaveBeenCalledWith(result);
     });
 
-    it("should update a user's password, trigger email verification and log it out from everywhere", async () => {
+    it("should update a user's password and log it out from everywhere", async () => {
       const user = new User();
       user.password = 'old-password';
 
@@ -220,14 +217,36 @@ describe('UserService', () => {
       expect(mockAuthTokenService.deleteAllForUser).toHaveBeenCalledWith(result);
     });
 
+    it("should update a user's role and log it out from everywhere", async () => {
+      const user = new User();
+      user.role = Role.User;
+
+      const patchUserDto = { role: Role.Admin };
+
+      const updatedUser = new User();
+      updatedUser.role = patchUserDto.role;
+
+      (mockUsersRepository.merge as jest.Mock).mockReturnValue(updatedUser);
+      (mockUsersRepository.save as jest.Mock).mockResolvedValue(updatedUser);
+
+      const result = await service.patch(user, patchUserDto);
+
+      expect(result).toEqual(updatedUser);
+
+      expect(mockEventEmitter.emit).not.toHaveBeenCalled();
+      expect(mockAuthTokenService.deleteAllForUser).toHaveBeenCalledWith(result);
+    });
+
     it('should validate the email uniqueness', async () => {
       const user = new User();
 
       const patchUserDto = { email: 'existing@mail.com' };
 
-      (mockUniqueValidator.validateProperty as jest.Mock).mockRejectedValue(new Error('Email already exists'));
+      const mockError = new Error('Email already exists');
 
-      await expect(service.patch(user, patchUserDto)).rejects.toThrow('Email already exists');
+      (mockUniqueValidator.validateProperty as jest.Mock).mockRejectedValue(mockError);
+
+      await expect(service.patch(user, patchUserDto)).rejects.toThrow(mockError);
 
       expect(mockUniqueValidator.validateProperty).toHaveBeenCalledWith({
         entityClass: User,

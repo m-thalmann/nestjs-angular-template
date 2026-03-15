@@ -1,5 +1,5 @@
 import { User } from '@backend/user';
-import { BeforeInsert, Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity('auth_tokens')
 export class AuthToken {
@@ -25,11 +25,6 @@ export class AuthToken {
   @Column('datetime', { name: 'expires_at' })
   declare expiresAt: Date | null;
 
-  @Column('datetime', { name: 'created_at' })
+  @CreateDateColumn({ name: 'created_at' })
   declare createdAt: Date;
-
-  @BeforeInsert()
-  async beforeInsert(): Promise<void> {
-    this.createdAt = new Date();
-  }
 }

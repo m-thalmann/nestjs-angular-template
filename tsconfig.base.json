@@ -23,8 +23,9 @@
     "baseUrl": ".",
     "paths": {
       "@backend/*": ["apps/backend/src/common/*"],
-      "@backend/database": ["apps/backend/src/database/index.ts"],
       "@backend/auth": ["apps/backend/src/app/auth/index.ts"],
+      "@backend/database": ["apps/backend/src/database/index.ts"],
+      "@backend/testing": ["libs/backend/testing/src/index.ts"],
       "@backend/user": ["apps/backend/src/app/user/index.ts"],
       "@shared/common": ["libs/shared/common/src/index.ts"]
     }

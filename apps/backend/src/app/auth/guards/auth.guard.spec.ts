@@ -1,8 +1,14 @@
-import { User } from '@backend/user';
+import {
+  EMAIL_MUST_BE_VERIFIED_DECORATOR_KEY,
+  IS_PUBLIC_DECORATOR_KEY,
+  REFRESH_TOKEN_AUTH_DECORATOR_KEY,
+} from '@backend/decorators';
+import { createMockExecutionContext } from '@backend/testing';
 import { ExecutionContext, UnauthorizedException } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { Test, TestingModule } from '@nestjs/testing';
 import { FastifyRequest } from 'fastify';
+import { createMockUser } from '../../user/testing';
 import { AuthToken } from '../tokens/auth-token.entity';
 import { AuthTokenService } from '../tokens/auth-token.service';
 import { AuthGuard } from './auth.guard';
@@ -23,16 +29,6 @@ class AuthGuardTestClass extends AuthGuard {
   override extractTokenFromHeader(request: FastifyRequest): string | undefined {
     return super.extractTokenFromHeader(request);
   }
-}
-
-function buildMockContext(): ExecutionContext {
-  return {
-    switchToHttp: jest.fn().mockReturnValue({
-      getRequest: jest.fn().mockReturnValue({ req: 'mock-request' }),
-    }),
-    getHandler: jest.fn().mockReturnValue('mock-handler'),
-    getClass: jest.fn().mockReturnValue('mock-class'),
-  } as unknown as ExecutionContext;
 }
 
 describe('AuthGuard', () => {
@@ -64,16 +60,12 @@ describe('AuthGuard', () => {
       ],
     }).compile();
 
-    guard = module.get<AuthGuardTestClass>(AuthGuardTestClass);
-  });
-
-  it('should be defined', () => {
-    expect(guard).toBeDefined();
+    guard = await module.resolve<AuthGuardTestClass>(AuthGuardTestClass);
   });
 
   describe('canActivate', () => {
     it('should return true if the request is public', async () => {
-      const context = buildMockContext();
+      const context = createMockExecutionContext();
 
       guard.extractTokenFromHeader = jest.fn().mockReturnValue(undefined);
       guard.isPublicRequest = jest.fn().mockReturnValue(true);
@@ -87,11 +79,11 @@ describe('AuthGuard', () => {
     });
 
     it('should validate token if request is public and token is provided', async () => {
-      const context = buildMockContext();
+      const context = createMockExecutionContext();
 
       const expectedJwtToken = 'mock-jwt-token';
 
-      const expectedUser = new User();
+      const expectedUser = createMockUser();
       const expectedAuthToken = new AuthToken();
 
       guard.extractTokenFromHeader = jest.fn().mockReturnValue(expectedJwtToken);
@@ -114,7 +106,7 @@ describe('AuthGuard', () => {
     });
 
     it('should throw an UnauthorizedException if no token is provided', async () => {
-      const context = buildMockContext();
+      const context = createMockExecutionContext();
 
       guard.isPublicRequest = jest.fn().mockReturnValue(false);
       guard.extractTokenFromHeader = jest.fn().mockReturnValue(undefined);
@@ -126,11 +118,11 @@ describe('AuthGuard', () => {
     });
 
     it("should throw an UnauthorizedException if the user's email is not verified", async () => {
-      const context = buildMockContext();
+      const context = createMockExecutionContext();
 
       const expectedJwtToken = 'mock-jwt-token';
 
-      const expectedUser = new User();
+      const expectedUser = createMockUser();
       const expectedAuthToken = new AuthToken();
       expectedAuthToken.user = Promise.resolve(expectedUser);
 
@@ -158,11 +150,11 @@ describe('AuthGuard', () => {
     ])(
       'should return true if the token is valid and set the user and token on the request (expect refresh token: %p, must be verified: %p)',
       async (expectRefreshToken: boolean, emailMustBeVerified: boolean) => {
-        const context = buildMockContext();
+        const context = createMockExecutionContext();
 
         const expectedJwtToken = 'mock-jwt-token';
 
-        const expectedUser = new User();
+        const expectedUser = createMockUser();
 
         if (emailMustBeVerified) {
           expectedUser.emailVerifiedAt = new Date();
@@ -196,7 +188,7 @@ describe('AuthGuard', () => {
     );
 
     it('should throw an UnauthorizedException if the token is invalid', async () => {
-      const context = buildMockContext();
+      const context = createMockExecutionContext();
 
       const expectedToken = new AuthToken();
 
@@ -211,42 +203,42 @@ describe('AuthGuard', () => {
 
   describe('isPublicRequest', () => {
     it('should return true if the handler is public', () => {
-      const context = buildMockContext();
+      const context = createMockExecutionContext();
 
       mockReflector.getAllAndOverride = jest.fn().mockReturnValue(true);
 
       const result = guard.isPublicRequest(context);
 
       expect(result).toBe(true);
-      expect(mockReflector.getAllAndOverride).toHaveBeenCalledWith('isPublic', [
+      expect(mockReflector.getAllAndOverride).toHaveBeenCalledWith(IS_PUBLIC_DECORATOR_KEY, [
         context.getHandler(),
         context.getClass(),
       ]);
     });
 
     it('should return false if the handler is not public', () => {
-      const context = buildMockContext();
+      const context = createMockExecutionContext();
 
       mockReflector.getAllAndOverride = jest.fn().mockReturnValue(false);
 
       const result = guard.isPublicRequest(context);
 
       expect(result).toBe(false);
-      expect(mockReflector.getAllAndOverride).toHaveBeenCalledWith('isPublic', [
+      expect(mockReflector.getAllAndOverride).toHaveBeenCalledWith(IS_PUBLIC_DECORATOR_KEY, [
         context.getHandler(),
         context.getClass(),
       ]);
     });
 
     it('should return false if the handler is not annotated', () => {
-      const context = buildMockContext();
+      const context = createMockExecutionContext();
 
       mockReflector.getAllAndOverride = jest.fn().mockReturnValue(undefined);
 
       const result = guard.isPublicRequest(context);
 
       expect(result).toBe(false);
-      expect(mockReflector.getAllAndOverride).toHaveBeenCalledWith('isPublic', [
+      expect(mockReflector.getAllAndOverride).toHaveBeenCalledWith(IS_PUBLIC_DECORATOR_KEY, [
         context.getHandler(),
         context.getClass(),
       ]);
@@ -255,28 +247,28 @@ describe('AuthGuard', () => {
 
   describe('getExpectRefreshTokenAuth', () => {
     it('should return true if the RefreshTokenAuth decorator is used', () => {
-      const context = buildMockContext();
+      const context = createMockExecutionContext();
 
       mockReflector.getAllAndOverride = jest.fn().mockReturnValue(true);
 
       const result = guard.getExpectRefreshTokenAuth(context);
 
       expect(result).toBe(true);
-      expect(mockReflector.getAllAndOverride).toHaveBeenCalledWith('useRefreshTokenAuth', [
+      expect(mockReflector.getAllAndOverride).toHaveBeenCalledWith(REFRESH_TOKEN_AUTH_DECORATOR_KEY, [
         context.getHandler(),
         context.getClass(),
       ]);
     });
 
     it('should return false if the RefreshTokenAuth decorator is not used', () => {
-      const context = buildMockContext();
+      const context = createMockExecutionContext();
 
       mockReflector.getAllAndOverride = jest.fn().mockReturnValue(undefined);
 
       const result = guard.getExpectRefreshTokenAuth(context);
 
       expect(result).toBe(false);
-      expect(mockReflector.getAllAndOverride).toHaveBeenCalledWith('useRefreshTokenAuth', [
+      expect(mockReflector.getAllAndOverride).toHaveBeenCalledWith(REFRESH_TOKEN_AUTH_DECORATOR_KEY, [
         context.getHandler(),
         context.getClass(),
       ]);
@@ -285,28 +277,28 @@ describe('AuthGuard', () => {
 
   describe('getRequiresVerifiedEmail', () => {
     it('should return true if the EmailMustBeVerified decorator is used', () => {
-      const context = buildMockContext();
+      const context = createMockExecutionContext();
 
       mockReflector.getAllAndOverride = jest.fn().mockReturnValue(true);
 
       const result = guard.getRequiresVerifiedEmail(context);
 
       expect(result).toBe(true);
-      expect(mockReflector.getAllAndOverride).toHaveBeenCalledWith('requiresVerifiedEmail', [
+      expect(mockReflector.getAllAndOverride).toHaveBeenCalledWith(EMAIL_MUST_BE_VERIFIED_DECORATOR_KEY, [
         context.getHandler(),
         context.getClass(),
       ]);
     });
 
     it('should return false if the EmailMustBeVerified decorator is not used', () => {
-      const context = buildMockContext();
+      const context = createMockExecutionContext();
 
       mockReflector.getAllAndOverride = jest.fn().mockReturnValue(undefined);
 
       const result = guard.getRequiresVerifiedEmail(context);
 
       expect(result).toBe(false);
-      expect(mockReflector.getAllAndOverride).toHaveBeenCalledWith('requiresVerifiedEmail', [
+      expect(mockReflector.getAllAndOverride).toHaveBeenCalledWith(EMAIL_MUST_BE_VERIFIED_DECORATOR_KEY, [
         context.getHandler(),
         context.getClass(),
       ]);

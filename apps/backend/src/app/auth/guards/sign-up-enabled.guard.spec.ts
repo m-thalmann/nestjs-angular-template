@@ -10,10 +10,6 @@ function buildMockAppConfig(signUpEnabled: boolean): AppConfig {
 }
 
 describe('SignUpEnabledGuard', () => {
-  it('should be defined', () => {
-    expect(new SignUpEnabledGuard(buildMockAppConfig(false))).toBeDefined();
-  });
-
   describe('canActivate', () => {
     it('should return true if sign up is enabled', () => {
       const guard = new SignUpEnabledGuard(buildMockAppConfig(true));

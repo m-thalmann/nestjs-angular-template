@@ -2,18 +2,22 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { AppController } from './app.controller';
 
 describe('AppController', () => {
-  let app: TestingModule;
+  let controller: AppController;
 
   beforeAll(async () => {
-    app = await Test.createTestingModule({
+    const module: TestingModule = await Test.createTestingModule({
       controllers: [AppController],
     }).compile();
+
+    controller = await module.resolve<AppController>(AppController);
   });
 
-  describe('getData', () => {
-    it('should return "Hello API"', () => {
-      const appController = app.get<AppController>(AppController);
-      expect(appController.getData()).toEqual({ message: 'Hello API' });
+  describe('getMessage', () => {
+    it('should return api information', () => {
+      expect(controller.getMessage()).toEqual({
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        message: expect.any(String),
+      });
     });
   });
 });

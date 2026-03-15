@@ -62,11 +62,7 @@ describe('AuthTokenService', () => {
       ],
     }).compile();
 
-    service = module.get<AuthTokenServiceTestClass>(AuthTokenServiceTestClass);
-  });
-
-  it('should be defined', () => {
-    expect(service).toBeDefined();
+    service = await module.resolve<AuthTokenServiceTestClass>(AuthTokenServiceTestClass);
   });
 
   describe('validateToken', () => {

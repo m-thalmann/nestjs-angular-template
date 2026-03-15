@@ -1,6 +1,14 @@
 import { Role } from '@backend/permissions';
 import * as argon2 from 'argon2';
-import { BeforeInsert, BeforeUpdate, Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  BeforeInsert,
+  BeforeUpdate,
+  Column,
+  CreateDateColumn,
+  Entity,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 
 // TODO: add validator for secure password
 
@@ -27,10 +35,10 @@ export class User {
   @Column('varchar')
   declare role: Role;
 
-  @Column('datetime', { name: 'created_at' })
+  @CreateDateColumn({ name: 'created_at' })
   declare createdAt: Date;
 
-  @Column('datetime', { name: 'updated_at' })
+  @UpdateDateColumn({ name: 'updated_at' })
   declare updatedAt: Date;
 
   get isEmailVerified(): boolean {
@@ -40,9 +48,6 @@ export class User {
   @BeforeInsert()
   async beforeInsert(): Promise<void> {
     this.password = await argon2.hash(this.password);
-
-    this.createdAt = new Date();
-    this.updatedAt = new Date(this.createdAt);
   }
 
   @BeforeUpdate()
@@ -59,7 +64,5 @@ export class User {
     if (passwordNeedsRehash) {
       this.password = await argon2.hash(this.password);
     }
-
-    this.updatedAt = new Date();
   }
 }

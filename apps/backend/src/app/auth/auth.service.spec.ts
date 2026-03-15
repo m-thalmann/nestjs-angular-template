@@ -1,8 +1,9 @@
-import { User } from '@backend/user';
+import { Role } from '@backend/permissions';
 import { UnauthorizedException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import * as argon2 from 'argon2';
 import { CreateUserDto } from '../user/dto/create-user.dto';
+import { createMockUser } from '../user/testing';
 import { UserService } from '../user/user.service';
 import { AuthService } from './auth.service';
 import { SignUpDto } from './dto/sign-up.dto';
@@ -28,14 +29,10 @@ describe('AuthService', () => {
       ],
     }).compile();
 
-    service = module.get<AuthService>(AuthService);
+    service = await module.resolve<AuthService>(AuthService);
   });
 
-  it('should be defined', () => {
-    expect(service).toBeDefined();
-  });
-
-  describe('login', () => {
+  describe('loginUser', () => {
     it('should throw an UnauthorizedException if the user does not exist', async () => {
       (mockUserService.findOneByEmail as jest.Mock).mockResolvedValue(null);
 
@@ -70,7 +67,7 @@ describe('AuthService', () => {
         password: 'password',
       };
 
-      const expectedUser = new User();
+      const expectedUser = createMockUser();
 
       (mockUserService.create as jest.Mock).mockResolvedValue(expectedUser);
 
@@ -80,7 +77,7 @@ describe('AuthService', () => {
 
       const createUser = new CreateUserDto();
       Object.assign(createUser, signUpDto);
-      createUser.isAdmin = false;
+      createUser.role = Role.User;
 
       expect(mockUserService.create).toHaveBeenCalledWith(createUser);
     });

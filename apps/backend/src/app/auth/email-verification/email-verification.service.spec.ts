@@ -1,30 +1,19 @@
-import { MailService } from '@backend/mail';
-import { User } from '@backend/user';
+import { appConfigDefinition } from '@backend/config';
+import { NotificationService } from '@backend/notifications';
 import { ForbiddenException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Test, TestingModule } from '@nestjs/testing';
+import { createMockUser } from '../../user/testing';
 import { UserService } from '../../user/user.service';
-import { EmailVerificationMessage } from '../messages/email-verification.message';
 import { EmailVerificationService } from './email-verification.service';
-
-function createMockUser(emailVerified: boolean): User {
-  const user = new User();
-
-  if (emailVerified) {
-    user.emailVerifiedAt = new Date();
-  }
-
-  return user;
-}
 
 describe('EmailVerificationService', () => {
   let service: EmailVerificationService;
 
   let mockUserService: Partial<UserService>;
   let mockJwtService: Partial<JwtService>;
-  let mockMailService: Partial<MailService>;
-
-  let mockMailBuilder: Partial<EmailVerificationMessage>;
+  let mockNotificationService: Partial<NotificationService>;
+  const mockAppConfigFrontendUrl = 'http://localhost:3000';
 
   beforeEach(async () => {
     mockUserService = {
@@ -36,14 +25,8 @@ describe('EmailVerificationService', () => {
       signAsync: jest.fn(),
     };
 
-    mockMailBuilder = {
-      context: jest.fn().mockReturnThis(),
-      to: jest.fn().mockReturnThis(),
-      send: jest.fn().mockResolvedValue(undefined),
-    };
-
-    mockMailService = {
-      build: jest.fn().mockReturnValue(mockMailBuilder),
+    mockNotificationService = {
+      send: jest.fn(),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -58,22 +41,22 @@ describe('EmailVerificationService', () => {
           useValue: mockJwtService,
         },
         {
-          provide: MailService,
-          useValue: mockMailService,
+          provide: NotificationService,
+          useValue: mockNotificationService,
+        },
+        {
+          provide: appConfigDefinition.KEY,
+          useValue: { frontendUrl: mockAppConfigFrontendUrl },
         },
       ],
     }).compile();
 
-    service = module.get<EmailVerificationService>(EmailVerificationService);
-  });
-
-  it('should be defined', () => {
-    expect(service).toBeDefined();
+    service = await module.resolve<EmailVerificationService>(EmailVerificationService);
   });
 
   describe('verifyEmail', () => {
     it('should do nothing if email is already verified', async () => {
-      const user = createMockUser(true);
+      const user = createMockUser({ emailVerified: true });
 
       const validateVerificationTokenSpy = jest.spyOn(service, 'validateVerificationToken');
 
@@ -83,7 +66,7 @@ describe('EmailVerificationService', () => {
     });
 
     it('should throw ForbiddenException for invalid token', async () => {
-      const user = createMockUser(false);
+      const user = createMockUser({ emailVerified: false });
 
       service.validateVerificationToken = jest.fn().mockResolvedValue(false);
 
@@ -92,7 +75,7 @@ describe('EmailVerificationService', () => {
     });
 
     it('should mark email as verified for valid token', async () => {
-      const user = createMockUser(false);
+      const user = createMockUser({ emailVerified: false });
 
       service.validateVerificationToken = jest.fn().mockResolvedValue(true);
 
@@ -104,29 +87,39 @@ describe('EmailVerificationService', () => {
 
   describe('sendVerificationEmail', () => {
     it.each([true, false])('should send verification email with isNewUser (%s)', async (isNewUser) => {
-      const user = createMockUser(false);
+      const user = createMockUser({ emailVerified: false });
       user.createdAt = new Date();
       user.updatedAt = new Date(user.createdAt.getTime() + 1);
 
+      const mockToken = 'verification-token';
+
+      service.generateVerificationToken = jest.fn().mockResolvedValue(mockToken);
+
       await service.sendVerificationEmail(user, isNewUser);
 
-      expect(mockMailService.build).toHaveBeenCalledWith(EmailVerificationMessage);
-
-      expect(mockMailBuilder.context).toHaveBeenCalledWith({ user, isNewUser });
-      expect(mockMailBuilder.to).toHaveBeenCalledWith(user.email);
-      expect(mockMailBuilder.send).toHaveBeenCalled();
+      expect(service.generateVerificationToken).toHaveBeenCalledWith(user);
+      expect(mockNotificationService.send).toHaveBeenCalledWith(
+        user,
+        expect.objectContaining({
+          options: {
+            isNewUser,
+            token: mockToken,
+            frontendUrl: mockAppConfigFrontendUrl,
+          },
+        }),
+      );
     });
   });
 
   describe('resendVerificationEmail', () => {
     it('should throw ForbiddenException if email is already verified', async () => {
-      const user = createMockUser(true);
+      const user = createMockUser({ emailVerified: true });
 
       await expect(service.resendVerificationEmail(user)).rejects.toThrow(ForbiddenException);
     });
 
     it('should send verification email if email is not verified', async () => {
-      const user = createMockUser(false);
+      const user = createMockUser({ emailVerified: false });
       user.createdAt = new Date();
       user.updatedAt = new Date(user.createdAt.getTime() + 1);
 
@@ -138,7 +131,7 @@ describe('EmailVerificationService', () => {
     });
 
     it('should set isNewUser to true if user was just created', async () => {
-      const user = createMockUser(false);
+      const user = createMockUser({ emailVerified: false });
       user.createdAt = new Date();
       user.updatedAt = new Date(user.createdAt);
 
@@ -152,7 +145,7 @@ describe('EmailVerificationService', () => {
 
   describe('generateVerificationToken', () => {
     it('should generate token with correct payload and expiration', async () => {
-      const user = createMockUser(false);
+      const user = createMockUser({ emailVerified: false });
 
       await service.generateVerificationToken(user);
 
@@ -165,7 +158,7 @@ describe('EmailVerificationService', () => {
 
   describe('validateVerificationToken', () => {
     it('should return false for invalid token', async () => {
-      const user = createMockUser(false);
+      const user = createMockUser({ emailVerified: false });
 
       (mockJwtService.verifyAsync as jest.Mock).mockRejectedValue(new Error());
 
@@ -176,7 +169,7 @@ describe('EmailVerificationService', () => {
     });
 
     it('should return false if payload does not match user', async () => {
-      const user = createMockUser(false);
+      const user = createMockUser({ emailVerified: false });
       user.uuid = 'user-uuid';
       user.email = 'user@example.com';
 
@@ -192,7 +185,7 @@ describe('EmailVerificationService', () => {
     });
 
     it('should return true for valid token with matching payload', async () => {
-      const user = createMockUser(false);
+      const user = createMockUser({ emailVerified: false });
       user.uuid = 'user-uuid';
       user.email = 'user@example.com';
 
