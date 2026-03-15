@@ -2,36 +2,39 @@ import { PaginationParams } from '@backend/models';
 import { BadRequestException, createParamDecorator, ExecutionContext } from '@nestjs/common';
 import { FastifyRequest } from 'fastify';
 
-const DEFAULT_PER_PAGE = 20;
-const MAX_PER_PAGE = 100;
+export const PAGINATION_DEFAULT_PAGE_SIZE = 20;
+export const PAGINATION_MAX_PAGE_SIZE = 100;
 
-const PAGE_KEY = 'page';
-const PER_PAGE_KEY = 'per-page';
+export const PAGINATION_QUERY_PAGE_KEY = 'page';
+export const PAGINATION_QUERY_PAGE_SIZE_KEY = 'page-size';
 
+// TODO: automatically set apiquery decorators!
 export const QueryPaginationParams = createParamDecorator<undefined, PaginationParams>(
   (data: undefined, ctx: ExecutionContext) => {
     const request = ctx.switchToHttp().getRequest<FastifyRequest>();
 
     const queryParams = request.query as Record<string, string>;
 
-    const pageParam = queryParams[PAGE_KEY];
-    const perPageParam = queryParams[PER_PAGE_KEY];
+    const pageParam = queryParams[PAGINATION_QUERY_PAGE_KEY];
+    const pageSizeParam = queryParams[PAGINATION_QUERY_PAGE_SIZE_KEY];
 
     const page = pageParam === undefined ? 1 : parseInt(pageParam, 10);
-    const perPage = perPageParam === undefined ? DEFAULT_PER_PAGE : parseInt(perPageParam, 10);
+    const pageSize = pageSizeParam === undefined ? PAGINATION_DEFAULT_PAGE_SIZE : parseInt(pageSizeParam, 10);
 
     if (isNaN(page) || page < 1) {
-      throw new BadRequestException('Invalid page parameter');
+      throw new BadRequestException(`Invalid ${PAGINATION_QUERY_PAGE_KEY} parameter`);
     }
 
-    if (isNaN(perPage) || perPage < 1) {
-      throw new BadRequestException('Invalid per-page parameter');
+    if (isNaN(pageSize) || pageSize < 1) {
+      throw new BadRequestException(`Invalid ${PAGINATION_QUERY_PAGE_SIZE_KEY} parameter`);
     }
 
-    if (perPage > MAX_PER_PAGE) {
-      throw new BadRequestException(`per-page parameter cannot exceed ${MAX_PER_PAGE}`);
+    if (pageSize > PAGINATION_MAX_PAGE_SIZE) {
+      throw new BadRequestException(
+        `${PAGINATION_QUERY_PAGE_SIZE_KEY} parameter cannot exceed ${PAGINATION_MAX_PAGE_SIZE}`,
+      );
     }
 
-    return { page, perPage, offset: (page - 1) * perPage };
+    return { page, pageSize, offset: (page - 1) * pageSize };
   },
 );

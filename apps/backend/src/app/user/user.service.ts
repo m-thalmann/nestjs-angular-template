@@ -26,7 +26,7 @@ export class UserService {
   }): Promise<{ users: Array<User>; paginationMeta: PaginationMetaDto }> {
     const findOptions: FindManyOptions<User> = {
       skip: options.pagination.offset,
-      take: options.pagination.perPage,
+      take: options.pagination.pageSize,
     };
 
     const users = await this.usersRepository.find(findOptions);

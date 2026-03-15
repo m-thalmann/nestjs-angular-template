@@ -14,7 +14,7 @@ export class PaginationMetaDto {
     minimum: 1,
     description: 'Amount of items per page',
   })
-  declare perPage: number;
+  declare pageSize: number;
 
   @ApiProperty({
     type: 'integer',
@@ -31,13 +31,13 @@ export class PaginationMetaDto {
   declare lastPage: number;
 
   static build(paginationParams: PaginationParams, total: number): PaginationMetaDto {
-    const { perPage, page } = paginationParams;
+    const { pageSize, page } = paginationParams;
 
     const paginationMeta = new PaginationMetaDto();
     paginationMeta.total = total;
-    paginationMeta.perPage = perPage;
+    paginationMeta.pageSize = pageSize;
     paginationMeta.currentPage = page;
-    paginationMeta.lastPage = Math.ceil(total / perPage);
+    paginationMeta.lastPage = Math.ceil(total / pageSize);
 
     return paginationMeta;
   }
