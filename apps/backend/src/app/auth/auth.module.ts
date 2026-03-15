@@ -1,4 +1,4 @@
-import { HasPermissionGuard } from '@backend/permissions';
+import { HasPermissionsGuard } from '@backend/permissions';
 import { Module } from '@nestjs/common';
 import { APP_GUARD } from '@nestjs/core';
 import { UserModule } from '../user/user.module';
@@ -29,7 +29,7 @@ import { AuthTokenModule } from './tokens/auth-token.module';
     // make sure its provided after AuthGuard, so that it runs after the user is authenticated
     {
       provide: APP_GUARD,
-      useClass: HasPermissionGuard,
+      useClass: HasPermissionsGuard,
     },
   ],
   exports: [],

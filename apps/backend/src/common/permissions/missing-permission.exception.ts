@@ -6,7 +6,7 @@ export class MissingPermissionException extends Error {
   constructor(permission: Permission, failMode: PermissionFailMode) {
     super();
 
-    if (failMode === 'notFound') {
+    if (failMode === PermissionFailMode.NotFound) {
       return new NotFoundException();
     }
 

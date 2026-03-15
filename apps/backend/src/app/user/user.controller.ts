@@ -8,7 +8,7 @@ import {
   ResolveEntity,
 } from '@backend/decorators';
 import { ApiResponseDto, ApiResponseWithPaginationDto, type PaginationParams } from '@backend/models';
-import { HasPermission, HasPermissionsPipe, Permission } from '@backend/permissions';
+import { HasPermission, Permission, PermissionFailMode } from '@backend/permissions';
 import { buildDtoArray, getResponseSchema } from '@backend/util';
 import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Patch, Post } from '@nestjs/common';
 import {
@@ -65,16 +65,14 @@ export class UserController {
   }
 
   @Get(':uuid')
-  @HasPermission(Permission.ReadUser, { failWithNotFound: true })
+  @HasPermission(Permission.ReadUser, { failMode: PermissionFailMode.NotFound })
   @ApiOperation({ summary: 'Returns a user by UUID' })
   @ApiOkResponse({
     description: 'OK',
     schema: getResponseSchema(UserDto),
   })
   @ApiNotFoundResponse({ description: 'Not found' })
-  async findOne(
-    @ResolveEntity(User, 'uuid', undefined, HasPermissionsPipe) user: User,
-  ): Promise<ApiResponseDto<UserDto>> {
+  async findOne(@ResolveEntity('uuid') user: User): Promise<ApiResponseDto<UserDto>> {
     return { data: UserDto.fromEntity(user) };
   }
 
@@ -110,7 +108,7 @@ export class UserController {
   @ApiNotFoundResponse({ description: 'Not found' })
   @ApiValidationErrorResponse()
   async update(
-    @ResolveEntity(User, 'uuid', undefined, HasPermissionsPipe) user: User,
+    @ResolveEntity('uuid') user: User,
     @Body() patchUserDto: PatchUserDto,
   ): Promise<ApiResponseDto<DetailedUserDto>> {
     const updatedUser = await this.userService.patch(user, patchUserDto);
@@ -120,11 +118,11 @@ export class UserController {
 
   @Delete(':uuid')
   @HttpCode(HttpStatus.NO_CONTENT)
-  @HasPermission(Permission.DeleteUser, { failWithNotFound: true })
+  @HasPermission(Permission.DeleteUser, { failMode: PermissionFailMode.NotFound })
   @ApiOperation({ summary: 'Deletes a user by UUID' })
   @ApiNoContentResponse({ description: 'OK' })
   @ApiNotFoundResponse({ description: 'Not found' })
-  async remove(@ResolveEntity(User, 'uuid', undefined, HasPermissionsPipe) user: User): Promise<void> {
+  async remove(@ResolveEntity('uuid') user: User): Promise<void> {
     await this.userService.remove(user.uuid);
   }
 }

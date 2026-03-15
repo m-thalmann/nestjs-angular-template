@@ -23,10 +23,10 @@ export type ConditionalPermission<TEntity> = {
     : never;
 }[keyof typeof Permission];
 
-const ROLE_PERMISSIONS: Record<Role, Array<Permission>> = {
+const ROLE_PERMISSIONS: Record<Role, ReadonlyArray<Permission>> = {
   [Role.Admin]: Object.values(Permission),
-  [Role.User]: [Permission.ReadUser, Permission.UpdateAuthUser],
-};
+  [Role.User]: [Permission.ReadUser, Permission.UpdateAuthUser, Permission.DeleteUser],
+} as const;
 
 export function isSimplePermission(permission: Permission): permission is SimplePermission {
   return PERMISSIONS[permission].length === 1;
