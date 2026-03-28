@@ -136,6 +136,7 @@ describe('ResolveEntity', () => {
   });
 
   it('should throw error when entity type is not a registered TypeORM entity', async () => {
+    // eslint-disable-next-line @typescript-eslint/no-extraneous-class
     class NotAnEntity {}
 
     await expect(

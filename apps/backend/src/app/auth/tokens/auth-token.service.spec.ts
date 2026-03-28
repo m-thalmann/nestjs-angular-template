@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-magic-numbers */
 /* eslint-disable max-lines */
 import { authConfigDefinition } from '@backend/config';
 import { User } from '@backend/user';

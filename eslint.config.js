@@ -29,7 +29,10 @@ module.exports = [
     files: ['**/*.ts'],
     languageOptions: {
       parserOptions: {
-        project: ['./tsconfig.base.json', './apps/backend/tsconfig**.json', './apps/frontend/tsconfig**.json'],
+        projectService: {
+          allowDefaultProject: ['jest.config.ts'],
+          defaultProject: 'tsconfig.base.json',
+        },
         tsconfigRootDir: __dirname,
       },
     },
@@ -59,6 +62,20 @@ module.exports = [
           propertyDeclaration: true,
         },
       ],
+    },
+  },
+
+  {
+    files: ['**/*.module.ts', '**/*.component.ts'],
+    rules: {
+      '@typescript-eslint/no-extraneous-class': 'off',
+    },
+  },
+
+  {
+    files: ['./apps/backend/**'],
+    rules: {
+      '@angular-eslint/prefer-inject': 'off',
     },
   },
 ];
