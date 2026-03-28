@@ -13,6 +13,12 @@
   },
   "private": true,
   "devDependencies": {
+    "@angular-devkit/core": "^21.0.0",
+    "@angular-devkit/schematics": "^21.0.0",
+    "@angular/build": "^21.0.0",
+    "@angular/cli": "^21.0.0",
+    "@angular/compiler-cli": "^21.0.0",
+    "@angular/language-service": "^21.0.0",
     "@commitlint/cli": "^20.1.0",
     "@commitlint/config-conventional": "^20.0.0",
     "@m-thalmann/eslint-config-angular": "^0.4.0",
@@ -22,6 +28,7 @@
     "@m-thalmann/prettier-config": "^1.0.1",
     "@nestjs/schematics": "^11.0.0",
     "@nestjs/testing": "^11.0.0",
+    "@nx/angular": "^22.0.1",
     "@nx/eslint": "^22.0.1",
     "@nx/eslint-plugin": "^22.0.1",
     "@nx/jest": "^22.0.1",
@@ -30,6 +37,7 @@
     "@nx/node": "^22.0.1",
     "@nx/web": "^22.0.1",
     "@nx/webpack": "^22.0.1",
+    "@schematics/angular": "^21.0.0",
     "@swc-node/register": "^1.11.1",
     "@swc/cli": "^0.8.0",
     "@swc/core": "^1.5.7",
@@ -43,7 +51,9 @@
     "globals": "^16.4.0",
     "husky": "^9.1.7",
     "jest": "^30.0.2",
+    "jest-environment-jsdom": "^30.0.2",
     "jest-environment-node": "^30.0.2",
+    "jest-preset-angular": "^16.0.0",
     "jest-util": "^30.0.2",
     "lint-staged": "^16.2.6",
     "mysql2": "^3.15.3",
@@ -59,6 +69,13 @@
     "webpack-cli": "^5.1.4"
   },
   "dependencies": {
+    "@angular/common": "^21.0.0",
+    "@angular/compiler": "^21.0.0",
+    "@angular/core": "^21.0.0",
+    "@angular/forms": "^21.0.0",
+    "@angular/platform-browser": "^21.0.0",
+    "@angular/platform-browser-dynamic": "^21.0.0",
+    "@angular/router": "^21.0.0",
     "@fastify/static": "^8.3.0",
     "@nestjs-modules/mailer": "^2.1.0",
     "@nestjs/common": "^11.0.0",
@@ -79,6 +96,7 @@
     "nodemailer": "^8.0.1",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.8.0",
-    "typeorm": "^0.3.27"
+    "typeorm": "^0.3.27",
+    "zone.js": "~0.15.0"
   }
 }
