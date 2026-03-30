@@ -1,7 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { SuccessfulAuth } from '@shared/api-interfaces';
 import { DetailedUserDto } from '../../user/dto/user.dto';
 
-export class SuccessfulAuthDto {
+export class SuccessfulAuthDto implements SuccessfulAuth {
   @ApiProperty()
   declare user: DetailedUserDto;
 

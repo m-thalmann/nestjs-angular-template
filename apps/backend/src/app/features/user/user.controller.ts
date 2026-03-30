@@ -6,7 +6,7 @@ import {
   QueryPaginationParams,
   ResolveEntity,
 } from '@backend/decorators';
-import { ApiResponseDto, ApiResponseWithPaginationDto, type PaginationParams } from '@backend/models';
+import { type PaginationParams } from '@backend/models';
 import { HasPermission, Permission, PermissionFailMode } from '@backend/permissions';
 import { buildDtoArray, getResponseSchema } from '@backend/util';
 import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Patch, Post } from '@nestjs/common';
@@ -19,6 +19,7 @@ import {
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
+import { ApiResponse, ApiResponseWithPagination } from '@shared/api-interfaces';
 import { CreateUserDto } from './dto/create-user.dto';
 import { PatchAuthUserDto } from './dto/patch-auth-user.dto';
 import { PatchUserDto } from './dto/patch-user.dto';
@@ -41,7 +42,7 @@ export class UserController {
     schema: getResponseSchema(DetailedUserDto),
   })
   @ApiValidationErrorResponse()
-  async create(@Body() createUserDto: CreateUserDto): Promise<ApiResponseDto<DetailedUserDto>> {
+  async create(@Body() createUserDto: CreateUserDto): Promise<ApiResponse<DetailedUserDto>> {
     const user = await this.userService.create(createUserDto);
 
     return { data: DetailedUserDto.fromEntity(user) };
@@ -56,7 +57,7 @@ export class UserController {
   })
   async findAll(
     @QueryPaginationParams() paginationParams: PaginationParams,
-  ): Promise<ApiResponseWithPaginationDto<Array<UserDto>>> {
+  ): Promise<ApiResponseWithPagination<Array<UserDto>>> {
     const { users, paginationMeta } = await this.userService.findAll({ pagination: paginationParams });
 
     return { data: buildDtoArray(users, UserDto.fromEntity), meta: paginationMeta };
@@ -70,7 +71,7 @@ export class UserController {
     schema: getResponseSchema(UserDto),
   })
   @ApiNotFoundResponse({ description: 'Not found' })
-  async findOne(@ResolveEntity('uuid') user: User): Promise<ApiResponseDto<UserDto>> {
+  async findOne(@ResolveEntity('uuid') user: User): Promise<ApiResponse<UserDto>> {
     return { data: UserDto.fromEntity(user) };
   }
 
@@ -87,7 +88,7 @@ export class UserController {
   async updateAuthUser(
     @Auth('user') user: User,
     @Body() patchAuthUserDto: PatchAuthUserDto,
-  ): Promise<ApiResponseDto<DetailedUserDto>> {
+  ): Promise<ApiResponse<DetailedUserDto>> {
     const updatedUser = await this.userService.patch(user, patchAuthUserDto);
 
     return { data: DetailedUserDto.fromEntity(updatedUser) };
@@ -108,7 +109,7 @@ export class UserController {
   async update(
     @ResolveEntity('uuid') user: User,
     @Body() patchUserDto: PatchUserDto,
-  ): Promise<ApiResponseDto<DetailedUserDto>> {
+  ): Promise<ApiResponse<DetailedUserDto>> {
     const updatedUser = await this.userService.patch(user, patchUserDto);
 
     return { data: DetailedUserDto.fromEntity(updatedUser) };

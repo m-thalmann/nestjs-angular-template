@@ -1,7 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { PatchUser } from '@shared/api-interfaces';
 import { IsEmail, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
-export class PatchAuthUserDto {
+export class PatchAuthUserDto implements PatchUser {
   @IsOptional()
   @IsString()
   @ApiProperty({

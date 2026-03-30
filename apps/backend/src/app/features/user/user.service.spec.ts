@@ -1,9 +1,9 @@
 import { PaginationMetaDto, PaginationParams } from '@backend/models';
-import { Role } from '@backend/permissions';
 import { UniqueValidator } from '@backend/validation';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
+import { Role } from '@shared/api-interfaces';
 import { Repository } from 'typeorm';
 import { AuthTokenService } from '../auth/tokens/auth-token.service';
 import { UserCreatedEvent } from './events/user-created.event';

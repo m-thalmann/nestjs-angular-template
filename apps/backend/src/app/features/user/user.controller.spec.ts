@@ -1,6 +1,6 @@
 import { PaginationMetaDto, PaginationParams } from '@backend/models';
-import { Role } from '@backend/permissions';
 import { Test, TestingModule } from '@nestjs/testing';
+import { Role } from '@shared/api-interfaces';
 import { DataSource } from 'typeorm';
 import { DetailedUserDto, UserDto } from './dto/user.dto';
 import { createMockUser } from './testing';

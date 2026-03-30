@@ -1,7 +1,7 @@
 import { User, USER_PERMISSIONS } from '@backend/user';
+import { Role } from '@shared/api-interfaces';
 import { ObjectValues } from '@shared/common';
 import { PermissionDefinition } from './permission-definition.model';
-import { Role } from './role.model';
 
 const PERMISSIONS = {
   ...USER_PERMISSIONS,

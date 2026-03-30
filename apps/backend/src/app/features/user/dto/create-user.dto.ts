@@ -1,10 +1,10 @@
-import { Role, ROLES } from '@backend/permissions';
 import { IsUnique } from '@backend/validation';
 import { ApiProperty } from '@nestjs/swagger';
+import { CreateUser, Role, ROLES } from '@shared/api-interfaces';
 import { IsEmail, IsEnum, IsNotEmpty } from 'class-validator';
 import { User } from '../user.entity';
 
-export class CreateUserDto {
+export class CreateUserDto implements CreateUser {
   @IsNotEmpty()
   @ApiProperty({
     type: 'string',

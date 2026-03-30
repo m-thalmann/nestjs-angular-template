@@ -1,7 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { PaginationMeta } from '@shared/api-interfaces';
 import { PaginationParams } from '../types/pagination';
 
-export class PaginationMetaDto {
+export class PaginationMetaDto implements PaginationMeta {
   @ApiProperty({
     type: 'integer',
     minimum: 0,

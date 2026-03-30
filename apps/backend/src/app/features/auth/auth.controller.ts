@@ -1,5 +1,4 @@
 import { ApiAuth, ApiValidationErrorResponse, Public } from '@backend/decorators';
-import { ApiResponseDto } from '@backend/models';
 import { User } from '@backend/user';
 import { getResponseSchema } from '@backend/util';
 import { Body, Controller, Get, HttpCode, HttpStatus, Post, UseGuards } from '@nestjs/common';
@@ -14,6 +13,7 @@ import {
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { Throttle } from '@nestjs/throttler';
+import { ApiResponse } from '@shared/api-interfaces';
 import { DetailedUserDto } from '../user/dto/user.dto';
 import { AuthService } from './auth.service';
 import { Auth } from './decorators/auth.decorator';
@@ -42,7 +42,7 @@ export class AuthController {
     schema: getResponseSchema(DetailedUserDto),
   })
   @ApiAuth()
-  async getAuthenticatedUser(@Auth('user') user: User): Promise<ApiResponseDto<DetailedUserDto>> {
+  async getAuthenticatedUser(@Auth('user') user: User): Promise<ApiResponse<DetailedUserDto>> {
     return {
       data: DetailedUserDto.fromEntity(user),
     };
@@ -61,7 +61,7 @@ export class AuthController {
     description: 'Unauthorized',
   })
   @ApiValidationErrorResponse()
-  async login(@Body() loginDto: LoginDto): Promise<ApiResponseDto<SuccessfulAuthDto>> {
+  async login(@Body() loginDto: LoginDto): Promise<ApiResponse<SuccessfulAuthDto>> {
     const user = await this.authService.loginUser(loginDto.email, loginDto.password);
 
     const { accessToken, refreshToken } = await this.authTokenService.createAndBuildTokenPair(user);
@@ -88,7 +88,7 @@ export class AuthController {
   @ApiMethodNotAllowedResponse({
     description: 'Sign up is disabled',
   })
-  async signUp(@Body() signUpDto: SignUpDto): Promise<ApiResponseDto<SuccessfulAuthDto>> {
+  async signUp(@Body() signUpDto: SignUpDto): Promise<ApiResponse<SuccessfulAuthDto>> {
     const user = await this.authService.signUpUser(signUpDto);
 
     const { accessToken, refreshToken } = await this.authTokenService.createAndBuildTokenPair(user);
@@ -112,7 +112,7 @@ export class AuthController {
   async refreshToken(
     @Auth('user') user: User,
     @Auth('authToken') authToken: AuthToken,
-  ): Promise<ApiResponseDto<SuccessfulAuthDto>> {
+  ): Promise<ApiResponse<SuccessfulAuthDto>> {
     const { accessToken, refreshToken } = await this.authTokenService.refreshTokenPair(authToken);
 
     return {

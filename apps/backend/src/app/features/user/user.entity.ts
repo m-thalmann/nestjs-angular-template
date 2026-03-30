@@ -1,4 +1,4 @@
-import { Role } from '@backend/permissions';
+import { Role } from '@shared/api-interfaces';
 import * as argon2 from 'argon2';
 import {
   BeforeInsert,

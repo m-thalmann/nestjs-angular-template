@@ -17,7 +17,7 @@ export function ApiValidationErrorResponse(): ReturnType<typeof applyDecorators>
           },
           statusCode: { type: 'integer', description: 'The HTTP status code', example: 422 },
         },
-        required: ['message', 'error', 'statusCode'],
+        required: ['message', 'errors', 'statusCode'],
       },
     }),
   );

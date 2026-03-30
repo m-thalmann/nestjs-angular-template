@@ -1,14 +1,15 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { ResetPassword } from '@shared/api-interfaces';
 import { IsNotEmpty } from 'class-validator';
 
-export class ResetPasswordDto {
+export class ResetPasswordDto implements ResetPassword {
   @IsNotEmpty()
   @ApiProperty({
     type: 'string',
     description: 'The password reset token',
     example: 'token',
   })
-  declare readonly token: string;
+  declare token: string;
 
   @IsNotEmpty()
   @ApiProperty({
@@ -16,5 +17,5 @@ export class ResetPasswordDto {
     description: 'The new password',
     example: 'password',
   })
-  declare readonly newPassword: string;
+  declare newPassword: string;
 }

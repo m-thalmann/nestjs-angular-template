@@ -1,13 +1,11 @@
 import { PaginationParams } from '@backend/models';
 import { BadRequestException, createParamDecorator, ExecutionContext } from '@nestjs/common';
 import { ApiQuery } from '@nestjs/swagger';
+import { PAGINATION_QUERY_PAGE_KEY, PAGINATION_QUERY_PAGE_SIZE_KEY } from '@shared/api-interfaces';
 import { FastifyRequest } from 'fastify';
 
 export const PAGINATION_DEFAULT_PAGE_SIZE = 20;
 export const PAGINATION_MAX_PAGE_SIZE = 100;
-
-export const PAGINATION_QUERY_PAGE_KEY = 'page';
-export const PAGINATION_QUERY_PAGE_SIZE_KEY = 'page-size';
 
 const QueryPaginationParamsDecorator = createParamDecorator<undefined, PaginationParams>(
   (data: undefined, ctx: ExecutionContext) => {

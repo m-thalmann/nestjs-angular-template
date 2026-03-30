@@ -1,10 +1,10 @@
 /* eslint-disable max-classes-per-file */
-import { Role, ROLES } from '@backend/permissions';
 import { convertDateToUnixTimestamp } from '@backend/util';
 import { ApiProperty } from '@nestjs/swagger';
+import { DetailedUser, Role, ROLES, User as UserContract } from '@shared/api-interfaces';
 import { User } from '../user.entity';
 
-export class UserDto {
+export class UserDto implements UserContract {
   @ApiProperty({
     type: 'string',
     format: 'uuid',
@@ -37,7 +37,7 @@ export class UserDto {
   }
 }
 
-export class DetailedUserDto extends UserDto {
+export class DetailedUserDto extends UserDto implements DetailedUser {
   @ApiProperty({
     type: 'string',
     enum: ROLES,

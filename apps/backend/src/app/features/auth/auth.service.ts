@@ -1,6 +1,6 @@
-import { Role } from '@backend/permissions';
 import { User } from '@backend/user';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Role } from '@shared/api-interfaces';
 import * as argon2 from 'argon2';
 import { CreateUserDto } from '../user/dto/create-user.dto';
 import { UserService } from '../user/user.service';

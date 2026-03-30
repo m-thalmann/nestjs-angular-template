@@ -1,4 +1,4 @@
-import { ROLES } from '@backend/permissions';
+import { ROLES } from '@shared/api-interfaces';
 import { MigrationInterface, QueryRunner, Table } from 'typeorm';
 
 export class CreateUsersTable1762116720714 implements MigrationInterface {

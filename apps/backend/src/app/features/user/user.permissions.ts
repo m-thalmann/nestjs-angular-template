@@ -1,4 +1,5 @@
-import { Role, type PermissionDefinition } from '@backend/permissions';
+import { type PermissionDefinition } from '@backend/permissions';
+import { Role } from '@shared/api-interfaces';
 import { User } from './user.entity';
 
 const canManage = (user: User, entity: User): boolean => user.role === Role.Admin || user.id === entity.id;
