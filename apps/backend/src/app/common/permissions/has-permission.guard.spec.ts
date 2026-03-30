@@ -2,7 +2,7 @@ import { createMockExecutionContext } from '@backend/testing';
 import { UnauthorizedException } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { Test } from '@nestjs/testing';
-import { createMockUser } from '../../app/user/testing';
+import { createMockUser } from '../../features/user/testing';
 import { HAS_PERMISSION_DECORATOR_KEY, PermissionFailMode } from './has-permission.decorator';
 import { HasPermissionsGuard } from './has-permissions.guard';
 import { MissingPermissionException } from './missing-permission.exception';

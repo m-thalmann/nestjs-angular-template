@@ -5,7 +5,7 @@ import { BadRequestException, NotFoundException, Type } from '@nestjs/common';
 import { ModuleRef } from '@nestjs/core';
 import { Test } from '@nestjs/testing';
 import { DataSource } from 'typeorm';
-import { createMockUser } from '../../app/user/testing';
+import { createMockUser } from '../../features/user/testing';
 import { ResolveEntity, ResolveEntityOptions } from './resolve-entity.decorator';
 
 describe('ResolveEntity', () => {

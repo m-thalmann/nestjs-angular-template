@@ -1,4 +1,4 @@
-import { createMockUser } from '../../app/user/testing';
+import { createMockUser } from '../../features/user/testing';
 import { hasPermission, Permission } from './permissions';
 
 describe('Permissions', () => {

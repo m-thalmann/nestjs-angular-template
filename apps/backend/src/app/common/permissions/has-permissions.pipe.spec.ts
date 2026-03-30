@@ -2,7 +2,7 @@ import { User } from '@backend/user';
 import { InternalServerErrorException, UnauthorizedException } from '@nestjs/common';
 import { REQUEST } from '@nestjs/core';
 import { Test } from '@nestjs/testing';
-import { createMockUser } from '../../app/user/testing';
+import { createMockUser } from '../../features/user/testing';
 import { PermissionFailMode } from './has-permission.decorator';
 import { HasPermissionsGuard } from './has-permissions.guard';
 import { HasPermissionsPipe } from './has-permissions.pipe';
