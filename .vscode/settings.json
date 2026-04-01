@@ -6,5 +6,5 @@
     "source.organizeImports": "always",
     "source.fixAll.eslint": "explicit"
   },
-  "cSpell.words": ["mariadb", "PARAMTYPES", "postgres", "sqlite"]
+  "cSpell.words": ["mariadb", "PARAMTYPES", "postgres", "primeng", "sqlite"]
 }
