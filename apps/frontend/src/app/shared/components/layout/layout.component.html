@@ -1,12 +1,21 @@
 <header>
-  <div>@nestjs-angular-template</div>
+  <div class="header-container">
+    <h1 class="title">
+      <a routerLink="/">
+        <img src="assets/images/icon.png" alt="App Logo" />
+        @nestjs-angular-template
+      </a>
+    </h1>
 
-  <div>Menu</div>
+    <div>Menu</div>
 
-  <p-avatar
-    image="https://primefaces.org/cdn/primeng/images/demo/avatar/amyelsner.png"
-    [style]="{ width: '32px', height: '32px' }"
-  />
+    <div class="actions">
+      <p-avatar label="JD" shape="circle" (click)="menu.toggle($event)" />
+      <p-tieredMenu #menu [model]="userMenu()" [popup]="true" />
+    </div>
+  </div>
 </header>
 
-<router-outlet />
+<main>
+  <router-outlet />
+</main>

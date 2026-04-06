@@ -1,7 +1,7 @@
 @import 'primeicons/primeicons.css';
 
 html {
-  font-family: 'Inter', Roboto, Helvetica, Arial, sans-serif;
+  font-family: 'Manrope', sans-serif;
 }
 
 body {
@@ -15,4 +15,17 @@ body {
 html,
 body {
   height: 100%;
+}
+
+:root {
+  --content-max-width: 1280px;
+  --content-padding: 1rem;
+
+  --transition-duration: 0.2s;
+
+  --color-error: var(--p-red-600);
+
+  @media (prefers-color-scheme: dark) {
+    --color-error: var(--p-red-500);
+  }
 }

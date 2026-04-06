@@ -1,3 +1,60 @@
 :host {
   display: block;
 }
+
+header {
+  display: flex;
+  justify-content: center;
+  background: var(--p-surface-900); // TODO: surface not working here. switch depending on theme
+
+  position: sticky;
+  top: 0;
+
+  .header-container {
+    flex: 1;
+    max-width: var(--content-max-width);
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--content-padding);
+    padding-inline: var(--content-padding);
+
+    h1.title {
+      margin: 0;
+
+      font-size: 1.75rem;
+      font-weight: 500;
+
+      a {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+
+        color: inherit;
+        text-decoration: none;
+        padding-block: var(--content-padding);
+
+        img {
+          height: 1.25em;
+        }
+      }
+    }
+
+    .actions {
+      flex: 1;
+      text-align: right;
+
+      p-avatar {
+        cursor: pointer;
+        user-select: none;
+      }
+    }
+  }
+}
+
+main {
+  max-width: var(--content-max-width);
+  padding: var(--content-padding);
+  margin: 0 auto;
+}
