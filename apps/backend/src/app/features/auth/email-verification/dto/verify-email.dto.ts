@@ -1,8 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { VerifyEmail } from '@shared/api-interfaces';
+import { VerifyEmailRequest } from '@shared/api-interfaces';
 import { IsNotEmpty } from 'class-validator';
 
-export class VerifyEmailDto implements VerifyEmail {
+export class VerifyEmailDto implements VerifyEmailRequest {
   @IsNotEmpty()
   @ApiProperty({
     type: 'string',

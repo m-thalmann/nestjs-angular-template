@@ -1,10 +1,10 @@
 import { IsUnique } from '@backend/validation';
 import { ApiProperty } from '@nestjs/swagger';
-import { CreateUser, Role, ROLES } from '@shared/api-interfaces';
+import { CreateUserRequest, Role, ROLES } from '@shared/api-interfaces';
 import { IsEmail, IsEnum, IsNotEmpty } from 'class-validator';
 import { User } from '../user.entity';
 
-export class CreateUserDto implements CreateUser {
+export class CreateUserDto implements CreateUserRequest {
   @IsNotEmpty()
   @ApiProperty({
     type: 'string',

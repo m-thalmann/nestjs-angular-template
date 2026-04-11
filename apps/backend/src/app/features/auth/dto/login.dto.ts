@@ -1,8 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Login } from '@shared/api-interfaces';
+import { LoginRequest } from '@shared/api-interfaces';
 import { IsNotEmpty } from 'class-validator';
 
-export class LoginDto implements Login {
+export class LoginDto implements LoginRequest {
   @IsNotEmpty()
   @ApiProperty({
     type: 'string',

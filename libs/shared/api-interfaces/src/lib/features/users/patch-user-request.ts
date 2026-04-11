@@ -1,11 +1,11 @@
 import { Role } from '../../common';
 
-export interface PatchUser {
+export interface PatchUserRequest {
   name?: string;
   email?: string;
   password?: string;
 }
 
-export interface PatchUserManaged extends PatchUser {
+export interface PatchUserManagedRequest extends PatchUserRequest {
   role?: Role;
 }

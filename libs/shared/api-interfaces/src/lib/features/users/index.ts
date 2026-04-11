@@ -1,3 +1,3 @@
-export * from './create-user';
-export * from './patch-user';
+export * from './create-user-request';
+export * from './patch-user-request';
 export * from './user';

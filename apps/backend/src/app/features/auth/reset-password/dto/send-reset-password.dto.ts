@@ -1,8 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { SendResetPassword } from '@shared/api-interfaces';
+import { SendResetPasswordRequest } from '@shared/api-interfaces';
 import { IsNotEmpty } from 'class-validator';
 
-export class SendResetPasswordDto implements SendResetPassword {
+export class SendResetPasswordDto implements SendResetPasswordRequest {
   @IsNotEmpty()
   @ApiProperty({
     type: 'string',

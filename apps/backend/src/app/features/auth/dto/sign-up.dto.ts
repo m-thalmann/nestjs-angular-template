@@ -1,10 +1,10 @@
 import { User } from '@backend/user';
 import { IsUnique } from '@backend/validation';
 import { ApiProperty } from '@nestjs/swagger';
-import { SignUp } from '@shared/api-interfaces';
+import { SignUpRequest } from '@shared/api-interfaces';
 import { IsEmail, IsNotEmpty } from 'class-validator';
 
-export class SignUpDto implements SignUp {
+export class SignUpDto implements SignUpRequest {
   @IsNotEmpty()
   @ApiProperty({
     type: 'string',
