@@ -1,0 +1,30 @@
+<header>
+  <div class="header-container">
+    <h1 class="title">
+      <a routerLink="/dashboard">
+        <img src="assets/images/icon.png" alt="App Logo" />
+        @nestjs-angular-template
+      </a>
+    </h1>
+
+    <nav>
+      <app-nav-item link="/dashboard" label="Dashboard" />
+    </nav>
+
+    <div class="actions">
+      <div class="user-action" (click)="menu.toggle($event)">
+        <p-button text severity="secondary">
+          <ng-template #content>
+            {{ authUser().name }}
+            <p-avatar shape="circle" icon="pi pi-user" />
+          </ng-template>
+        </p-button>
+      </div>
+      <p-tieredMenu #menu [model]="userMenu()" [popup]="true" />
+    </div>
+  </div>
+</header>
+
+<main>
+  <router-outlet />
+</main>

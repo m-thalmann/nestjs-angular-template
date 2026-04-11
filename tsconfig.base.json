@@ -29,7 +29,8 @@
       "@backend/user": ["apps/backend/src/app/features/user/index.ts"],
       "@frontend/*": ["apps/frontend/src/app/common/*"],
       "@shared/api-interfaces": ["libs/shared/api-interfaces/src/index.ts"],
-      "@shared/common": ["libs/shared/common/src/index.ts"]
+      "@shared/common": ["libs/shared/common/src/index.ts"],
+      "@frontend/testing": ["libs/frontend/testing/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

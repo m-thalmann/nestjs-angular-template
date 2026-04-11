@@ -26,7 +26,12 @@
           "watchDepsName": "watch-deps"
         }
       },
-      "exclude": ["libs/shared/common/*", "libs/backend/testing/*"]
+      "exclude": [
+        "libs/backend/testing/*",
+        "libs/frontend/testing/*",
+        "libs/shared/api-interfaces/*",
+        "libs/shared/common/*"
+      ]
     },
     {
       "plugin": "@nx/webpack/plugin",

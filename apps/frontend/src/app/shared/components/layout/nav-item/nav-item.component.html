@@ -1,0 +1,10 @@
+<a
+  #rla="routerLinkActive"
+  pButton
+  severity="secondary"
+  routerLinkActive
+  [class.p-button-text]="!rla.isActive"
+  [routerLink]="link()"
+>
+  <span pButtonLabel>{{ label() }}</span>
+</a>
