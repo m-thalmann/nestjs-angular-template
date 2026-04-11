@@ -5,10 +5,9 @@ import {
 } from '@backend/decorators';
 import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
+import { EMAIL_UNVERIFIED_MESSAGE } from '@shared/api-interfaces';
 import { FastifyRequest } from 'fastify';
 import { AuthTokenService } from '../tokens/auth-token.service';
-
-const EMAIL_UNVERIFIED_MESSAGE = 'Unverified';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
