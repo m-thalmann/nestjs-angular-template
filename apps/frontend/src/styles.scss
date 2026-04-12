@@ -18,8 +18,17 @@ body {
   background: var(--background-color);
 }
 
+a.link,
 a[pButton] {
   text-decoration: none;
+}
+
+a.link:not([pButton]) {
+  color: var(--p-button-link-color);
+
+  &:hover {
+    text-decoration: underline;
+  }
 }
 
 :root {

@@ -1,8 +1,9 @@
 <a
   #rla="routerLinkActive"
   pButton
-  severity="secondary"
+  severity="contrast"
   routerLinkActive
+  [class.p-button-outlined]="rla.isActive"
   [class.p-button-text]="!rla.isActive"
   [routerLink]="link()"
 >
