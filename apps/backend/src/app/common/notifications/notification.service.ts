@@ -1,5 +1,6 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { ModuleRef } from '@nestjs/core';
+import { isUndefined } from '@shared/common';
 import { NOTIFICATION_CHANNELS, NotificationChannelName } from './notification-channels';
 import { Notification, NotificationRecipient } from './types';
 
@@ -35,7 +36,7 @@ export class NotificationService implements OnModuleInit {
 
       const channel = this.channels[channelName];
 
-      if (channel === undefined) {
+      if (isUndefined(channel)) {
         return;
       }
 

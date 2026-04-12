@@ -4,6 +4,7 @@ import { User } from '@backend/user';
 import { ForbiddenException, Inject, Injectable } from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
+import { isNotNull, isNull } from '@shared/common';
 import { UserService } from '../../user/user.service';
 import { PasswordResetNotification } from '../notifications/password-reset.notification';
 
@@ -28,7 +29,7 @@ export class ResetPasswordService {
       throw new ForbiddenException('Invalid token');
     }
 
-    if (user === null) {
+    if (isNull(user)) {
       return;
     }
 
@@ -38,7 +39,7 @@ export class ResetPasswordService {
   async sendResetPasswordEmail(email: string): Promise<void> {
     const user = await this.userService.findOneByEmail(email);
 
-    if (user === null) {
+    if (isNull(user)) {
       return;
     }
 
@@ -62,7 +63,7 @@ export class ResetPasswordService {
 
     const user = await this.userService.findOneByEmail(payload.email);
 
-    if (user !== null && user.updatedAt.getTime() !== payload.userUpdatedAt) {
+    if (isNotNull(user) && user.updatedAt.getTime() !== payload.userUpdatedAt) {
       throw new Error('User was updated since token was issued');
     }
 

@@ -6,6 +6,7 @@ import { ConfigType } from '@nestjs/config';
 import { JwtService, JwtSignOptions } from '@nestjs/jwt';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { InjectRepository } from '@nestjs/typeorm';
+import { isDefined, isNotNull, isNull } from '@shared/common';
 import { LessThanOrEqual, Repository } from 'typeorm';
 import { AuthToken } from './auth-token.entity';
 
@@ -56,7 +57,7 @@ export class AuthTokenService {
       },
     });
 
-    if (authToken === null) {
+    if (isNull(authToken)) {
       throw new UnauthorizedException();
     }
 
@@ -70,7 +71,7 @@ export class AuthTokenService {
       throw new UnauthorizedException();
     }
 
-    if (authToken.expiresAt !== null && authToken.expiresAt <= new Date()) {
+    if (isNotNull(authToken.expiresAt) && authToken.expiresAt <= new Date()) {
       throw new UnauthorizedException();
     }
 
@@ -89,7 +90,7 @@ export class AuthTokenService {
 
     let expirationDate: Date | null = null;
 
-    if (expirationMinutes !== undefined) {
+    if (isDefined(expirationMinutes)) {
       expirationDate = getDateAfterMinutes(expirationMinutes);
     }
 
@@ -121,7 +122,7 @@ export class AuthTokenService {
 
     const jwtOptions: JwtSignOptions = {};
 
-    if (options?.expirationMinutes !== undefined) {
+    if (isDefined(options?.expirationMinutes)) {
       jwtOptions.expiresIn = `${options.expirationMinutes}m`;
     }
 

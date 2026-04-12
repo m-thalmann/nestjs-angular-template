@@ -1,6 +1,7 @@
 import { User } from '@backend/user';
 import { Inject, Injectable, InternalServerErrorException, PipeTransform, UnauthorizedException } from '@nestjs/common';
 import { REQUEST } from '@nestjs/core';
+import { isUndefined } from '@shared/common';
 import { PermissionFailMode } from './has-permission.decorator';
 import { HasPermissionsGuard } from './has-permissions.guard';
 import { MissingPermissionException } from './missing-permission.exception';
@@ -24,7 +25,7 @@ export class HasPermissionsPipe<TEntity> implements PipeTransform<TEntity, TEnti
       [HasPermissionsGuard.REQUEST_PERMISSION_FAIL_MODE_KEY]: permissionFailMode = PermissionFailMode.Forbidden,
     } = this.request;
 
-    if (permission === undefined) {
+    if (isUndefined(permission)) {
       throw new InternalServerErrorException('No permission metadata found on request');
     }
 
@@ -32,7 +33,7 @@ export class HasPermissionsPipe<TEntity> implements PipeTransform<TEntity, TEnti
       throw new InternalServerErrorException('HasPermissionsPipe can only be used with conditional permissions');
     }
 
-    if (user === undefined) {
+    if (isUndefined(user)) {
       throw new UnauthorizedException();
     }
 

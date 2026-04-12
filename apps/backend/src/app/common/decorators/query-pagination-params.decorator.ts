@@ -2,6 +2,7 @@ import { PaginationParams } from '@backend/models';
 import { BadRequestException, createParamDecorator, ExecutionContext } from '@nestjs/common';
 import { ApiQuery } from '@nestjs/swagger';
 import { PAGINATION_QUERY_PAGE_KEY, PAGINATION_QUERY_PAGE_SIZE_KEY } from '@shared/api-interfaces';
+import { isDefined, isUndefined } from '@shared/common';
 import { FastifyRequest } from 'fastify';
 
 export const PAGINATION_DEFAULT_PAGE_SIZE = 20;
@@ -16,8 +17,8 @@ const QueryPaginationParamsDecorator = createParamDecorator<undefined, Paginatio
     const pageParam = queryParams[PAGINATION_QUERY_PAGE_KEY];
     const pageSizeParam = queryParams[PAGINATION_QUERY_PAGE_SIZE_KEY];
 
-    const page = pageParam === undefined ? 1 : parseInt(pageParam, 10);
-    const pageSize = pageSizeParam === undefined ? PAGINATION_DEFAULT_PAGE_SIZE : parseInt(pageSizeParam, 10);
+    const page = isUndefined(pageParam) ? 1 : parseInt(pageParam, 10);
+    const pageSize = isUndefined(pageSizeParam) ? PAGINATION_DEFAULT_PAGE_SIZE : parseInt(pageSizeParam, 10);
 
     if (isNaN(page) || page < 1) {
       throw new BadRequestException(`Invalid ${PAGINATION_QUERY_PAGE_KEY} parameter`);
@@ -39,7 +40,7 @@ const QueryPaginationParamsDecorator = createParamDecorator<undefined, Paginatio
 
 export function QueryPaginationParams(): ParameterDecorator {
   return (target: object, propertyKey: string | symbol | undefined, parameterIndex: number): void => {
-    if (propertyKey === undefined) {
+    if (isUndefined(propertyKey)) {
       return;
     }
 
@@ -49,7 +50,7 @@ export function QueryPaginationParams(): ParameterDecorator {
 
     const descriptor = Object.getOwnPropertyDescriptor(target, propertyKey);
 
-    if (descriptor !== undefined) {
+    if (isDefined(descriptor)) {
       const queryPageDecorator = ApiQuery({
         name: PAGINATION_QUERY_PAGE_KEY,
         schema: { type: 'integer', minimum: 1 },

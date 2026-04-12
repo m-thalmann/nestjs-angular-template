@@ -6,6 +6,7 @@ import {
 import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { EMAIL_UNVERIFIED_MESSAGE } from '@shared/api-interfaces';
+import { isUndefined } from '@shared/common';
 import { FastifyRequest } from 'fastify';
 import { AuthTokenService } from '../tokens/auth-token.service';
 
@@ -20,7 +21,7 @@ export class AuthGuard implements CanActivate {
     const request = context.switchToHttp().getRequest<FastifyRequest>();
     const token = this.extractTokenFromHeader(request);
 
-    if (token === undefined) {
+    if (isUndefined(token)) {
       if (this.isPublicRequest(context)) {
         return true;
       }

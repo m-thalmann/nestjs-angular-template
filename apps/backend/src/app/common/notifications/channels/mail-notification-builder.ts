@@ -1,4 +1,5 @@
 import { ISendMailOptions } from '@nestjs-modules/mailer';
+import { isString } from '@shared/common';
 
 interface ActionLine {
   actionText: string;
@@ -34,9 +35,7 @@ export class MailNotificationBuilder {
     return {
       subject: this._subject,
       template: 'mail-notification',
-      text: this._lines
-        .map((line) => (typeof line === 'string' ? line : `${line.actionText}: ${line.actionUrl}`))
-        .join('\n'),
+      text: this._lines.map((line) => (isString(line) ? line : `${line.actionText}: ${line.actionUrl}`)).join('\n'),
       context: {
         lines: this._lines,
       },

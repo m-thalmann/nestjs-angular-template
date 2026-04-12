@@ -4,6 +4,7 @@ import { User } from '@backend/user';
 import { BadRequestException, NotFoundException, Type } from '@nestjs/common';
 import { ModuleRef } from '@nestjs/core';
 import { Test } from '@nestjs/testing';
+import { isDefined, isUndefined } from '@shared/common';
 import { DataSource } from 'typeorm';
 import { createMockUser } from '../../features/user/testing';
 import { ResolveEntity, ResolveEntityOptions } from './resolve-entity.decorator';
@@ -21,14 +22,15 @@ describe('ResolveEntity', () => {
 
     const requestParams: Record<string, string> = {};
 
-    if (paramValue !== undefined) {
+    if (isDefined(paramValue)) {
       requestParams[paramName] = paramValue;
     }
 
     const mockExecutionContext = createMockExecutionContext({ requestParams });
 
-    const decorator =
-      resolveEntityOptions === undefined ? ResolveEntity(paramName) : ResolveEntity(paramName, resolveEntityOptions);
+    const decorator = isUndefined(resolveEntityOptions)
+      ? ResolveEntity(paramName)
+      : ResolveEntity(paramName, resolveEntityOptions);
 
     return await executeParamDecorator(decorator, {
       executionContext: mockExecutionContext,

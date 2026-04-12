@@ -1,6 +1,6 @@
 import { User, USER_PERMISSIONS } from '@backend/user';
 import { Role } from '@shared/api-interfaces';
-import { ObjectValues } from '@shared/common';
+import { isUndefined, ObjectValues } from '@shared/common';
 import { PermissionDefinition } from './permission-definition.model';
 
 const PERMISSIONS = {
@@ -53,7 +53,7 @@ export function hasPermission(user: User, permission: Permission, entity?: unkno
     return true;
   }
 
-  if (entity === undefined) {
+  if (isUndefined(entity)) {
     return true; // just checking if the user has the permission, not if they have it for a specific entity
   }
 

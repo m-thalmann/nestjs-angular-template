@@ -1,6 +1,7 @@
 import { User } from '@backend/user';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { Role } from '@shared/api-interfaces';
+import { isNull } from '@shared/common';
 import * as argon2 from 'argon2';
 import { CreateUserDto } from '../user/dto/create-user.dto';
 import { UserService } from '../user/user.service';
@@ -13,7 +14,7 @@ export class AuthService {
   async loginUser(email: string, password: string): Promise<User> {
     const user = await this.userService.findOneByEmail(email);
 
-    if (user === null) {
+    if (isNull(user)) {
       throw new UnauthorizedException();
     }
 

@@ -1,6 +1,7 @@
 import { ExecutionContext, PipeTransform, Type } from '@nestjs/common';
 import { PARAMTYPES_METADATA, ROUTE_ARGS_METADATA } from '@nestjs/common/constants';
 import { ModuleRef } from '@nestjs/core';
+import { isUndefined } from '@shared/common';
 
 export async function executeParamDecorator<TParam = unknown>(
   decorator: ParameterDecorator,
@@ -27,7 +28,7 @@ export async function executeParamDecorator<TParam = unknown>(
   >;
 
   const meta = Object.values(argsMetadata)[0];
-  if (meta === undefined) {
+  if (isUndefined(meta)) {
     throw new Error('No route argument metadata found for the decorated parameter');
   }
 
@@ -38,7 +39,7 @@ export async function executeParamDecorator<TParam = unknown>(
     let pipe: PipeTransform;
 
     if (typeof pipeOrClass === 'function') {
-      if (moduleRef === undefined) {
+      if (isUndefined(moduleRef)) {
         throw new Error(`The moduleRef must be provided to instantiate pipe of type ${pipeOrClass.name}.`);
       }
 

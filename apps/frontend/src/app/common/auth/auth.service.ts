@@ -4,7 +4,7 @@ import { AuthDataService } from '@frontend/infrastructure';
 import { StorageService } from '@frontend/services';
 import { getApiErrorMessage, Logger } from '@frontend/util';
 import { DetailedUser, LoginRequest, SignUpRequest, SuccessfulAuth } from '@shared/api-interfaces';
-import { getErrorMessage } from '@shared/common';
+import { getErrorMessage, isNotNull, isNull } from '@shared/common';
 import { BehaviorSubject, combineLatest, distinctUntilChanged, filter, firstValueFrom, map, shareReplay } from 'rxjs';
 
 @Injectable({
@@ -27,7 +27,7 @@ export class AuthService {
 
   readonly isAuthenticated$ = combineLatest([this.isInitialized$, this._authUser$]).pipe(
     filter(([isInitialized]) => isInitialized),
-    map(([, user]) => user !== null),
+    map(([, user]) => isNotNull(user)),
     distinctUntilChanged(),
     shareReplay({ refCount: false, bufferSize: 1 }),
   );
@@ -43,7 +43,7 @@ export class AuthService {
   }
 
   async initialize(): Promise<void> {
-    if (this.getRefreshToken() === null) {
+    if (isNull(this.getRefreshToken())) {
       this.deleteStoredTokens();
       this._isInitialized$.next(true);
       return;

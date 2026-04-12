@@ -3,6 +3,7 @@ import { UniqueValidator } from '@backend/validation';
 import { Injectable } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { InjectRepository } from '@nestjs/typeorm';
+import { isDefined } from '@shared/common';
 import { FindManyOptions, Repository } from 'typeorm';
 import { AuthTokenService } from '../auth/tokens/auth-token.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -55,10 +56,10 @@ export class UserService {
   }
 
   async patch(user: User, data: PatchUserDto): Promise<User> {
-    const emailUpdated = data.email !== undefined && user.email !== data.email;
-    const passwordUpdated = data.password !== undefined;
+    const emailUpdated = isDefined(data.email) && user.email !== data.email;
+    const passwordUpdated = isDefined(data.password);
 
-    if (data.email !== undefined && data.email !== user.email) {
+    if (isDefined(data.email) && data.email !== user.email) {
       await this.uniqueValidator.validateProperty({
         entityClass: User,
         column: 'email',
@@ -79,7 +80,7 @@ export class UserService {
       this.eventEmitter.emit(UserEmailUpdatedEvent.ID, new UserEmailUpdatedEvent(updatedUser));
     }
 
-    if (emailUpdated || passwordUpdated || data.role !== undefined) {
+    if (emailUpdated || passwordUpdated || isDefined(data.role)) {
       await this.authTokenService.deleteAllForUser(updatedUser);
     }
 

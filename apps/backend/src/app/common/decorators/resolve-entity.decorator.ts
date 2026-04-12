@@ -10,6 +10,7 @@ import {
 } from '@nestjs/common';
 import { PARAMTYPES_METADATA } from '@nestjs/common/constants';
 import { ApiParam } from '@nestjs/swagger';
+import { isDefined, isNull, isUndefined } from '@shared/common';
 import { DataSource, FindOptionsWhere, getMetadataArgsStorage, ObjectLiteral } from 'typeorm';
 
 export interface ResolveEntityOptions {
@@ -43,7 +44,7 @@ const EntityParamDecorator = createParamDecorator(
     const request = ctx.switchToHttp().getRequest<{ params?: Record<string, string | undefined> }>();
     const value = request.params?.[paramKey];
 
-    if (value === undefined) {
+    if (isUndefined(value)) {
       throw new BadRequestException(`Missing route param: ${paramKey}`);
     }
 
@@ -60,7 +61,7 @@ class ResolveEntityPipe<TEntity extends ObjectLiteral> implements PipeTransform<
     const where: FindOptionsWhere<unknown> = { [entityKey]: paramValue };
     const entity = await repository.findOneBy(where);
 
-    if (entity === null) {
+    if (isNull(entity)) {
       throw new NotFoundException();
     }
 
@@ -84,7 +85,7 @@ export function ResolveEntity(paramKey: string, options?: ResolveEntityOptions):
   const { entityKey = paramKey, checkPermissions = true } = options ?? {};
 
   return (target: object, propertyKey: string | symbol | undefined, parameterIndex: number): void => {
-    if (propertyKey === undefined) {
+    if (isUndefined(propertyKey)) {
       return;
     }
 
@@ -92,7 +93,7 @@ export function ResolveEntity(paramKey: string, options?: ResolveEntityOptions):
     const paramTypes = Reflect.getMetadata(PARAMTYPES_METADATA, target, propertyKey) as Array<unknown> | undefined;
     const entityType = paramTypes?.[parameterIndex] as Type<ObjectLiteral> | undefined;
 
-    if (entityType === undefined || typeof entityType !== 'function') {
+    if (isUndefined(entityType) || typeof entityType !== 'function') {
       throw new Error(
         `Unable to determine the entity type for parameter at index ${parameterIndex} of ${target.constructor.name} -> ${String(propertyKey)}. Make sure to provide an explicit entity type annotation`,
       );
@@ -120,7 +121,7 @@ export function ResolveEntity(paramKey: string, options?: ResolveEntityOptions):
     // add openapi parameter decorator
     const descriptor = Object.getOwnPropertyDescriptor(target, propertyKey);
 
-    if (descriptor !== undefined) {
+    if (isDefined(descriptor)) {
       const apiParamDecorator = ApiParam({ name: paramKey, required: true, type: String });
 
       apiParamDecorator(target, propertyKey, descriptor);

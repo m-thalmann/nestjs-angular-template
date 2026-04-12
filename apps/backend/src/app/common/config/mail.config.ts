@@ -1,4 +1,5 @@
 import { registerAs } from '@nestjs/config';
+import { isUndefined } from '@shared/common';
 
 interface BaseMailConfig {
   type: 'log' | 'smtp';
@@ -27,7 +28,7 @@ export const mailConfigDefinition = registerAs<MailConfig>('mail', () => {
   const fromAddress = process.env.MAIL_FROM_ADDRESS;
   const fromName = process.env.MAIL_FROM_NAME;
 
-  if (fromAddress === undefined || fromName === undefined) {
+  if (isUndefined(fromAddress) || isUndefined(fromName)) {
     throw new Error('Invalid mail configuration: fromAddress and fromName are required');
   }
 
@@ -49,7 +50,7 @@ export const mailConfigDefinition = registerAs<MailConfig>('mail', () => {
   const password = process.env.MAIL_PASSWORD;
   const secure = process.env.MAIL_SECURE === 'true';
 
-  if (host === undefined || isNaN(port) || username === undefined || password === undefined) {
+  if (isUndefined(host) || isNaN(port) || isUndefined(username) || isUndefined(password)) {
     throw new Error('Invalid mail configuration');
   }
 

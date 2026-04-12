@@ -1,4 +1,5 @@
 import { registerAs } from '@nestjs/config';
+import { isUndefined } from '@shared/common';
 
 const DEFAULT_PORT = 3000;
 const DEFAULT_BASE_PATH = '/api';
@@ -20,7 +21,7 @@ export interface AppConfig {
 export const appConfigDefinition = registerAs<AppConfig>('app', () => {
   const secret = process.env.APP_SECRET;
 
-  if (secret === undefined) {
+  if (isUndefined(secret)) {
     throw new Error('APP_SECRET environment variable is missing');
   }
 
@@ -29,7 +30,7 @@ export const appConfigDefinition = registerAs<AppConfig>('app', () => {
   }
 
   return {
-    port: process.env.APP_PORT === undefined ? DEFAULT_PORT : parseInt(process.env.APP_PORT, 10),
+    port: isUndefined(process.env.APP_PORT) ? DEFAULT_PORT : parseInt(process.env.APP_PORT, 10),
     host: process.env.APP_HOST ?? 'localhost',
     basePath: process.env.APP_BASE_PATH ?? DEFAULT_BASE_PATH,
     frontendUrl: process.env.APP_FRONTEND_URL ?? 'http://localhost:4200/',

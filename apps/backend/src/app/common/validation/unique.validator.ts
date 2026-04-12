@@ -1,4 +1,5 @@
 import { Injectable, UnprocessableEntityException } from '@nestjs/common';
+import { isString, isUndefined } from '@shared/common';
 import {
   registerDecorator,
   ValidationArguments,
@@ -56,8 +57,8 @@ export class UniqueValidator implements ValidatorConstraintInterface {
     const propertyName = options?.displayName ?? options?.column ?? args.property;
     let entityName = options?.entityDisplayName;
 
-    if (entityName === undefined) {
-      if (typeof EntityClass === 'object' && 'name' in EntityClass && typeof EntityClass.name === 'string') {
+    if (isUndefined(entityName)) {
+      if (typeof EntityClass === 'object' && 'name' in EntityClass && isString(EntityClass.name)) {
         entityName = EntityClass.name;
       } else {
         entityName = 'Entity';

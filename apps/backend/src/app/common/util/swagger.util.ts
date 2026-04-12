@@ -1,6 +1,7 @@
 import { PaginationMetaDto } from '@backend/models';
 import { getSchemaPath } from '@nestjs/swagger';
 import { SchemaObject } from '@nestjs/swagger/dist/interfaces/open-api-spec.interface';
+import { isString } from '@shared/common';
 
 export function getResponseSchema(
   // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
@@ -9,7 +10,7 @@ export function getResponseSchema(
 ): SchemaObject {
   let schema = undefined;
 
-  if (typeof dto === 'string') {
+  if (isString(dto)) {
     schema = { type: dto, nullable: options?.nullable, description: options?.description, example: options?.example };
   } else if (options?.nullable) {
     schema = {

@@ -1,6 +1,7 @@
 import { User } from '@backend/user';
 import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
+import { isUndefined } from '@shared/common';
 import { FastifyRequest } from 'fastify';
 import { HAS_PERMISSION_DECORATOR_KEY, PERMISSION_FAIL_MODE_KEY, PermissionFailMode } from './has-permission.decorator';
 import { MissingPermissionException } from './missing-permission.exception';
@@ -30,14 +31,14 @@ export class HasPermissionsGuard implements CanActivate {
       this.reflector.get<PermissionFailMode | undefined>(PERMISSION_FAIL_MODE_KEY, context.getHandler()) ??
       PermissionFailMode.Forbidden;
 
-    if (requiredPermission === undefined) {
+    if (isUndefined(requiredPermission)) {
       // no permissions required
       return true;
     }
 
     const user = request.user;
 
-    if (user === undefined) {
+    if (isUndefined(user)) {
       throw new UnauthorizedException('User must be authenticated to check permissions');
     }
 

@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Logger } from '@frontend/util';
-import { getErrorMessage } from '@shared/common';
+import { getErrorMessage, isNotNull } from '@shared/common';
 import { filter, fromEvent, map, Observable, shareReplay, startWith } from 'rxjs';
 
 const PREFIX = 'APP_';
@@ -55,7 +55,7 @@ export class StorageService {
   }
 
   protected parseValue<T>(key: string, value: string | null, defaultValue: T | null = null): T | null {
-    if (value !== null) {
+    if (isNotNull(value)) {
       try {
         return JSON.parse(value) as T;
       } catch (e) {

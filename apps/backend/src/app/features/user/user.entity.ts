@@ -1,4 +1,5 @@
 import { Role } from '@shared/api-interfaces';
+import { isNotNull } from '@shared/common';
 import * as argon2 from 'argon2';
 import {
   BeforeInsert,
@@ -42,7 +43,7 @@ export class User {
   declare updatedAt: Date;
 
   get isEmailVerified(): boolean {
-    return this.emailVerifiedAt !== null;
+    return isNotNull(this.emailVerifiedAt);
   }
 
   @BeforeInsert()

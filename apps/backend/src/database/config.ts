@@ -1,3 +1,4 @@
+import { isUndefined } from '@shared/common';
 import { resolve } from 'path';
 
 export type DatabaseConfig = ServerDatabaseConfig | SqliteDatabaseConfig;
@@ -31,24 +32,24 @@ export function buildDatabaseConfig(projectRoot: string): DatabaseConfig {
   // TODO: are migrations needed here?
   // const migrations = [resolve(__dirname, 'migrations', '*.js')];
 
-  if (database === undefined) {
+  if (isUndefined(database)) {
     throw new Error('DATABASE_DATABASE is not configured');
   }
 
   if (type === 'mariadb' || type === 'mysql' || type === 'postgres') {
-    if (host === undefined) {
+    if (isUndefined(host)) {
       throw new Error('DATABASE_HOST is not configured');
     }
 
-    if (port === undefined) {
+    if (isUndefined(port)) {
       throw new Error('DATABASE_PORT is not configured');
     }
 
-    if (username === undefined) {
+    if (isUndefined(username)) {
       throw new Error('DATABASE_USERNAME is not configured');
     }
 
-    if (password === undefined) {
+    if (isUndefined(password)) {
       throw new Error('DATABASE_PASSWORD is not configured');
     }
 
