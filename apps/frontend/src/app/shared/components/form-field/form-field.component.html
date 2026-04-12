@@ -1,0 +1,9 @@
+<label [for]="id">{{ label() }}</label>
+
+<ng-container *ngTemplateOutlet="inputTemplate(); context: { id: id }" />
+
+@if (control(); as control) {
+  @if (control.invalid && control.touched && control.dirty) {
+    <p-message severity="error" size="small" variant="simple">{{ getControlErrorMessage(control.errors) }}</p-message>
+  }
+}

@@ -44,6 +44,8 @@ describe('ThemeService', () => {
       providers: [ThemeServiceTestClass, { provide: StorageService, useValue: mockStorageService }],
     });
     service = TestBed.inject(ThemeServiceTestClass);
+
+    service.initialize();
   });
 
   afterEach(() => {
@@ -90,7 +92,7 @@ describe('ThemeService', () => {
     });
   });
 
-  describe('theme application', () => {
+  describe('initialize', () => {
     it('should apply the correct theme class to document element', async () => {
       expect(document.documentElement.classList.contains(DARK_THEME_CLASS)).toBe(false);
 

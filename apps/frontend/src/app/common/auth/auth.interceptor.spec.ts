@@ -9,11 +9,11 @@ import {
 } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { USE_REFRESH_TOKEN_HTTP_CONTEXT } from '@frontend/infrastructure';
+import { ApiHttpContext } from '@frontend/infrastructure';
 import { getApiErrorMessage } from '@frontend/util';
 import { EMAIL_UNVERIFIED_MESSAGE } from '@shared/api-interfaces';
 import { firstValueFrom, Observable, of, throwError } from 'rxjs';
-import { AuthInterceptor, REQUEST_REFRESH_TRIED_CONTEXT } from './auth.interceptor';
+import { AuthInterceptor } from './auth.interceptor';
 import { AuthService } from './auth.service';
 
 jest.mock('@frontend/util', () => ({
@@ -98,6 +98,17 @@ describe('AuthInterceptor', () => {
       expect(interceptor.addTokenToRequest).not.toHaveBeenCalled();
     });
 
+    it('should pass through requests with NoAuth context without adding a token', async () => {
+      const context = new HttpContext().set(ApiHttpContext.NoAuth, true);
+      const request = createApiRequest('/api/test', context);
+      const handler = createMockHandler();
+
+      await firstValueFrom(interceptor.intercept(request, handler));
+
+      expect(handler.handle).toHaveBeenCalledWith(request);
+      expect(interceptor.addTokenToRequest).not.toHaveBeenCalled();
+    });
+
     it('should add the access token for api requests', async () => {
       const request = createApiRequest();
       const handler = createMockHandler();
@@ -109,8 +120,8 @@ describe('AuthInterceptor', () => {
       expect(interceptor.addTokenToRequest).toHaveBeenCalledWith(request, 'my-access-token');
     });
 
-    it('should use the refresh token when USE_REFRESH_TOKEN_HTTP_CONTEXT is set', async () => {
-      const context = new HttpContext().set(USE_REFRESH_TOKEN_HTTP_CONTEXT, true);
+    it('should use the refresh token when ApiHttpContext.UseRefreshToken is set', async () => {
+      const context = new HttpContext().set(ApiHttpContext.UseRefreshToken, true);
       const request = createApiRequest('/api/auth/refresh', context);
       const handler = createMockHandler();
       (mockAuthService.getRefreshToken as jest.Mock).mockReturnValue('my-refresh-token');
@@ -133,13 +144,41 @@ describe('AuthInterceptor', () => {
     });
 
     it('should skip error handling and return directly for retried requests', async () => {
-      const context = new HttpContext().set(REQUEST_REFRESH_TRIED_CONTEXT, true);
+      const context = new HttpContext().set(ApiHttpContext.RequestRefreshTried, true);
       const request = createApiRequest('/api/test', context);
       const handler = createMockHandler();
 
       await firstValueFrom(interceptor.intercept(request, handler));
 
       expect(handler.handle).toHaveBeenCalledTimes(1);
+    });
+
+    it('should skip error handling and return directly for refresh token requests', async () => {
+      const context = new HttpContext().set(ApiHttpContext.UseRefreshToken, true);
+      const request = createApiRequest('/api/auth/refresh', context);
+      const error = createUnauthorizedError();
+      const handler = createMockHandler(throwError(() => error));
+      // @ts-expect-error type mismatch
+      interceptor.isUnauthorizedError = jest.fn().mockReturnValue(true);
+      interceptor.isEmailUnverifiedError = jest.fn().mockReturnValue(false);
+      interceptor.refreshTokens = jest.fn();
+
+      await expect(firstValueFrom(interceptor.intercept(request, handler))).rejects.toBe(error);
+      expect(interceptor.refreshTokens).not.toHaveBeenCalled();
+    });
+
+    it('should skip error handling and return directly for requests with ApiHttpContext.SkipRefreshingTokenOnUnauthorized context', async () => {
+      const context = new HttpContext().set(ApiHttpContext.SkipRefreshingTokenOnUnauthorized, true);
+      const request = createApiRequest('/api/test', context);
+      const error = createUnauthorizedError();
+      const handler = createMockHandler(throwError(() => error));
+      // @ts-expect-error type mismatch
+      interceptor.isUnauthorizedError = jest.fn().mockReturnValue(true);
+      interceptor.isEmailUnverifiedError = jest.fn().mockReturnValue(false);
+      interceptor.refreshTokens = jest.fn();
+
+      await expect(firstValueFrom(interceptor.intercept(request, handler))).rejects.toBe(error);
+      expect(interceptor.refreshTokens).not.toHaveBeenCalled();
     });
 
     it('should rethrow non-401 errors', async () => {
@@ -161,20 +200,6 @@ describe('AuthInterceptor', () => {
       // @ts-expect-error type mismatch
       interceptor.isUnauthorizedError = jest.fn().mockReturnValue(true);
       interceptor.isEmailUnverifiedError = jest.fn().mockReturnValue(true);
-      interceptor.refreshTokens = jest.fn();
-
-      await expect(firstValueFrom(interceptor.intercept(request, handler))).rejects.toBe(error);
-      expect(interceptor.refreshTokens).not.toHaveBeenCalled();
-    });
-
-    it('should rethrow 401 errors on refresh token requests without refreshing', async () => {
-      const context = new HttpContext().set(USE_REFRESH_TOKEN_HTTP_CONTEXT, true);
-      const request = createApiRequest('/api/auth/refresh', context);
-      const error = createUnauthorizedError();
-      const handler = createMockHandler(throwError(() => error));
-      // @ts-expect-error type mismatch
-      interceptor.isUnauthorizedError = jest.fn().mockReturnValue(true);
-      interceptor.isEmailUnverifiedError = jest.fn().mockReturnValue(false);
       interceptor.refreshTokens = jest.fn();
 
       await expect(firstValueFrom(interceptor.intercept(request, handler))).rejects.toBe(error);
@@ -217,14 +242,14 @@ describe('AuthInterceptor', () => {
       expect(handler.handle).toHaveBeenCalledTimes(1);
     });
 
-    it('should set REQUEST_REFRESH_TRIED_CONTEXT on the retry request', async () => {
+    it('should set ApiHttpContext.RequestRefreshTried on the retry request', async () => {
       const request = createApiRequest();
       const error = createUnauthorizedError();
       const handler = createMockHandler();
       handler.handle
         .mockImplementationOnce(() => throwError(() => error))
         .mockImplementationOnce((req: HttpRequest<unknown>) => {
-          expect(req.context.get(REQUEST_REFRESH_TRIED_CONTEXT)).toBe(true);
+          expect(req.context.get(ApiHttpContext.RequestRefreshTried)).toBe(true);
           return of(new HttpResponse({ status: 200 }));
         });
       // @ts-expect-error type mismatch

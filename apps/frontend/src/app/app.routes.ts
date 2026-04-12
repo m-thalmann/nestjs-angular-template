@@ -1,6 +1,8 @@
 import { Route } from '@angular/router';
+import { LayoutComponent } from '@frontend/components';
+import { LoginComponent } from './features/auth/login/login.component';
+import { AuthLayoutComponent } from './features/auth/shared/auth-layout/auth-layout.component';
 import { DashboardComponent } from './features/dashboard/dashboard.component';
-import { LayoutComponent } from './shared/components/layout/layout.component';
 
 export const DEFAULT_ROUTE = '/dashboard';
 
@@ -15,6 +17,17 @@ export const appRoutes: Array<Route> = [
       },
 
       { path: '', pathMatch: 'full', redirectTo: 'dashboard' },
+    ],
+  },
+
+  {
+    path: '',
+    component: AuthLayoutComponent,
+    children: [
+      {
+        path: 'login',
+        component: LoginComponent,
+      },
     ],
   },
 ];

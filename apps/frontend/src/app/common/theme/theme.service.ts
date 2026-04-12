@@ -1,4 +1,4 @@
-import { inject, Injectable } from '@angular/core';
+import { DestroyRef, inject, Injectable } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { StorageService } from '@frontend/services';
 import { distinctUntilChanged, fromEvent, map, merge, shareReplay, startWith, Subject, switchMap } from 'rxjs';
@@ -12,6 +12,7 @@ export class ThemeService {
   protected static readonly DARK_SCHEME_MEDIA_QUERY = '(prefers-color-scheme: dark)';
 
   private readonly storageService = inject(StorageService);
+  private readonly destroyRef = inject(DestroyRef);
 
   protected readonly navigatorTheme$ = fromEvent<MediaQueryList>(
     window.matchMedia(ThemeService.DARK_SCHEME_MEDIA_QUERY),
@@ -29,12 +30,12 @@ export class ThemeService {
     this.storageService.observe$<Theme>(ThemeService.THEME_STORAGE_KEY, Theme.System),
   ).pipe(shareReplay({ bufferSize: 1, refCount: true }));
 
-  constructor() {
+  initialize(): void {
     this.currentTheme$
       .pipe(
         switchMap((theme) => (theme === Theme.System ? this.navigatorTheme$ : [theme])),
         distinctUntilChanged(),
-        takeUntilDestroyed(),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe((theme) => {
         document.documentElement.classList.toggle(DARK_THEME_CLASS, theme === Theme.Dark);

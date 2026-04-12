@@ -1,0 +1,62 @@
+<app-auth-layout-card title="Welcome back" subtitle="Please sign in to continue">
+  <form [formGroup]="form">
+    <app-form-field label="Email Address" [control]="form.controls.email">
+      <ng-template #input let-fieldId="id">
+        <p-iconfield>
+          <p-inputicon class="pi pi-envelope" />
+          <input
+            type="email"
+            variant="filled"
+            placeholder="name@example.com"
+            pInputText
+            formControlName="email"
+            [id]="fieldId"
+            [fluid]="true"
+          />
+        </p-iconfield>
+      </ng-template>
+    </app-form-field>
+
+    <app-form-field label="Password" [control]="form.controls.password">
+      <ng-template #input let-fieldId="id">
+        <p-iconfield>
+          <p-inputicon class="pi pi-lock" />
+          <p-password
+            autocomplete="off"
+            variant="filled"
+            placeholder="●●●●●●●●"
+            formControlName="password"
+            [inputId]="fieldId"
+            [fluid]="true"
+            [toggleMask]="true"
+            [feedback]="false"
+            (keyup.enter)="doLogin()"
+          />
+        </p-iconfield>
+      </ng-template>
+    </app-form-field>
+
+    <a routerLink="/reset-password" class="link forgot-password-link">Forgot your password?</a>
+
+    <p-button
+      label="Sign In"
+      icon="pi pi-user"
+      class="login-button"
+      [fluid]="true"
+      [disabled]="loggingIn() || form.invalid"
+      [loading]="loggingIn()"
+      (click)="doLogin()"
+    />
+
+    @if (errorMessage(); as message) {
+      <p-message severity="error">{{ message }}</p-message>
+    }
+  </form>
+
+  <p-divider />
+
+  <span>
+    Don't have an account?
+    <a routerLink="/sign-up" class="link">Create an account</a>
+  </span>
+</app-auth-layout-card>

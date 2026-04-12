@@ -1,5 +1,4 @@
 import {
-  HttpContextToken,
   HttpErrorResponse,
   HttpEvent,
   HttpHandler,
@@ -8,13 +7,12 @@ import {
   HttpStatusCode,
 } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { USE_REFRESH_TOKEN_HTTP_CONTEXT } from '@frontend/infrastructure';
+import { ApiHttpContext } from '@frontend/infrastructure';
 import { getApiErrorMessage } from '@frontend/util';
 import { EMAIL_UNVERIFIED_MESSAGE } from '@shared/api-interfaces';
+import { isNull } from '@shared/common';
 import { catchError, finalize, from, Observable, shareReplay, switchMap, take, throwError } from 'rxjs';
 import { AuthService } from './auth.service';
-
-export const REQUEST_REFRESH_TRIED_CONTEXT = new HttpContextToken<boolean>(() => false);
 
 @Injectable()
 export class AuthInterceptor implements HttpInterceptor {
@@ -23,23 +21,25 @@ export class AuthInterceptor implements HttpInterceptor {
   protected refreshTokens$: Observable<void> | null = null;
 
   intercept(request: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
-    if (!request.url.startsWith('/api')) {
+    if (!request.url.startsWith('/api') || request.context.get(ApiHttpContext.NoAuth)) {
       return next.handle(request);
     }
 
-    const useRefreshToken = request.context.get(USE_REFRESH_TOKEN_HTTP_CONTEXT);
+    const refreshTried = request.context.get(ApiHttpContext.RequestRefreshTried);
+    const useRefreshToken = request.context.get(ApiHttpContext.UseRefreshToken);
+    const noRefreshOnUnauthorized = request.context.get(ApiHttpContext.SkipRefreshingTokenOnUnauthorized);
 
     const token = useRefreshToken ? this.authService.getRefreshToken() : this.authService.getAccessToken();
 
     const authenticatedRequest = token ? this.addTokenToRequest(request, token) : request;
 
-    if (request.context.get(REQUEST_REFRESH_TRIED_CONTEXT)) {
+    if (refreshTried || useRefreshToken || noRefreshOnUnauthorized) {
       return next.handle(authenticatedRequest);
     }
 
     return next.handle(authenticatedRequest).pipe(
       catchError((error: unknown) => {
-        if (!this.isUnauthorizedError(error) || this.isEmailUnverifiedError(error) || useRefreshToken) {
+        if (!this.isUnauthorizedError(error) || this.isEmailUnverifiedError(error)) {
           return throwError(() => error);
         }
 
@@ -48,12 +48,12 @@ export class AuthInterceptor implements HttpInterceptor {
           switchMap(() => {
             const newToken = this.authService.getAccessToken();
 
-            if (newToken === null) {
+            if (isNull(newToken)) {
               return throwError(() => error);
             }
 
             const retryRequest = this.addTokenToRequest(request, newToken);
-            retryRequest.context.set(REQUEST_REFRESH_TRIED_CONTEXT, true);
+            retryRequest.context.set(ApiHttpContext.RequestRefreshTried, true);
 
             return next.handle(retryRequest);
           }),
@@ -63,7 +63,7 @@ export class AuthInterceptor implements HttpInterceptor {
   }
 
   protected refreshTokens(): Observable<void> {
-    if (this.refreshTokens$ === null) {
+    if (isNull(this.refreshTokens$)) {
       this.refreshTokens$ = from(this.authService.refreshTokens()).pipe(
         catchError((refreshError: unknown) => {
           if (this.isUnauthorizedError(refreshError)) {

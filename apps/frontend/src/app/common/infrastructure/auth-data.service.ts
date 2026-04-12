@@ -11,7 +11,7 @@ import {
   VerifyEmailRequest,
 } from '@shared/api-interfaces';
 import { Observable } from 'rxjs';
-import { USE_REFRESH_TOKEN_HTTP_CONTEXT } from './use-refresh-token-http-context';
+import { ApiHttpContext } from './api-http-context';
 
 @Injectable({
   providedIn: 'root',
@@ -24,7 +24,9 @@ export class AuthDataService {
   }
 
   login(body: LoginRequest): Observable<ApiResponse<SuccessfulAuth>> {
-    return this.httpClient.post<ApiResponse<SuccessfulAuth>>('/api/auth/login', body);
+    return this.httpClient.post<ApiResponse<SuccessfulAuth>>('/api/auth/login', body, {
+      context: new HttpContext().set(ApiHttpContext.NoAuth, true),
+    });
   }
 
   signUp(body: SignUpRequest): Observable<ApiResponse<SuccessfulAuth>> {
@@ -35,12 +37,22 @@ export class AuthDataService {
     return this.httpClient.post<ApiResponse<SuccessfulAuth>>(
       '/api/auth/refresh',
       {},
-      { context: new HttpContext().set(USE_REFRESH_TOKEN_HTTP_CONTEXT, true) },
+      {
+        context: new HttpContext()
+          .set(ApiHttpContext.UseRefreshToken, true)
+          .set(ApiHttpContext.SkipRefreshingTokenOnUnauthorized, true),
+      },
     );
   }
 
   logout(): Observable<undefined> {
-    return this.httpClient.post<undefined>('/api/auth/logout', {});
+    return this.httpClient.post<undefined>(
+      '/api/auth/logout',
+      {},
+      {
+        context: new HttpContext().set(ApiHttpContext.SkipRefreshingTokenOnUnauthorized, true),
+      },
+    );
   }
 
   resetPassword(body: ResetPasswordRequest): Observable<undefined> {

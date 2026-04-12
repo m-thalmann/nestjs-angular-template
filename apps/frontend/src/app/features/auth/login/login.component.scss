@@ -1,0 +1,19 @@
+:host {
+  display: block;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 1em;
+
+  margin-top: 1em;
+}
+
+.forgot-password-link {
+  font-size: small;
+}
+
+p-divider {
+  margin: 1.5em 0;
+}

@@ -1,7 +1,8 @@
 import { HttpStatus, UnprocessableEntityException, ValidationError, ValidationPipe } from '@nestjs/common';
+import { ApiValidationErrors } from '@shared/api-interfaces';
 
 function buildValidationException(validationErrors: Array<ValidationError>): UnprocessableEntityException {
-  const errors = Object.fromEntries(
+  const errors: ApiValidationErrors<Record<string, unknown>> = Object.fromEntries(
     validationErrors.map((error) => {
       const field = error.property;
       const constraints = Object.values(error.constraints ?? {});

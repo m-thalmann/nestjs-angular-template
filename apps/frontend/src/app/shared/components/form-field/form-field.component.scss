@@ -1,0 +1,11 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5em;
+
+  label {
+    font-size: small;
+    letter-spacing: 1px;
+    font-weight: 500;
+  }
+}

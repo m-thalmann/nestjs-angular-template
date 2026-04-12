@@ -1,9 +1,10 @@
-import { EnvironmentProviders } from '@angular/core';
+import { EnvironmentProviders, inject, provideAppInitializer } from '@angular/core';
 import { definePreset } from '@primeuix/themes';
 import Aura from '@primeuix/themes/aura';
 import { AuraBaseDesignTokens } from '@primeuix/themes/aura/base';
 import { providePrimeNG } from 'primeng/config';
 import { DARK_THEME_CLASS } from './theme';
+import { ThemeService } from './theme.service';
 
 type PrimaryColor = keyof Omit<Required<Required<AuraBaseDesignTokens>['primitive']>, 'borderRadius'>;
 
@@ -31,8 +32,13 @@ function getAppTheme(primary: PrimaryColor): unknown {
   });
 }
 
-export function provideTheme(): EnvironmentProviders {
-  return providePrimeNG({
-    theme: { preset: getAppTheme('blue'), options: { darkModeSelector: `.${DARK_THEME_CLASS}` } },
-  });
+export function provideTheme(): Array<EnvironmentProviders> {
+  return [
+    providePrimeNG({
+      theme: { preset: getAppTheme('blue'), options: { darkModeSelector: `.${DARK_THEME_CLASS}` } },
+    }),
+    provideAppInitializer(() => {
+      inject(ThemeService).initialize();
+    }),
+  ];
 }
