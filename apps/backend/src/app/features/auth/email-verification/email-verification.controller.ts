@@ -7,7 +7,7 @@ import { VerifyEmailDto } from './dto/verify-email.dto';
 import { EmailVerificationService } from './email-verification.service';
 
 @Controller('auth/email-verification')
-@ApiAuth()
+@ApiAuth({ emailMustBeVerified: false })
 @ApiTags('Auth')
 export class EmailVerificationController {
   constructor(private readonly emailVerificationService: EmailVerificationService) {}

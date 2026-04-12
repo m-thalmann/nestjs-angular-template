@@ -8,7 +8,7 @@ export function ApiAuth(options?: {
   emailMustBeVerified?: boolean;
 }): ReturnType<typeof applyDecorators> {
   const refreshToken = options?.refreshToken ?? false;
-  const emailMustBeVerified = options?.emailMustBeVerified ?? false;
+  const emailMustBeVerified = options?.emailMustBeVerified ?? true;
 
   const decorators = [
     ApiBearerAuth(refreshToken ? 'RefreshToken' : 'AccessToken'),

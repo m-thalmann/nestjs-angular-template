@@ -41,7 +41,7 @@ export class AuthController {
     description: 'OK',
     schema: getResponseSchema(DetailedUserDto),
   })
-  @ApiAuth()
+  @ApiAuth({ emailMustBeVerified: false })
   async getAuthenticatedUser(@Auth('user') user: User): Promise<ApiResponse<DetailedUserDto>> {
     return {
       data: DetailedUserDto.fromEntity(user),
@@ -108,7 +108,7 @@ export class AuthController {
     description: 'OK',
     schema: getResponseSchema(SuccessfulAuthDto),
   })
-  @ApiAuth({ refreshToken: true })
+  @ApiAuth({ refreshToken: true, emailMustBeVerified: false })
   async refreshToken(
     @Auth('user') user: User,
     @Auth('authToken') authToken: AuthToken,
@@ -128,7 +128,7 @@ export class AuthController {
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Logs out the user' })
   @ApiNoContentResponse({ description: 'OK' })
-  @ApiAuth()
+  @ApiAuth({ emailMustBeVerified: false })
   async logout(@Auth('authToken') authToken: AuthToken): Promise<void> {
     await this.authTokenService.logoutToken(authToken);
   }

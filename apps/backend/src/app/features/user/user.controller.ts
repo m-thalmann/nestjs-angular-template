@@ -1,11 +1,5 @@
 import { Auth } from '@backend/auth';
-import {
-  ApiAuth,
-  ApiValidationErrorResponse,
-  EmailMustBeVerified,
-  QueryPaginationParams,
-  ResolveEntity,
-} from '@backend/decorators';
+import { ApiAuth, ApiValidationErrorResponse, QueryPaginationParams, ResolveEntity } from '@backend/decorators';
 import { type PaginationParams } from '@backend/models';
 import { HasPermission, Permission, PermissionFailMode } from '@backend/permissions';
 import { buildDtoArray, getResponseSchema } from '@backend/util';
@@ -28,7 +22,7 @@ import { User } from './user.entity';
 import { UserService } from './user.service';
 
 @Controller('users')
-@ApiAuth({ emailMustBeVerified: true })
+@ApiAuth()
 @ApiTags('Users')
 @ApiExtraModels(UserDto)
 export class UserController {
@@ -77,7 +71,6 @@ export class UserController {
 
   @Patch()
   @HasPermission(Permission.UpdateAuthUser)
-  @EmailMustBeVerified(false)
   @ApiOperation({ summary: 'Updates the authenticated user' })
   @ApiOkResponse({
     description: 'OK',
