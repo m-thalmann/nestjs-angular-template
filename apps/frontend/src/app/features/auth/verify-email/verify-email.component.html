@@ -1,0 +1,24 @@
+<app-auth-layout-card cardTitle="Verify Email">
+  <p>
+    We've sent a verification link to <strong>{{ authUser()?.email }}</strong
+    >. Please click the link to confirm your account and access the application.
+  </p>
+
+  <div class="resend">
+    Didn't receive the email?
+    <button class="link" [class.disabled]="resendingEmail()" (click)="resendVerificationEmail()">Resend Email</button>
+    @if (resendingEmail()) {
+      <i class="pi pi-spin pi-spinner resending-email-loader"></i>
+    }
+  </div>
+
+  <p-divider />
+
+  <p-button
+    label="Back to Login"
+    icon="pi pi-arrow-left"
+    severity="secondary"
+    [fluid]="true"
+    (onClick)="goBackToLogin()"
+  />
+</app-auth-layout-card>

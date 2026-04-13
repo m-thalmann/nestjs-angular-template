@@ -1,0 +1,17 @@
+:host {
+  display: block;
+}
+
+p {
+  color: var(--p-text-muted-color);
+
+  strong {
+    color: var(--p-text-color);
+    font-weight: 500;
+  }
+}
+
+.resending-email-loader {
+  font-size: 0.75em;
+  margin-left: 0.5em;
+}

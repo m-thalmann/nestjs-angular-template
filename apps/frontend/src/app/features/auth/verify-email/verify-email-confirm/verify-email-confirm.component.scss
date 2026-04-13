@@ -1,0 +1,13 @@
+:host {
+  display: block;
+}
+
+p {
+  color: var(--p-text-muted-color);
+}
+
+.verifying-loader {
+  font-size: 2.5rem;
+  margin-top: 1rem;
+  text-align: center;
+}

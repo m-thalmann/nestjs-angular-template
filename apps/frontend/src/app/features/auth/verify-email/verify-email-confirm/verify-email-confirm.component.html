@@ -1,0 +1,17 @@
+<app-auth-layout-card cardTitle="Verifying Email">
+  @if (errorMessage(); as message) {
+    <p-message severity="error">{{ message }}</p-message>
+
+    <p-divider />
+
+    <a routerLink="/verify-email" pButton severity="secondary" icon="pi pi-arrow-left" [fluid]="true">
+      <span pButtonLabel>Back</span>
+    </a>
+  } @else {
+    <p>Please wait while we are verifying your email...</p>
+
+    <div class="verifying-loader">
+      <i class="pi pi-spin pi-spinner verifying-loader"></i>
+    </div>
+  }
+</app-auth-layout-card>

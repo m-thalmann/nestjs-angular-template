@@ -1,10 +1,16 @@
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRouteSnapshot, Router, RouterStateSnapshot, UrlTree } from '@angular/router';
+import { DEFAULT_ROUTE } from '@frontend/constants';
 import { promiseTimesOut } from '@frontend/testing';
 import { DetailedUser, Role } from '@shared/api-interfaces';
 import { BehaviorSubject, firstValueFrom, Observable } from 'rxjs';
 import { AuthService } from '../auth.service';
-import { authGuard, ROUTE_AUTH_ROLES } from './auth.guard';
+import {
+  authGuard,
+  ROUTE_AUTH_ROLES,
+  ROUTE_EXPECTED_EMAIL_VERIFICATION_STATUS,
+  RouteExpectedEmailVerificationStatus,
+} from './auth.guard';
 
 function createActivatedRouteSnapshotMock(data: Record<string, unknown> = {}): ActivatedRouteSnapshot {
   // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
@@ -71,7 +77,10 @@ describe('authGuard', () => {
   });
 
   it('should return true if user is authenticated', async () => {
-    (mockAuthService.authUser$ as BehaviorSubject<DetailedUser>).next({ role: Role.User } as DetailedUser);
+    (mockAuthService.authUser$ as BehaviorSubject<DetailedUser>).next({
+      role: Role.User,
+      isEmailVerified: true,
+    } as DetailedUser);
     (mockAuthService.isInitialized$ as BehaviorSubject<boolean>).next(true);
 
     const route = createActivatedRouteSnapshotMock();
@@ -83,7 +92,10 @@ describe('authGuard', () => {
   });
 
   it('should return true if user has any of the required roles', async () => {
-    (mockAuthService.authUser$ as BehaviorSubject<DetailedUser>).next({ role: Role.Admin } as DetailedUser);
+    (mockAuthService.authUser$ as BehaviorSubject<DetailedUser>).next({
+      role: Role.Admin,
+      isEmailVerified: true,
+    } as DetailedUser);
     (mockAuthService.isInitialized$ as BehaviorSubject<boolean>).next(true);
 
     const route = createActivatedRouteSnapshotMock({
@@ -97,7 +109,10 @@ describe('authGuard', () => {
   });
 
   it('should redirect to login if user does not have any of the required roles', async () => {
-    (mockAuthService.authUser$ as BehaviorSubject<DetailedUser>).next({ role: Role.User } as DetailedUser);
+    (mockAuthService.authUser$ as BehaviorSubject<DetailedUser>).next({
+      role: Role.User,
+      isEmailVerified: true,
+    } as DetailedUser);
     (mockAuthService.isInitialized$ as BehaviorSubject<boolean>).next(true);
     (mockRouter.createUrlTree as jest.Mock).mockReturnValue({} as UrlTree);
 
@@ -116,8 +131,120 @@ describe('authGuard', () => {
     expect(result).toEqual({});
   });
 
+  it("should redirect to verify-email if user's email is not verified but route requires verified email", async () => {
+    (mockAuthService.authUser$ as BehaviorSubject<DetailedUser>).next({
+      role: Role.User,
+      isEmailVerified: false,
+    } as DetailedUser);
+    (mockAuthService.isInitialized$ as BehaviorSubject<boolean>).next(true);
+    (mockRouter.createUrlTree as jest.Mock).mockReturnValue({} as UrlTree);
+
+    const route = createActivatedRouteSnapshotMock({
+      [ROUTE_EXPECTED_EMAIL_VERIFICATION_STATUS]: RouteExpectedEmailVerificationStatus.Verified,
+    });
+    const state = createRouterStateSnapshotMock('/protected');
+
+    const result = await firstValueFrom(executeGuard(route, state));
+
+    expect(mockRouter.createUrlTree).toHaveBeenCalledWith(['/verify-email']);
+    expect(result).toEqual({});
+  });
+
+  it("should allow access if user's email is verified and route requires verified email", async () => {
+    (mockAuthService.authUser$ as BehaviorSubject<DetailedUser>).next({
+      role: Role.User,
+      isEmailVerified: true,
+    } as DetailedUser);
+    (mockAuthService.isInitialized$ as BehaviorSubject<boolean>).next(true);
+
+    const route = createActivatedRouteSnapshotMock({
+      [ROUTE_EXPECTED_EMAIL_VERIFICATION_STATUS]: RouteExpectedEmailVerificationStatus.Verified,
+    });
+    const state = createRouterStateSnapshotMock('/protected');
+
+    const result = await firstValueFrom(executeGuard(route, state));
+
+    expect(result).toBe(true);
+  });
+
+  it("should redirect to DEFAULT_ROUTE if user's email is verified but route requires unverified email", async () => {
+    (mockAuthService.authUser$ as BehaviorSubject<DetailedUser>).next({
+      role: Role.User,
+      isEmailVerified: true,
+    } as DetailedUser);
+    (mockAuthService.isInitialized$ as BehaviorSubject<boolean>).next(true);
+    (mockRouter.createUrlTree as jest.Mock).mockReturnValue({} as UrlTree);
+
+    const route = createActivatedRouteSnapshotMock({
+      [ROUTE_EXPECTED_EMAIL_VERIFICATION_STATUS]: RouteExpectedEmailVerificationStatus.Unverified,
+    });
+    const state = createRouterStateSnapshotMock('/protected');
+
+    const result = await firstValueFrom(executeGuard(route, state));
+
+    expect(mockRouter.createUrlTree).toHaveBeenCalledWith([DEFAULT_ROUTE]);
+    expect(result).toEqual({});
+  });
+
+  it("should allow access if user's email is not verified but route requires unverified email", async () => {
+    (mockAuthService.authUser$ as BehaviorSubject<DetailedUser>).next({
+      role: Role.User,
+      isEmailVerified: false,
+    } as DetailedUser);
+    (mockAuthService.isInitialized$ as BehaviorSubject<boolean>).next(true);
+
+    const route = createActivatedRouteSnapshotMock({
+      [ROUTE_EXPECTED_EMAIL_VERIFICATION_STATUS]: RouteExpectedEmailVerificationStatus.Unverified,
+    });
+    const state = createRouterStateSnapshotMock('/protected');
+
+    const result = await firstValueFrom(executeGuard(route, state));
+
+    expect(result).toBe(true);
+  });
+
+  it.each([true, false])(
+    'should allow access if route accepts any email verification status (email verified: %s)',
+    async (isEmailVerified) => {
+      (mockAuthService.authUser$ as BehaviorSubject<DetailedUser>).next({
+        role: Role.User,
+        isEmailVerified,
+      } as DetailedUser);
+      (mockAuthService.isInitialized$ as BehaviorSubject<boolean>).next(true);
+
+      const route = createActivatedRouteSnapshotMock({
+        [ROUTE_EXPECTED_EMAIL_VERIFICATION_STATUS]: RouteExpectedEmailVerificationStatus.Any,
+      });
+      const state = createRouterStateSnapshotMock('/protected');
+
+      const result = await firstValueFrom(executeGuard(route, state));
+
+      expect(result).toBe(true);
+    },
+  );
+
+  it('should default to requiring verified email if expected email verification status is not specified', async () => {
+    (mockAuthService.authUser$ as BehaviorSubject<DetailedUser>).next({
+      role: Role.User,
+      isEmailVerified: false,
+    } as DetailedUser);
+    (mockAuthService.isInitialized$ as BehaviorSubject<boolean>).next(true);
+    (mockRouter.createUrlTree as jest.Mock).mockReturnValue({} as UrlTree);
+
+    const route = createActivatedRouteSnapshotMock();
+    const state = createRouterStateSnapshotMock('/protected');
+
+    const result = await firstValueFrom(executeGuard(route, state));
+
+    expect(mockRouter.createUrlTree).toHaveBeenCalledWith(['/verify-email']);
+    expect(result).toEqual({});
+  });
+
   it('should not return if user is not initialized', async () => {
-    (mockAuthService.authUser$ as BehaviorSubject<DetailedUser>).next({ role: Role.User } as DetailedUser);
+    (mockAuthService.authUser$ as BehaviorSubject<DetailedUser>).next({
+      role: Role.User,
+      isEmailVerified: true,
+    } as DetailedUser);
     (mockAuthService.isInitialized$ as BehaviorSubject<boolean>).next(false);
 
     const route = createActivatedRouteSnapshotMock();
@@ -151,6 +278,23 @@ describe('authGuard', () => {
 
     expect(() => executeGuard(route, state)).toThrow(
       'Invalid auth roles configuration for route. Expected an array of Role values.',
+    );
+  });
+
+  it('should throw an error if expected email verification status is invalid', async () => {
+    (mockAuthService.authUser$ as BehaviorSubject<DetailedUser>).next({
+      role: Role.User,
+      isEmailVerified: true,
+    } as DetailedUser);
+    (mockAuthService.isInitialized$ as BehaviorSubject<boolean>).next(true);
+
+    const route = createActivatedRouteSnapshotMock({
+      [ROUTE_EXPECTED_EMAIL_VERIFICATION_STATUS]: 'invalid-status',
+    });
+    const state = createRouterStateSnapshotMock('/protected');
+
+    await expect(firstValueFrom(executeGuard(route, state))).rejects.toThrow(
+      'Invalid expected email verification status: invalid-status',
     );
   });
 });

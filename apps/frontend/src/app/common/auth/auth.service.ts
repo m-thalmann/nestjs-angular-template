@@ -103,6 +103,15 @@ export class AuthService {
     this.updateAuthData(responseData);
   }
 
+  async resendVerificationEmail(): Promise<void> {
+    await firstValueFrom(this.authDataService.resendEmailVerification());
+  }
+
+  async verifyEmail(token: string): Promise<void> {
+    const { data: updatedUser } = await firstValueFrom(this.authDataService.verifyEmail({ token }));
+    this._authUser$.next(updatedUser);
+  }
+
   protected updateAuthData(data: SuccessfulAuth): void {
     this.storageService.set(AuthService.ACCESS_TOKEN_KEY, data.accessToken);
     this.storageService.set(AuthService.REFRESH_TOKEN_KEY, data.refreshToken);

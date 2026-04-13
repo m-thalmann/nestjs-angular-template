@@ -1,12 +1,21 @@
 import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
+import { DEFAULT_ROUTE } from '@frontend/constants';
 import { DetailedUser, isRole, Role } from '@shared/api-interfaces';
-import { isNotNone, isNull } from '@shared/common';
+import { isNotNone, isNull, ObjectValues } from '@shared/common';
 import { combineLatest, filter, map } from 'rxjs';
 import { AuthService } from '../auth.service';
 
 export const AUTH_REDIRECT_URL_QUERY_PARAM = 'redirect-url';
 export const ROUTE_AUTH_ROLES = 'authRoles';
+export const ROUTE_EXPECTED_EMAIL_VERIFICATION_STATUS = 'expectedEmailVerificationStatus';
+
+export const RouteExpectedEmailVerificationStatus = {
+  Verified: 'verified',
+  Unverified: 'unverified',
+  Any: 'any',
+} as const;
+export type RouteExpectedEmailVerificationStatus = ObjectValues<typeof RouteExpectedEmailVerificationStatus>;
 
 function isRoleArray(value: unknown): value is Array<Role> {
   return Array.isArray(value) && value.every(isRole);
@@ -32,6 +41,9 @@ export const authGuard: CanActivateFn = (route, state) => {
     authRoles = routeAuthRoles;
   }
 
+  const expectedEmailVerificationStatus =
+    (route.data[ROUTE_EXPECTED_EMAIL_VERIFICATION_STATUS] as unknown) ?? RouteExpectedEmailVerificationStatus.Verified;
+
   return combineLatest([
     authService.authUser$,
     authService.isInitialized$.pipe(filter((isInitialized) => isInitialized)),
@@ -43,6 +55,24 @@ export const authGuard: CanActivateFn = (route, state) => {
             [AUTH_REDIRECT_URL_QUERY_PARAM]: state.url,
           },
         });
+      }
+
+      switch (expectedEmailVerificationStatus) {
+        case RouteExpectedEmailVerificationStatus.Verified:
+          if (!user.isEmailVerified) {
+            return router.createUrlTree(['/verify-email']);
+          }
+          break;
+        case RouteExpectedEmailVerificationStatus.Unverified:
+          if (user.isEmailVerified) {
+            return router.createUrlTree([DEFAULT_ROUTE]);
+          }
+          break;
+        case RouteExpectedEmailVerificationStatus.Any:
+          break;
+        default:
+          // eslint-disable-next-line @typescript-eslint/no-base-to-string, @typescript-eslint/restrict-template-expressions
+          throw new Error(`Invalid expected email verification status: ${expectedEmailVerificationStatus}`);
       }
 
       return true;

@@ -1,8 +1,15 @@
 import { Route } from '@angular/router';
-import { authGuard, guestGuard } from '@frontend/auth';
+import {
+  authGuard,
+  guestGuard,
+  ROUTE_EXPECTED_EMAIL_VERIFICATION_STATUS,
+  RouteExpectedEmailVerificationStatus,
+} from '@frontend/auth';
 import { LayoutComponent } from '@frontend/components';
 import { LoginComponent } from './features/auth/login/login.component';
 import { AuthLayoutComponent } from './features/auth/shared/auth-layout/auth-layout.component';
+import { VerifyEmailConfirmComponent } from './features/auth/verify-email/verify-email-confirm/verify-email-confirm.component';
+import { VerifyEmailComponent } from './features/auth/verify-email/verify-email.component';
 import { DashboardComponent } from './features/dashboard/dashboard.component';
 
 export const appRoutes: Array<Route> = [
@@ -28,6 +35,24 @@ export const appRoutes: Array<Route> = [
         path: 'login',
         canActivate: [guestGuard],
         component: LoginComponent,
+      },
+      {
+        path: 'verify-email',
+        canActivate: [authGuard],
+        data: {
+          [ROUTE_EXPECTED_EMAIL_VERIFICATION_STATUS]: RouteExpectedEmailVerificationStatus.Unverified,
+        },
+        children: [
+          {
+            path: '',
+            pathMatch: 'full',
+            component: VerifyEmailComponent,
+          },
+          {
+            path: ':token',
+            component: VerifyEmailConfirmComponent,
+          },
+        ],
       },
     ],
   },

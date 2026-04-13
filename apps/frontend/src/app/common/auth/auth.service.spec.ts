@@ -54,6 +54,8 @@ describe('AuthService', () => {
       signUp: jest.fn(),
       logout: jest.fn(),
       refreshToken: jest.fn(),
+      resendEmailVerification: jest.fn(),
+      verifyEmail: jest.fn(),
     };
 
     jest.spyOn(console, 'error').mockReturnValue(undefined);
@@ -228,6 +230,30 @@ describe('AuthService', () => {
 
       expect(mockAuthDataService.refreshToken).toHaveBeenCalled();
       expect(service.updateAuthData).toHaveBeenCalledWith(responseData);
+    });
+  });
+
+  describe('resendVerificationEmail', () => {
+    it('should resend verification email successfully', async () => {
+      (mockAuthDataService.resendEmailVerification as jest.Mock).mockReturnValue(of(undefined));
+
+      await service.resendVerificationEmail();
+
+      expect(mockAuthDataService.resendEmailVerification).toHaveBeenCalled();
+    });
+  });
+
+  describe('verifyEmail', () => {
+    it('should verify email successfully and update auth user', async () => {
+      const token = 'verification-token';
+      const updatedUser = createMockDetailedUser();
+      (mockAuthDataService.verifyEmail as jest.Mock).mockReturnValue(of({ data: updatedUser }));
+      service._setAuthUser(null);
+
+      await service.verifyEmail(token);
+
+      expect(mockAuthDataService.verifyEmail).toHaveBeenCalledWith({ token });
+      await expect(firstValueFrom(service.authUser$)).resolves.toEqual(updatedUser);
     });
   });
 

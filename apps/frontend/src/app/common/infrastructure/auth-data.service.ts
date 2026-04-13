@@ -63,8 +63,8 @@ export class AuthDataService {
     return this.httpClient.post<undefined>('/api/auth/reset-password/send', body);
   }
 
-  verifyEmail(body: VerifyEmailRequest): Observable<undefined> {
-    return this.httpClient.post<undefined>('/api/auth/email-verification', body);
+  verifyEmail(body: VerifyEmailRequest): Observable<ApiResponse<DetailedUser>> {
+    return this.httpClient.post<ApiResponse<DetailedUser>>('/api/auth/email-verification', body);
   }
 
   resendEmailVerification(): Observable<undefined> {

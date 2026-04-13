@@ -134,15 +134,16 @@ describe('AuthDataService', () => {
   describe('verifyEmail', () => {
     it('should POST /api/auth/email-verification with token', () => {
       const body = { token: 'verification-token' };
+      const mockResponse: ApiResponse<DetailedUser> = { data: mockDetailedUser };
 
       service.verifyEmail(body).subscribe((response) => {
-        expect(response).toBeNull();
+        expect(response).toEqual(mockResponse);
       });
 
       const req = httpTesting.expectOne('/api/auth/email-verification');
       expect(req.request.method).toBe('POST');
       expect(req.request.body).toEqual(body);
-      req.flush(null, { status: 204, statusText: 'No Content' });
+      req.flush(mockResponse);
     });
   });
 
