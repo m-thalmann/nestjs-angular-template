@@ -14,6 +14,7 @@ import { isNull } from '@shared/common';
 import { catchError, finalize, from, Observable, shareReplay, switchMap, take, throwError } from 'rxjs';
 import { AuthService } from './auth.service';
 
+// FIXME: when user is deleted in backend and page is refreshed it somehow logs out 2 times
 @Injectable()
 export class AuthInterceptor implements HttpInterceptor {
   private readonly authService = inject(AuthService);

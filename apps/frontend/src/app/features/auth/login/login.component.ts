@@ -1,9 +1,10 @@
 import { HttpErrorResponse, HttpStatusCode } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
-import { AuthService } from '@frontend/auth';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { AUTH_REDIRECT_URL_QUERY_PARAM, AuthService } from '@frontend/auth';
 import { FormFieldComponent } from '@frontend/components';
+import { DEFAULT_ROUTE } from '@frontend/constants';
 import { handleApiFormErrors } from '@frontend/util';
 import { Button } from 'primeng/button';
 import { Divider } from 'primeng/divider';
@@ -12,7 +13,6 @@ import { InputIcon } from 'primeng/inputicon';
 import { InputText } from 'primeng/inputtext';
 import { Message } from 'primeng/message';
 import { Password } from 'primeng/password';
-import { DEFAULT_ROUTE } from '../../../app.routes';
 import { AuthLayoutCardComponent } from '../shared/auth-layout-card/auth-layout-card.component';
 
 @Component({
@@ -38,6 +38,7 @@ export class LoginComponent {
   private readonly authService = inject(AuthService);
   private readonly fb = inject(NonNullableFormBuilder);
   private readonly router = inject(Router);
+  private readonly activatedRoute = inject(ActivatedRoute);
 
   readonly form = this.fb.group({
     email: ['', [Validators.required, Validators.email]],
@@ -73,6 +74,8 @@ export class LoginComponent {
       return;
     }
 
-    await this.router.navigateByUrl(DEFAULT_ROUTE);
+    const redirectUrl = this.activatedRoute.snapshot.queryParams[AUTH_REDIRECT_URL_QUERY_PARAM] as string | undefined;
+
+    await this.router.navigateByUrl(redirectUrl ?? DEFAULT_ROUTE);
   }
 }

@@ -23,12 +23,28 @@ a[pButton] {
   text-decoration: none;
 }
 
-a.link:not([pButton]) {
+a.link:not([pButton]),
+button.link {
+  cursor: pointer;
   color: var(--p-button-link-color);
 
   &:hover {
     text-decoration: underline;
   }
+
+  &.disabled {
+    cursor: default;
+    color: var(--p-text-muted-color);
+    text-decoration: none;
+    pointer-events: none;
+  }
+}
+
+button.link {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 1em;
 }
 
 :root {

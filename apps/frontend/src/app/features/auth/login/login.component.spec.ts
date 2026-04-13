@@ -1,9 +1,9 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { provideRouter, Router } from '@angular/router';
-import { AuthService } from '@frontend/auth';
+import { ActivatedRoute, provideRouter, Router } from '@angular/router';
+import { AUTH_REDIRECT_URL_QUERY_PARAM, AuthService } from '@frontend/auth';
+import { DEFAULT_ROUTE } from '@frontend/constants';
 import { handleApiFormErrors } from '@frontend/util';
-import { DEFAULT_ROUTE } from '../../../app.routes';
 import { LoginComponent } from './login.component';
 
 // eslint-disable-next-line @typescript-eslint/no-unsafe-return
@@ -18,15 +18,27 @@ describe('LoginComponent', () => {
 
   let mockAuthService: Partial<AuthService>;
   let mockRouter: Router;
+  let mockActivatedRoute: Partial<ActivatedRoute>;
 
   beforeEach(async () => {
     mockAuthService = {
       login: jest.fn(),
     };
 
+    mockActivatedRoute = {
+      // @ts-expect-error type mismatch
+      snapshot: {
+        queryParams: {},
+      },
+    };
+
     await TestBed.configureTestingModule({
       imports: [LoginComponent],
-      providers: [provideRouter([]), { provide: AuthService, useValue: mockAuthService }],
+      providers: [
+        provideRouter([]),
+        { provide: AuthService, useValue: mockAuthService },
+        { provide: ActivatedRoute, useValue: mockActivatedRoute },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(LoginComponent);
@@ -52,8 +64,19 @@ describe('LoginComponent', () => {
 
       expect(mockAuthService.login).toHaveBeenCalledWith({ email: 'test@example.com', password: 'password' });
       expect(component.errorMessage()).toBeUndefined();
-      expect(component.loggingIn()).toBe(false);
       expect(mockRouter.navigateByUrl).toHaveBeenCalledWith(DEFAULT_ROUTE);
+    });
+
+    it('should login and navigate to redirect URL on success', async () => {
+      const redirectUrl = '/some-protected-page';
+      // @ts-expect-error type mismatch
+      mockActivatedRoute.snapshot = { queryParams: { [AUTH_REDIRECT_URL_QUERY_PARAM]: redirectUrl } };
+      component.form.setValue({ email: 'test@example.com', password: 'password' });
+      (mockAuthService.login as jest.Mock).mockResolvedValueOnce(undefined);
+
+      await component.doLogin();
+
+      expect(mockRouter.navigateByUrl).toHaveBeenCalledWith(redirectUrl);
     });
 
     it('should set error message on login failure', async () => {

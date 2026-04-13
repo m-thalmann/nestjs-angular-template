@@ -9,6 +9,6 @@ import { Card } from 'primeng/card';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AuthLayoutCardComponent {
-  readonly title = input<string>();
-  readonly subtitle = input<string>();
+  readonly cardTitle = input<string>();
+  readonly cardSubtitle = input<string>();
 }

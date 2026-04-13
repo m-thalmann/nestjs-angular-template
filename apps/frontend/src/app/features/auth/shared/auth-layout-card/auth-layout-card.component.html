@@ -1,8 +1,8 @@
 <p-card>
-  @if (title(); as _title) {
+  @if (cardTitle(); as _title) {
     <ng-template #title>{{ _title }}</ng-template>
   }
-  @if (subtitle(); as _subtitle) {
+  @if (cardSubtitle(); as _subtitle) {
     <ng-template #subtitle>{{ _subtitle }}</ng-template>
   }
 

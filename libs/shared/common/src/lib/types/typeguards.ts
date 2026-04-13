@@ -29,3 +29,7 @@ export function isRecord(value: unknown): value is Record<string, unknown> {
 export function isString(value: unknown): value is string {
   return typeof value === 'string';
 }
+
+export function isEmptyString(value: unknown): value is '' {
+  return value === '';
+}

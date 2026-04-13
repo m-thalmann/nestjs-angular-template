@@ -1,4 +1,4 @@
-<app-auth-layout-card title="Welcome back" subtitle="Please sign in to continue">
+<app-auth-layout-card cardTitle="Welcome back" cardSubtitle="Please sign in to continue">
   <form [formGroup]="form">
     <app-form-field label="Email Address" [control]="form.controls.email">
       <ng-template #input let-fieldId="id">
@@ -40,7 +40,7 @@
 
     <p-button
       label="Sign In"
-      icon="pi pi-user"
+      icon="pi pi-sign-in"
       class="login-button"
       [fluid]="true"
       [disabled]="loggingIn() || form.invalid"
