@@ -1,0 +1,96 @@
+<app-auth-layout-card cardTitle="Welcome" cardSubtitle="Please sign up to continue">
+  <form [formGroup]="form">
+    <app-form-field label="Name" [control]="form.controls.name">
+      <ng-template #input let-fieldId="id">
+        <p-iconfield>
+          <p-inputicon class="pi pi-user" />
+          <input
+            type="text"
+            variant="filled"
+            placeholder="Your Name"
+            pInputText
+            formControlName="name"
+            [id]="fieldId"
+            [fluid]="true"
+          />
+        </p-iconfield>
+      </ng-template>
+    </app-form-field>
+
+    <app-form-field label="Email Address" [control]="form.controls.email">
+      <ng-template #input let-fieldId="id">
+        <p-iconfield>
+          <p-inputicon class="pi pi-envelope" />
+          <input
+            type="email"
+            variant="filled"
+            placeholder="name@example.com"
+            pInputText
+            formControlName="email"
+            [id]="fieldId"
+            [fluid]="true"
+          />
+        </p-iconfield>
+      </ng-template>
+    </app-form-field>
+
+    <app-form-field label="Password" [control]="form.controls.password">
+      <ng-template #input let-fieldId="id">
+        <p-iconfield>
+          <p-inputicon class="pi pi-lock" />
+          <p-password
+            autocomplete="off"
+            variant="filled"
+            placeholder="●●●●●●●●"
+            formControlName="password"
+            [inputId]="fieldId"
+            [fluid]="true"
+            [toggleMask]="true"
+            [feedback]="false"
+            (keyup.enter)="doSignUp()"
+          />
+        </p-iconfield>
+      </ng-template>
+    </app-form-field>
+
+    <app-form-field label="Confirm Password" [control]="form.controls.confirmPassword">
+      <ng-template #input let-fieldId="id">
+        <p-iconfield>
+          <p-inputicon class="pi pi-lock" />
+          <p-password
+            autocomplete="off"
+            variant="filled"
+            placeholder="●●●●●●●●"
+            formControlName="confirmPassword"
+            [inputId]="fieldId"
+            [fluid]="true"
+            [toggleMask]="true"
+            [feedback]="false"
+            (keyup.enter)="doSignUp()"
+          />
+        </p-iconfield>
+      </ng-template>
+    </app-form-field>
+
+    <p-button
+      label="Create Account"
+      icon="pi pi-user-plus"
+      class="login-button"
+      [fluid]="true"
+      [disabled]="signingUp() || form.invalid"
+      [loading]="signingUp()"
+      (click)="doSignUp()"
+    />
+
+    @if (errorMessage(); as message) {
+      <p-message severity="error">{{ message }}</p-message>
+    }
+  </form>
+
+  <p-divider />
+
+  <span>
+    Already have an account?
+    <a routerLink="/login" class="link">Sign in</a>
+  </span>
+</app-auth-layout-card>

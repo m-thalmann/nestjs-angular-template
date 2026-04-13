@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { API_VALIDATION_ERROR } from '@frontend/util';
+import { PASSWORDS_MISMATCH_ERROR } from '@frontend/validation';
 import { FormFieldComponent } from './form-field.component';
 
 const MOCK_LABEL = 'Test Label';
@@ -37,6 +38,10 @@ describe('FormFieldComponent', () => {
     it('should return API validation error message', () => {
       const apiErrorMessage = 'API validation error';
       expect(component.getControlErrorMessage({ [API_VALIDATION_ERROR]: apiErrorMessage })).toBe(apiErrorMessage);
+    });
+
+    it('should return passwords mismatch error message', () => {
+      expect(component.getControlErrorMessage({ [PASSWORDS_MISMATCH_ERROR]: true })).toBe('Passwords do not match');
     });
 
     it('should return generic invalid field message for unknown errors', () => {

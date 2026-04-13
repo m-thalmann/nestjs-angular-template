@@ -2,6 +2,7 @@ import { NgTemplateOutlet } from '@angular/common';
 import { ChangeDetectionStrategy, Component, contentChild, input, TemplateRef } from '@angular/core';
 import { AbstractControl, ValidationErrors } from '@angular/forms';
 import { API_VALIDATION_ERROR } from '@frontend/util';
+import { PASSWORDS_MISMATCH_ERROR } from '@frontend/validation';
 import { isDefined, isNull } from '@shared/common';
 import { Message } from 'primeng/message';
 
@@ -37,6 +38,10 @@ export class FormFieldComponent {
 
     if (isDefined(errors[API_VALIDATION_ERROR])) {
       return errors[API_VALIDATION_ERROR] as string;
+    }
+
+    if (isDefined(errors[PASSWORDS_MISMATCH_ERROR])) {
+      return 'Passwords do not match';
     }
 
     return 'Invalid field';
