@@ -19,9 +19,9 @@ export class EmailVerificationService {
     private readonly appConfig: ConfigType<typeof appConfigDefinition>,
   ) {}
 
-  async verifyEmail(user: User, token: string): Promise<void> {
+  async verifyEmail(user: User, token: string): Promise<User> {
     if (user.isEmailVerified) {
-      return;
+      return user;
     }
 
     const isValidToken = await this.validateVerificationToken(user, token);
@@ -30,7 +30,7 @@ export class EmailVerificationService {
       throw new ForbiddenException('Invalid token');
     }
 
-    await this.userService.markEmailAsVerified(user);
+    return await this.userService.markEmailAsVerified(user);
   }
 
   async sendVerificationEmail(user: User, isNewUser: boolean): Promise<void> {

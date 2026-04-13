@@ -1,4 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { DetailedUserDto } from '../../user/dto/user.dto';
 import { createMockUser } from '../../user/testing';
 import { EmailVerificationController } from './email-verification.controller';
 import { EmailVerificationService } from './email-verification.service';
@@ -24,13 +25,19 @@ describe('EmailVerificationController', () => {
   });
 
   describe('verify', () => {
-    it('should call emailVerificationService.verifyEmail with correct parameters', async () => {
+    it('should call emailVerificationService.verifyEmail with correct parameters and return updated user', async () => {
       const user = createMockUser();
       const token = 'test-token';
+      const mockUpdatedUser = createMockUser({ emailVerified: true });
 
-      await controller.verify(user, { token });
+      (mockEmailVerificationService.verifyEmail as jest.Mock).mockResolvedValue(mockUpdatedUser);
+
+      const result = await controller.verify(user, { token });
 
       expect(mockEmailVerificationService.verifyEmail).toHaveBeenCalledWith(user, token);
+      expect(result).toEqual({
+        data: DetailedUserDto.fromEntity(mockUpdatedUser),
+      });
     });
   });
 

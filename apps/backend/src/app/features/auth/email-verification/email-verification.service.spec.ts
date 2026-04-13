@@ -60,9 +60,10 @@ describe('EmailVerificationService', () => {
 
       const validateVerificationTokenSpy = jest.spyOn(service, 'validateVerificationToken');
 
-      await service.verifyEmail(user, 'token');
+      const result = await service.verifyEmail(user, 'token');
 
       expect(validateVerificationTokenSpy).not.toHaveBeenCalled();
+      expect(result).toBe(user);
     });
 
     it('should throw ForbiddenException for invalid token', async () => {
@@ -78,10 +79,12 @@ describe('EmailVerificationService', () => {
       const user = createMockUser({ emailVerified: false });
 
       service.validateVerificationToken = jest.fn().mockResolvedValue(true);
+      (mockUserService.markEmailAsVerified as jest.Mock).mockResolvedValue({ isEmailVerified: true });
 
-      await service.verifyEmail(user, 'token');
+      const result = await service.verifyEmail(user, 'token');
 
       expect(mockUserService.markEmailAsVerified).toHaveBeenCalledWith(user);
+      expect(result).toEqual({ isEmailVerified: true });
     });
   });
 

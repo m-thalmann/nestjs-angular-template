@@ -7,7 +7,6 @@ export const LogMailerTransport: Transport<unknown> = {
 
   // eslint-disable-next-line @typescript-eslint/typedef
   send(mail, callback) {
-    const input = mail.message.createReadStream();
     const envelope = mail.message.getEnvelope();
     const messageId = mail.message.messageId();
 
@@ -27,11 +26,9 @@ export const LogMailerTransport: Transport<unknown> = {
       'LogMailerTransport',
     );
 
-    input.on('end', () => {
-      callback(null, {
-        envelope,
-        messageId,
-      });
+    callback(null, {
+      envelope,
+      messageId,
     });
   },
 };
