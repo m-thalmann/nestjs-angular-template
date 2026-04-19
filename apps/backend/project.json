@@ -96,6 +96,13 @@
       "options": {
         "command": "npx nx run backend:typeorm -- schema:drop"
       }
+    },
+    "db:migrate:fresh": {
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": ["npx nx run backend:db:migrate:drop-all", "npx nx run backend:db:migrate"],
+        "parallel": false
+      }
     }
   }
 }

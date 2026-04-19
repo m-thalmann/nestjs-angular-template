@@ -3,8 +3,10 @@ import { User } from '@backend/user';
 import { getResponseSchema } from '@backend/util';
 import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common';
 import { ApiForbiddenResponse, ApiNoContentResponse, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { Throttle } from '@nestjs/throttler';
 import { ApiResponse } from '@shared/api-interfaces';
 import { DetailedUserDto } from '../../user/dto/user.dto';
+import { AuthController } from '../auth.controller';
 import { Auth } from '../decorators/auth.decorator';
 import { VerifyEmailDto } from './dto/verify-email.dto';
 import { EmailVerificationService } from './email-verification.service';
@@ -17,6 +19,7 @@ export class EmailVerificationController {
 
   @Post()
   @HttpCode(HttpStatus.OK)
+  @Throttle({ default: { limit: AuthController.REQUESTS_PER_MINUTE } })
   @ApiOperation({ summary: "Verifies the user's email" })
   @ApiOkResponse({ description: 'OK', schema: getResponseSchema(DetailedUserDto) })
   @ApiForbiddenResponse({ description: 'Invalid token' })
@@ -27,9 +30,9 @@ export class EmailVerificationController {
     return { data: DetailedUserDto.fromEntity(updatedUser) };
   }
 
-  // TODO: throttle this endpoint to prevent abuse
   @Post('resend')
   @HttpCode(HttpStatus.NO_CONTENT)
+  @Throttle({ default: { limit: AuthController.REQUESTS_PER_MINUTE } })
   @ApiOperation({ summary: "Re-sends the user's email verification notification" })
   @ApiNoContentResponse({ description: 'OK' })
   @ApiForbiddenResponse({ description: 'Email already verified' })

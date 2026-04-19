@@ -1,6 +1,7 @@
 import { HasPermissionsGuard } from '@backend/permissions';
 import { Module } from '@nestjs/common';
 import { APP_GUARD } from '@nestjs/core';
+import { UserActionTokenModule } from '../user/user-action-token/user-action-token.module';
 import { UserModule } from '../user/user.module';
 import { AuthController } from './auth.controller';
 import { AuthListener } from './auth.listener';
@@ -13,7 +14,7 @@ import { ResetPasswordService } from './reset-password/reset-password.service';
 import { AuthTokenModule } from './tokens/auth-token.module';
 
 @Module({
-  imports: [AuthTokenModule, UserModule],
+  imports: [AuthTokenModule, UserModule, UserActionTokenModule],
   controllers: [AuthController, ResetPasswordController, EmailVerificationController],
   providers: [
     AuthService,

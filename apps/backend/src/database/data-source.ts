@@ -8,6 +8,4 @@ dotenvExpand(dotenvConfig({ quiet: true, path: resolve(__dirname, '../.env') }))
 
 const databaseConfig = buildDatabaseConfig(resolve(__dirname, '..'));
 
-databaseConfig.database = resolve(__dirname, databaseConfig.database);
-
 export default new DataSource({ ...databaseConfig, migrations: [resolve(__dirname, 'migrations/**')] });

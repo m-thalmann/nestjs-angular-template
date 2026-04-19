@@ -19,7 +19,7 @@ interface TokenPayload {
 
 @Injectable()
 export class AuthTokenService {
-  private readonly logger: Logger = new Logger(AuthTokenService.name);
+  private readonly logger = new Logger(AuthTokenService.name);
 
   constructor(
     @InjectRepository(AuthToken)

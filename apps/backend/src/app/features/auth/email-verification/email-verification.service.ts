@@ -1,9 +1,8 @@
 import { appConfigDefinition } from '@backend/config';
 import { NotificationService } from '@backend/notifications';
-import { User } from '@backend/user';
+import { User, UserActionTokenService, UserActionTokenType } from '@backend/user';
 import { ForbiddenException, Inject, Injectable } from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
-import { JwtService } from '@nestjs/jwt';
 import { UserService } from '../../user/user.service';
 import { EmailVerificationNotification } from '../notifications/email-verification.notification';
 
@@ -13,10 +12,10 @@ export class EmailVerificationService {
 
   constructor(
     private readonly userService: UserService,
-    private readonly jwtService: JwtService,
     private readonly notificationService: NotificationService,
     @Inject(appConfigDefinition.KEY)
     private readonly appConfig: ConfigType<typeof appConfigDefinition>,
+    private readonly userActionTokenService: UserActionTokenService,
   ) {}
 
   async verifyEmail(user: User, token: string): Promise<User> {
@@ -24,17 +23,26 @@ export class EmailVerificationService {
       return user;
     }
 
-    const isValidToken = await this.validateVerificationToken(user, token);
+    return await this.userActionTokenService.useToken(
+      async (actionToken) => {
+        if (user.email !== actionToken.data?.email) {
+          throw new ForbiddenException('Invalid token');
+        }
 
-    if (!isValidToken) {
-      throw new ForbiddenException('Invalid token');
-    }
-
-    return await this.userService.markEmailAsVerified(user);
+        return await this.userService.markEmailAsVerified(user);
+      },
+      { type: UserActionTokenType.EmailVerification, token },
+    );
   }
 
   async sendVerificationEmail(user: User, isNewUser: boolean): Promise<void> {
-    const token = await this.generateVerificationToken(user);
+    const token = await this.userActionTokenService.createToken({
+      type: UserActionTokenType.EmailVerification,
+      user,
+      expirationMinutes: EmailVerificationService.TOKEN_EXPIRATION_MINUTES,
+      data: { email: user.email },
+      deleteExistingTokensWithSameTypeForUser: true,
+    });
 
     await this.notificationService.send(
       user,
@@ -50,28 +58,5 @@ export class EmailVerificationService {
     const isNewUser = user.createdAt.getTime() === user.updatedAt.getTime();
 
     await this.sendVerificationEmail(user, isNewUser);
-  }
-
-  async generateVerificationToken(user: User): Promise<string> {
-    return await this.jwtService.signAsync(
-      { sub: user.uuid, email: user.email },
-      { expiresIn: `${EmailVerificationService.TOKEN_EXPIRATION_MINUTES}m` },
-    );
-  }
-
-  async validateVerificationToken(user: User, token: string): Promise<boolean> {
-    let payload: { sub: string; email: string } | null = null;
-
-    try {
-      payload = await this.jwtService.verifyAsync<{ sub: string; email: string }>(token);
-    } catch {
-      return false;
-    }
-
-    if (user.uuid !== payload.sub || user.email !== payload.email) {
-      return false;
-    }
-
-    return true;
   }
 }
