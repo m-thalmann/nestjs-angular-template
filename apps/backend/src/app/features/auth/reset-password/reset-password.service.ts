@@ -1,39 +1,35 @@
 import { appConfigDefinition } from '@backend/config';
 import { NotificationService } from '@backend/notifications';
-import { User } from '@backend/user';
+import { UserActionTokenService, UserActionTokenType } from '@backend/user';
 import { ForbiddenException, Inject, Injectable } from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
-import { JwtService } from '@nestjs/jwt';
-import { isNotNull, isNull } from '@shared/common';
+import { isNull } from '@shared/common';
 import { UserService } from '../../user/user.service';
 import { PasswordResetNotification } from '../notifications/password-reset.notification';
 
 @Injectable()
 export class ResetPasswordService {
-  static readonly TOKEN_EXPIRATION_MINUTES: number = 10;
+  static readonly TOKEN_EXPIRATION_MINUTES = 10;
 
   constructor(
     private readonly userService: UserService,
-    private readonly jwtService: JwtService,
     private readonly notificationService: NotificationService,
     @Inject(appConfigDefinition.KEY)
     private readonly appConfig: ConfigType<typeof appConfigDefinition>,
+    private readonly userActionTokenService: UserActionTokenService,
   ) {}
 
   async resetPassword(token: string, newPassword: string): Promise<void> {
-    let user: User | null = null;
+    await this.userActionTokenService.useToken(
+      async (actionToken) => {
+        if (actionToken.user.updatedAt.getTime() !== actionToken.data?.userUpdatedAt) {
+          throw new ForbiddenException('User was updated since token was issued');
+        }
 
-    try {
-      user = await this.getUserFromToken(token);
-    } catch {
-      throw new ForbiddenException('Invalid token');
-    }
-
-    if (isNull(user)) {
-      return;
-    }
-
-    await this.userService.patch(user, { password: newPassword });
+        await this.userService.patch(actionToken.user, { password: newPassword });
+      },
+      { type: UserActionTokenType.PasswordReset, token },
+    );
   }
 
   async sendResetPasswordEmail(email: string): Promise<void> {
@@ -43,30 +39,17 @@ export class ResetPasswordService {
       return;
     }
 
-    const token = await this.generateResetToken(user.email, user.updatedAt);
+    const token = await this.userActionTokenService.createToken({
+      type: UserActionTokenType.PasswordReset,
+      user,
+      expirationMinutes: ResetPasswordService.TOKEN_EXPIRATION_MINUTES,
+      data: { userUpdatedAt: user.updatedAt.getTime() },
+      deleteExistingTokensWithSameTypeForUser: false,
+    });
 
     await this.notificationService.send(
       user,
       new PasswordResetNotification({ frontendUrl: this.appConfig.frontendUrl, token }),
     );
-  }
-
-  async generateResetToken(email: string, updatedAt: Date): Promise<string> {
-    return await this.jwtService.signAsync(
-      { email, userUpdatedAt: updatedAt.getTime() },
-      { expiresIn: `${ResetPasswordService.TOKEN_EXPIRATION_MINUTES}m` },
-    );
-  }
-
-  async getUserFromToken(token: string): Promise<User | null> {
-    const payload = await this.jwtService.verifyAsync<{ email: string; userUpdatedAt: number }>(token);
-
-    const user = await this.userService.findOneByEmail(payload.email);
-
-    if (isNotNull(user) && user.updatedAt.getTime() !== payload.userUpdatedAt) {
-      throw new Error('User was updated since token was issued');
-    }
-
-    return user;
   }
 }

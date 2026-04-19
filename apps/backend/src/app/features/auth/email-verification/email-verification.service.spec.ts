@@ -1,6 +1,6 @@
 import { appConfigDefinition } from '@backend/config';
 import { NotificationService } from '@backend/notifications';
-import { UserActionTokenService, UserActionTokenType } from '@backend/user';
+import { User, UserActionTokenService, UserActionTokenType } from '@backend/user';
 import { ForbiddenException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { createMockUser } from '../../user/testing';
@@ -68,7 +68,7 @@ describe('EmailVerificationService', () => {
       const user = createMockUser({ emailVerified: false });
 
       (mockUserActionTokenService.useToken as jest.Mock).mockImplementation(
-        async (callback: (actionToken: unknown) => Promise<void>) =>
+        async (callback: (actionToken: unknown) => Promise<User>) =>
           await callback({ data: { email: 'another-email@example.com' } }),
       );
 
@@ -83,7 +83,7 @@ describe('EmailVerificationService', () => {
       const user = createMockUser({ emailVerified: false });
 
       (mockUserActionTokenService.useToken as jest.Mock).mockImplementation(
-        async (callback: (actionToken: unknown) => Promise<void>) => await callback({ data: { email: user.email } }),
+        async (callback: (actionToken: unknown) => Promise<User>) => await callback({ data: { email: user.email } }),
       );
       (mockUserService.markEmailAsVerified as jest.Mock).mockResolvedValue({ isEmailVerified: true });
 
