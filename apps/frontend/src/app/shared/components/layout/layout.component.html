@@ -15,7 +15,7 @@
       <div class="user-action" (click)="menu.toggle($event)">
         <p-button text severity="secondary">
           <ng-template #content>
-            {{ authUser().name }}
+            {{ authUser()?.name }}
             <p-avatar shape="circle" icon="pi pi-user" />
           </ng-template>
         </p-button>

@@ -1,7 +1,10 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { createMatchMediaMock } from '@frontend/testing';
+import { AuthService } from '@frontend/auth';
+import { createMatchMediaMock, createMockDetailedUser } from '@frontend/testing';
 import { Theme, ThemeService } from '@frontend/theme';
+import { DetailedUser, Role } from '@shared/api-interfaces';
+import { MessageService } from 'primeng/api';
 import { BehaviorSubject } from 'rxjs';
 import { LayoutComponent } from './layout.component';
 
@@ -9,19 +12,35 @@ describe('LayoutComponent', () => {
   let component: LayoutComponent;
   let fixture: ComponentFixture<LayoutComponent>;
 
+  let mockAuthService: Partial<AuthService>;
   let mockThemeService: Partial<ThemeService>;
+  let mockMessageService: Partial<MessageService>;
 
   beforeEach(async () => {
+    mockAuthService = {
+      authUser$: new BehaviorSubject(null),
+      logout: jest.fn().mockResolvedValue(undefined),
+    };
+
     mockThemeService = {
       currentTheme$: new BehaviorSubject(Theme.System),
       setTheme: jest.fn(),
+    };
+
+    mockMessageService = {
+      add: jest.fn(),
     };
 
     createMatchMediaMock(false);
 
     await TestBed.configureTestingModule({
       imports: [LayoutComponent],
-      providers: [provideRouter([]), { provide: ThemeService, useValue: mockThemeService }],
+      providers: [
+        provideRouter([{ path: 'login', redirectTo: '' }]),
+        { provide: AuthService, useValue: mockAuthService },
+        { provide: ThemeService, useValue: mockThemeService },
+        { provide: MessageService, useValue: mockMessageService },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(LayoutComponent);
@@ -38,10 +57,18 @@ describe('LayoutComponent', () => {
           expect.objectContaining({ label: 'Settings' }),
           expect.objectContaining({ label: 'Theme' }),
           expect.objectContaining({ label: 'About' }),
-          expect.objectContaining({ label: 'Administration' }), // TODO: add extra test when user loaded from service
+          expect.not.objectContaining({ label: 'Administration' }),
           expect.objectContaining({ label: 'Logout' }),
         ]),
       );
+    });
+
+    it('should contain Administration item for admin users', () => {
+      (mockAuthService.authUser$ as BehaviorSubject<DetailedUser>).next(createMockDetailedUser({ role: Role.Admin }));
+
+      const menuItems = component.userMenu();
+
+      expect(menuItems).toEqual(expect.arrayContaining([expect.objectContaining({ label: 'Administration' })]));
     });
 
     it.each(Object.values(Theme))(
@@ -77,6 +104,16 @@ describe('LayoutComponent', () => {
       themeOption!.command!({});
 
       expect(mockThemeService.setTheme).toHaveBeenCalledWith(theme);
+    });
+
+    it('should logout when logout item clicked', async () => {
+      const logoutMenuItem = component.userMenu().find((item) => item.label === 'Logout');
+
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion, @typescript-eslint/no-confusing-void-expression
+      await (logoutMenuItem!.command!({}) as unknown as Promise<void>);
+
+      expect(mockAuthService.logout).toHaveBeenCalled();
+      expect(mockMessageService.add).toHaveBeenCalled();
     });
   });
 });

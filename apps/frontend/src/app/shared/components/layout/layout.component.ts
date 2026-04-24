@@ -1,10 +1,11 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { RouterLink, RouterOutlet } from '@angular/router';
+import { Router, RouterLink, RouterOutlet } from '@angular/router';
+import { AuthService } from '@frontend/auth';
 import { Theme, ThemeService } from '@frontend/theme';
-import { DetailedUser, Role } from '@shared/api-interfaces';
+import { Role } from '@shared/api-interfaces';
 import { objectEntries } from '@shared/common';
-import { MenuItem } from 'primeng/api';
+import { MenuItem, MessageService } from 'primeng/api';
 import { Avatar } from 'primeng/avatar';
 import { Button } from 'primeng/button';
 import { TieredMenu } from 'primeng/tieredmenu';
@@ -24,17 +25,12 @@ const Themes = {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LayoutComponent {
+  private readonly authService = inject(AuthService);
   private readonly themeService = inject(ThemeService);
+  private readonly router = inject(Router);
+  private readonly messageService = inject(MessageService);
 
-  protected readonly authUser = signal<DetailedUser>({
-    uuid: '',
-    email: 'john.doe@example.com',
-    name: 'John Doe',
-    role: Role.Admin,
-    isEmailVerified: true,
-    createdAt: 0,
-    updatedAt: 0,
-  });
+  protected readonly authUser = toSignal(this.authService.authUser$, { initialValue: null });
   protected readonly currentTheme = toSignal(this.themeService.currentTheme$);
 
   readonly userMenu = computed<Array<MenuItem>>(() => {
@@ -54,12 +50,12 @@ export class LayoutComponent {
           command: () => this.setTheme(theme),
         })),
       },
-      { label: 'About', icon: 'pi pi-info-circle', command: this.openAbout },
-      ...(authUser.role === Role.Admin
+      { label: 'About', icon: 'pi pi-info-circle', command: () => this.openAbout() },
+      ...(authUser?.role === Role.Admin
         ? [{ separator: true }, { label: 'Administration', icon: 'pi pi-shield', routerLink: '/admin' }]
         : []),
       { separator: true },
-      { label: 'Logout', icon: 'pi pi-sign-out', command: this.doLogout },
+      { label: 'Logout', icon: 'pi pi-sign-out', command: async () => await this.doLogout() },
     ];
   });
 
@@ -71,7 +67,14 @@ export class LayoutComponent {
     // TODO: implement
   }
 
-  protected doLogout(): void {
-    // TODO: implement
+  protected async doLogout(): Promise<void> {
+    await this.authService.logout();
+    await this.router.navigateByUrl('/login');
+
+    this.messageService.add({
+      severity: 'success',
+      summary: 'Logged out',
+      detail: 'You have been logged out successfully.',
+    });
   }
 }
