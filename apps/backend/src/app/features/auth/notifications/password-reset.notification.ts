@@ -20,7 +20,7 @@ export class PasswordResetNotification implements Notification {
 
   protected buildResetUrl(): string {
     const url = new URL(this.options.frontendUrl);
-    url.pathname += `password-reset/${this.options.token}`;
+    url.pathname += `reset-password/${this.options.token}`;
 
     return url.toString();
   }

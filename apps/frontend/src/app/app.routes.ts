@@ -7,6 +7,8 @@ import {
 } from '@frontend/auth';
 import { LayoutComponent } from '@frontend/components';
 import { LoginComponent } from './features/auth/login/login.component';
+import { ResetPasswordRequestComponent } from './features/auth/reset-password/reset-password-request/reset-password-request.component';
+import { ResetPasswordComponent } from './features/auth/reset-password/reset-password.component';
 import { AuthLayoutComponent } from './features/auth/shared/auth-layout/auth-layout.component';
 import { SignUpComponent } from './features/auth/sign-up/sign-up.component';
 import { VerifyEmailConfirmComponent } from './features/auth/verify-email/verify-email-confirm/verify-email-confirm.component';
@@ -57,6 +59,21 @@ export const appRoutes: Array<Route> = [
           {
             path: ':token',
             component: VerifyEmailConfirmComponent,
+          },
+        ],
+      },
+      {
+        path: 'reset-password',
+        canActivate: [guestGuard],
+        children: [
+          {
+            path: '',
+            pathMatch: 'full',
+            component: ResetPasswordRequestComponent,
+          },
+          {
+            path: ':token',
+            component: ResetPasswordComponent,
           },
         ],
       },

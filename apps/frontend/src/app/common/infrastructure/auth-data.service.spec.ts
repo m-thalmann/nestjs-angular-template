@@ -101,6 +101,21 @@ describe('AuthDataService', () => {
     });
   });
 
+  describe('validateResetPasswordToken', () => {
+    it('should GET /api/auth/reset-password/validate with token', () => {
+      const token = 'reset-password-token';
+      const mockResponse: ApiResponse<null> = { data: null };
+
+      service.validateResetPasswordToken(token).subscribe((response) => {
+        expect(response).toEqual(mockResponse);
+      });
+
+      const req = httpTesting.expectOne(`/api/auth/reset-password/validate?token=${token}`);
+      expect(req.request.method).toBe('GET');
+      req.flush(mockResponse);
+    });
+  });
+
   describe('resetPassword', () => {
     it('should POST /api/auth/reset-password with token and new password', () => {
       const body = { token: 'reset-token', newPassword: 'new-password' };

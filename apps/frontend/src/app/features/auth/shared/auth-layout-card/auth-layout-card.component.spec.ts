@@ -13,8 +13,8 @@ describe('AuthLayoutCardComponent', () => {
     fixture = TestBed.createComponent(AuthLayoutCardComponent);
     component = fixture.componentInstance;
 
-    fixture.componentRef.setInput('title', 'Test Title');
-    fixture.componentRef.setInput('subtitle', 'Test Subtitle');
+    fixture.componentRef.setInput('cardTitle', 'Test Title');
+    fixture.componentRef.setInput('cardSubtitle', 'Test Subtitle');
 
     fixture.detectChanges();
   });

@@ -4,6 +4,7 @@ import {
   ApiResponse,
   DetailedUser,
   LoginRequest,
+  RESET_PASSWORD_VALIDATE_TOKEN_QUERY_KEY,
   ResetPasswordRequest,
   SendResetPasswordRequest,
   SignUpRequest,
@@ -52,6 +53,12 @@ export class AuthDataService {
       {
         context: new HttpContext().set(ApiHttpContext.SkipRefreshingTokenOnUnauthorized, true),
       },
+    );
+  }
+
+  validateResetPasswordToken(token: string): Observable<undefined> {
+    return this.httpClient.get<undefined>(
+      `/api/auth/reset-password/validate?${RESET_PASSWORD_VALIDATE_TOKEN_QUERY_KEY}=${token}`,
     );
   }
 

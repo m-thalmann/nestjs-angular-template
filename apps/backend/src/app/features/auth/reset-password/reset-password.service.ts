@@ -19,6 +19,17 @@ export class ResetPasswordService {
     private readonly userActionTokenService: UserActionTokenService,
   ) {}
 
+  async validateToken(token: string): Promise<void> {
+    const actionToken = await this.userActionTokenService.findToken({
+      type: UserActionTokenType.PasswordReset,
+      token,
+    });
+
+    if (isNull(actionToken)) {
+      throw new ForbiddenException('Invalid token');
+    }
+  }
+
   async resetPassword(token: string, newPassword: string): Promise<void> {
     await this.userActionTokenService.useToken(
       async (actionToken) => {

@@ -10,6 +10,7 @@ describe('ResetPasswordController', () => {
 
   beforeAll(async () => {
     mockResetPasswordService = {
+      validateToken: jest.fn(),
       resetPassword: jest.fn(),
       sendResetPasswordEmail: jest.fn(),
     };
@@ -25,6 +26,20 @@ describe('ResetPasswordController', () => {
     }).compile();
 
     controller = app.get<ResetPasswordController>(ResetPasswordController);
+  });
+
+  describe('validateToken', () => {
+    it('should throw BadRequestException if token is undefined', async () => {
+      await expect(controller.validateToken(undefined)).rejects.toThrow('Token is required');
+    });
+
+    it('should call validateToken on the service with the correct parameters', async () => {
+      const token = 'token';
+
+      await controller.validateToken(token);
+
+      expect(mockResetPasswordService.validateToken).toHaveBeenCalledWith(token);
+    });
   });
 
   describe('verify', () => {

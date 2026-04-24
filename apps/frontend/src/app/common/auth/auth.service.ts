@@ -4,7 +4,7 @@ import { AuthDataService } from '@frontend/infrastructure';
 import { StorageService } from '@frontend/services';
 import { getApiErrorMessage, Logger } from '@frontend/util';
 import { DetailedUser, LoginRequest, SignUpRequest, SuccessfulAuth } from '@shared/api-interfaces';
-import { getErrorMessage, isNotNull, isNull } from '@shared/common';
+import { isNotNull, isNull } from '@shared/common';
 import { BehaviorSubject, combineLatest, distinctUntilChanged, filter, firstValueFrom, map, shareReplay } from 'rxjs';
 
 @Injectable({
@@ -58,7 +58,7 @@ export class AuthService {
     } catch (e) {
       if (!(e instanceof HttpErrorResponse) || e.status !== HttpStatusCode.Unauthorized.valueOf()) {
         // TODO: show snackbar to user
-        this.logger.error('Error while initializing the user:', getErrorMessage(e));
+        this.logger.error('Error while initializing the user:', getApiErrorMessage(e));
 
         // not initialized!
 
@@ -67,6 +67,7 @@ export class AuthService {
 
       await this.logout();
 
+      // TODO: show user a message that they have been logged out due to invalid/expired tokens
       this.logger.info('User logged out due to the following error:', getApiErrorMessage(e));
     }
 
@@ -110,6 +111,18 @@ export class AuthService {
   async verifyEmail(token: string): Promise<void> {
     const { data: updatedUser } = await firstValueFrom(this.authDataService.verifyEmail({ token }));
     this._authUser$.next(updatedUser);
+  }
+
+  async validateResetPasswordToken(token: string): Promise<void> {
+    await firstValueFrom(this.authDataService.validateResetPasswordToken(token));
+  }
+
+  async resetPassword(token: string, newPassword: string): Promise<void> {
+    await firstValueFrom(this.authDataService.resetPassword({ token, newPassword }));
+  }
+
+  async sendResetPasswordEmail(email: string): Promise<void> {
+    await firstValueFrom(this.authDataService.sendResetPassword({ email }));
   }
 
   protected updateAuthData(data: SuccessfulAuth): void {

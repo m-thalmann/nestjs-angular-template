@@ -56,6 +56,9 @@ describe('AuthService', () => {
       refreshToken: jest.fn(),
       resendEmailVerification: jest.fn(),
       verifyEmail: jest.fn(),
+      validateResetPasswordToken: jest.fn(),
+      resetPassword: jest.fn(),
+      sendResetPassword: jest.fn(),
     };
 
     jest.spyOn(console, 'error').mockReturnValue(undefined);
@@ -254,6 +257,40 @@ describe('AuthService', () => {
 
       expect(mockAuthDataService.verifyEmail).toHaveBeenCalledWith({ token });
       await expect(firstValueFrom(service.authUser$)).resolves.toEqual(updatedUser);
+    });
+  });
+
+  describe('validateResetPasswordToken', () => {
+    it('should validate reset password token successfully', async () => {
+      const token = 'reset-password-token';
+      (mockAuthDataService.validateResetPasswordToken as jest.Mock).mockReturnValue(of(undefined));
+
+      await service.validateResetPasswordToken(token);
+
+      expect(mockAuthDataService.validateResetPasswordToken).toHaveBeenCalledWith(token);
+    });
+  });
+
+  describe('resetPassword', () => {
+    it('should reset password successfully', async () => {
+      const token = 'reset-password-token';
+      const newPassword = 'new-password';
+      (mockAuthDataService.resetPassword as jest.Mock).mockReturnValue(of(undefined));
+
+      await service.resetPassword(token, newPassword);
+
+      expect(mockAuthDataService.resetPassword).toHaveBeenCalledWith({ token, newPassword });
+    });
+  });
+
+  describe('sendResetPasswordEmail', () => {
+    it('should send reset password email successfully', async () => {
+      const email = 'test@example.com';
+      (mockAuthDataService.sendResetPassword as jest.Mock).mockReturnValue(of(undefined));
+
+      await service.sendResetPasswordEmail(email);
+
+      expect(mockAuthDataService.sendResetPassword).toHaveBeenCalledWith({ email });
     });
   });
 

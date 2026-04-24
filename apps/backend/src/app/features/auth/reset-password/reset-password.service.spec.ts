@@ -28,6 +28,7 @@ describe('ResetPasswordService', () => {
     mockUserActionTokenService = {
       createToken: jest.fn(),
       useToken: jest.fn(),
+      findToken: jest.fn(),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -53,6 +54,31 @@ describe('ResetPasswordService', () => {
     }).compile();
 
     service = await module.resolve<ResetPasswordService>(ResetPasswordService);
+  });
+
+  describe('validateToken', () => {
+    it('should throw ForbiddenException for invalid token', async () => {
+      (mockUserActionTokenService.findToken as jest.Mock).mockResolvedValue(null);
+
+      await expect(service.validateToken('invalid-token')).rejects.toThrow(ForbiddenException);
+
+      expect(mockUserActionTokenService.findToken).toHaveBeenCalledWith({
+        type: UserActionTokenType.PasswordReset,
+        token: 'invalid-token',
+      });
+    });
+
+    it('should resolve successfully for valid token', async () => {
+      const mockActionToken = { id: 'token-id' };
+      (mockUserActionTokenService.findToken as jest.Mock).mockResolvedValue(mockActionToken);
+
+      await expect(service.validateToken('valid-token')).resolves.toBeUndefined();
+
+      expect(mockUserActionTokenService.findToken).toHaveBeenCalledWith({
+        type: UserActionTokenType.PasswordReset,
+        token: 'valid-token',
+      });
+    });
   });
 
   describe('resetPassword', () => {
