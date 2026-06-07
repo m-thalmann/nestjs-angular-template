@@ -1,0 +1,26 @@
+:host {
+  display: flex;
+  gap: var(--content-padding);
+}
+
+p-menu {
+  flex: 0 0 auto;
+  align-self: flex-start;
+  position: sticky;
+  top: var(--content-padding);
+
+  // allow scrolling when overflows
+  max-height: calc(90svh);
+  overflow: auto;
+
+  h2 {
+    font-size: 1.25rem;
+    font-weight: 500;
+    margin: 0.5em;
+  }
+}
+
+.content {
+  flex: 1;
+  min-width: 0;
+}
